@@ -109,7 +109,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Requirement**: LIFE-04/05/06/09
 **Tools**: shell, Docker; tlc-spec-driven.
 **Done when**:
-- [ ] PUT/pause/resume, 404, 409, rollback, histórico e repetição integral verificados; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
+- [x] PUT/pause/resume, 404, 409, rollback, histórico e repetição integral verificados; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
 **Tests**: integration
 **Gate**: Full
 **Commit**: `feat(mon-04): expose monitor editing pause and resume`

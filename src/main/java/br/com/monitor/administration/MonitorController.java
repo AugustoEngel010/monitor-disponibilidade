@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,17 @@ public class MonitorController {
 
     @GetMapping("/{id}")
     public View get(@PathVariable String id) { return view(service.get(identifier(id))); }
+
+    @PutMapping("/{id}")
+    public View edit(@PathVariable String id, @RequestBody JsonNode body) {
+        return view(service.edit(identifier(id), configuration(body)));
+    }
+
+    @PostMapping("/{id}/pause")
+    public View pause(@PathVariable String id) { return view(service.pause(identifier(id))); }
+
+    @PostMapping("/{id}/resume")
+    public View resume(@PathVariable String id) { return view(service.resume(identifier(id))); }
 
     private UUID identifier(String id) {
         try {

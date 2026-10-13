@@ -97,14 +97,14 @@ Pausa efetiva torna PAUSED, incrementa executionGeneration, zera sequências/hor
 
 | Requirement ID | Origem | Task | Teste | Status |
 | --- | --- | --- | --- | --- |
-| LIFE-01 | MON-04-AC01 | T4,T5 | MonitorRepositoryIT, MonitorApiIT | Pending |
-| LIFE-02 | MON-04-AC02 | T2,T5 | MonitorConfigurationTest, MonitorApiIT | Pending |
-| LIFE-03 | MON-04-AC03 | T2,T5 | MonitorConfigurationTest, MonitorApiIT | Pending |
-| LIFE-04 | MON-04-AC04 | T5,T6 | MonitorApiIT | Pending |
-| LIFE-05 | MON-04-AC05 | T3,T4,T6 | MonitorTest, MonitorRepositoryIT, MonitorApiIT | Pending |
-| LIFE-06 | MON-04-AC06 | T3,T4,T6 | MonitorTest, MonitorRepositoryIT, MonitorApiIT | Pending |
+| LIFE-01 | MON-04-AC01 | T4,T5 | MonitorRepositoryIT, MonitorApiIT | Verified |
+| LIFE-02 | MON-04-AC02 | T2,T5 | MonitorConfigurationTest, MonitorApiIT | Verified |
+| LIFE-03 | MON-04-AC03 | T2,T5 | MonitorConfigurationTest, MonitorApiIT | Verified |
+| LIFE-04 | MON-04-AC04 | T5,T6 | MonitorApiIT | Verified |
+| LIFE-05 | MON-04-AC05 | T3,T4,T6 | MonitorTest, MonitorRepositoryIT, MonitorApiIT | Verified |
+| LIFE-06 | MON-04-AC06 | T3,T4,T6 | MonitorTest, MonitorRepositoryIT, MonitorApiIT | Verified |
 | LIFE-07 | MON-04-AC07 | T3,T7 | MonitorTest, MonitorApiIT | Pending |
-| LIFE-08 | PROD-04 | T4,T5 | MonitorRepositoryIT, MonitorApiIT | Pending |
+| LIFE-08 | PROD-04 | T4,T5 | MonitorRepositoryIT, MonitorApiIT | Verified |
 | LIFE-09 | AD-005 | T5,T6,T7 | MonitorApiIT, AdministrativeSecurityIT | Pending |
 
 ## Success Criteria

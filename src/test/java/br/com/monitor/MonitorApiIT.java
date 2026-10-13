@@ -48,6 +48,8 @@ class MonitorApiIT {
                         "--spring.datasource.password=" + db.getPassword(),
                         "--ADMIN_USERNAME=" + username, "--ADMIN_PASSWORD=" + password);
         jdbc = context.getBean(JdbcTemplate.class);
+        jdbc.execute("CREATE TABLE monitor.api_history_fixture (monitor_id uuid REFERENCES monitor.monitors(id),"
+                + " payload text NOT NULL)");
         address = "http://localhost:" + context.getWebServer().getPort();
         var csrf = request("GET", "/api/admin/csrf", null, true, false);
         assertThat(csrf.statusCode()).isEqualTo(200);
@@ -57,7 +59,7 @@ class MonitorApiIT {
     }
 
     @BeforeEach
-    void clear() { jdbc.execute("TRUNCATE monitor.monitors"); }
+    void clear() { jdbc.execute("TRUNCATE monitor.api_history_fixture, monitor.monitors"); }
 
     @AfterAll
     void stop() { context.close(); db.stop(); }
@@ -196,6 +198,182 @@ class MonitorApiIT {
         assertThat(response.statusCode()).isEqualTo(409);
         assertThat(tree(response).path("code").asText()).isEqualTo("MONITOR_LIMIT");
         assertThat(count()).isEqualTo(100);
+    }
+
+    @Test
+    void editingReplacesConfigurationAndResetsPolicyWithoutDeletingHistory() throws Exception {
+        var original = create();
+        var id = original.path("id").asText();
+        var path = ROOT + "/" + id;
+        jdbc.update("INSERT INTO monitor.api_history_fixture VALUES (?::uuid, 'original evidence')", id);
+        jdbc.update("UPDATE monitor.monitors SET confirmed_state='UP', failure_count=2, first_failure_at=now(),"
+                + " last_observed_at=now(), current_observation=true WHERE id=?::uuid", id);
+        var replacement = valid().put("name", "Changed").put("url", "http://other.org")
+                .put("intervalSeconds", 10).put("timeoutSeconds", 9).put("expectedStatus", 599)
+                .put("failureThreshold", 10).put("recoveryThreshold", 10).put("alertRecipient", "new@example.org");
+        var before = tree(send("GET", path, null));
+        var response = send("PUT", path, replacement);
+        assertThat(response.statusCode()).isEqualTo(200);
+        var changed = tree(response);
+        for (var fields = replacement.fields(); fields.hasNext();) {
+            var field = fields.next();
+            assertThat(changed.get(field.getKey())).isEqualTo(field.getValue());
+        }
+        assertThat(changed.path("id")).isEqualTo(original.path("id"));
+        assertThat(changed.path("createdAt")).isEqualTo(original.path("createdAt"));
+        assertThat(changed.path("lastObservedAt")).isEqualTo(before.path("lastObservedAt"));
+        assertThat(changed.path("confirmedState").asText()).isEqualTo("UNKNOWN");
+        assertThat(changed.path("evidence").asText()).isEqualTo("NEVER_OBSERVED");
+        assertThat(changed.path("failureCount").asInt()).isZero();
+        assertThat(changed.path("recoveryCount").asInt()).isZero();
+        assertThat(changed.path("configurationVersion").asLong()).isEqualTo(2);
+        assertThat(changed.path("executionGeneration").asLong()).isEqualTo(2);
+        assertThat(changed.path("nextCheckAt")).isEqualTo(changed.path("updatedAt"));
+        assertThat(tree(send("GET", path, null))).isEqualTo(changed);
+        assertThat(tree(send("PUT", path, replacement))).isEqualTo(changed);
+        assertHistory();
+    }
+
+    @Test
+    void editingWhilePausedDoesNotScheduleAProbe() throws Exception {
+        var id = create().path("id").asText();
+        var path = ROOT + "/" + id;
+        assertThat(send("POST", path + "/pause", null).statusCode()).isEqualTo(200);
+        var response = send("PUT", path, valid().put("timeoutSeconds", 6));
+        assertThat(response.statusCode()).isEqualTo(200);
+        var changed = tree(response);
+        assertThat(changed.path("lifecycle").asText()).isEqualTo("PAUSED");
+        assertThat(changed.path("nextCheckAt").isNull()).isTrue();
+        assertThat(changed.path("configurationVersion").asLong()).isEqualTo(2);
+        assertThat(changed.path("executionGeneration").asLong()).isEqualTo(3);
+    }
+
+    @Test
+    void incidentAllowsNameAndRecipientButRejectsEveryPolicyChangeAndMixedPutAtomically() throws Exception {
+        var id = create().path("id").asText();
+        var path = ROOT + "/" + id;
+        var incident = UUID.randomUUID();
+        jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=?, recovery_count=1,"
+                + " recovery_started_at=now(), last_observed_at=now(), current_observation=true WHERE id=?::uuid",
+                incident, id);
+        jdbc.update("INSERT INTO monitor.api_history_fixture VALUES (?::uuid, 'original evidence')", id);
+        var before = tree(send("GET", path, null));
+        ObjectNode[] rejected = {valid().put("url", "http://other.org").put("name", "mixed"),
+            valid().put("intervalSeconds", 61), valid().put("timeoutSeconds", 6), valid().put("expectedStatus", 201),
+            valid().put("failureThreshold", 4), valid().put("recoveryThreshold", 3)};
+        for (var input : rejected) {
+            var response = send("PUT", path, input);
+            assertThat(response.statusCode()).isEqualTo(409);
+            assertThat(tree(response).path("code").asText()).isEqualTo("OPEN_INCIDENT");
+            assertThat(tree(send("GET", path, null))).isEqualTo(before);
+        }
+        var response = send("PUT", path, valid().put("name", "New name").put("alertRecipient", "new@example.org"));
+        assertThat(response.statusCode()).isEqualTo(200);
+        var changed = tree(response);
+        assertThat(changed.path("name").asText()).isEqualTo("New name");
+        assertThat(changed.path("alertRecipient").asText()).isEqualTo("new@example.org");
+        for (String field : new String[] {"confirmedState", "openIncidentId", "recoveryCount", "configurationVersion",
+                "executionGeneration", "lastObservedAt", "nextCheckAt", "evidence", "failureCount"}) {
+            assertThat(changed.path(field)).isEqualTo(before.path(field));
+        }
+        assertHistory();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"UNKNOWN", "UP", "DOWN"})
+    void repeatedPauseAndResumePreserveHealthHistoryAndRequireNewEvidence(String state) throws Exception {
+        var original = create();
+        var id = original.path("id").asText();
+        var path = ROOT + "/" + id;
+        var incident = "DOWN".equals(state) ? UUID.randomUUID() : null;
+        jdbc.update("UPDATE monitor.monitors SET confirmed_state=?, open_incident_id=?, recovery_count=1,"
+                + " recovery_started_at=now(), last_observed_at=now(), current_observation=true WHERE id=?::uuid",
+                state, incident, id);
+        jdbc.update("INSERT INTO monitor.api_history_fixture VALUES (?::uuid, 'original evidence')", id);
+        var before = tree(send("GET", path, null));
+        var pausedResponse = send("POST", path + "/pause", null);
+        assertThat(pausedResponse.statusCode()).isEqualTo(200);
+        var paused = tree(pausedResponse);
+        assertThat(paused.path("lifecycle").asText()).isEqualTo("PAUSED");
+        assertThat(paused.path("confirmedState").asText()).isEqualTo(state);
+        assertThat(paused.path("openIncidentId")).isEqualTo(before.path("openIncidentId"));
+        assertThat(paused.path("lastObservedAt")).isEqualTo(before.path("lastObservedAt"));
+        assertThat(paused.path("failureCount").asInt()).isZero();
+        assertThat(paused.path("recoveryCount").asInt()).isZero();
+        assertThat(paused.path("configurationVersion").asLong()).isEqualTo(1);
+        assertThat(paused.path("executionGeneration").asLong()).isEqualTo(2);
+        assertThat(paused.path("nextCheckAt").isNull()).isTrue();
+        assertThat(paused.path("evidence").asText()).isEqualTo("NEVER_OBSERVED");
+        assertThat(paused.path("recentObservation").asBoolean()).isFalse();
+        assertThat(tree(send("POST", path + "/pause", null))).isEqualTo(paused);
+        var resumeResponse = send("POST", path + "/resume", null);
+        assertThat(resumeResponse.statusCode()).isEqualTo(200);
+        var resumed = tree(resumeResponse);
+        assertThat(resumed.path("lifecycle").asText()).isEqualTo("ACTIVE");
+        assertThat(resumed.path("confirmedState").asText()).isEqualTo(state);
+        assertThat(resumed.path("openIncidentId")).isEqualTo(before.path("openIncidentId"));
+        assertThat(resumed.path("lastObservedAt")).isEqualTo(before.path("lastObservedAt"));
+        assertThat(resumed.path("failureCount").asInt()).isZero();
+        assertThat(resumed.path("recoveryCount").asInt()).isZero();
+        assertThat(resumed.path("configurationVersion").asLong()).isEqualTo(1);
+        assertThat(resumed.path("executionGeneration").asLong()).isEqualTo(3);
+        assertThat(resumed.path("nextCheckAt")).isEqualTo(resumed.path("updatedAt"));
+        assertThat(resumed.path("evidence").asText()).isEqualTo("NEVER_OBSERVED");
+        assertThat(resumed.path("recentObservation").asBoolean()).isFalse();
+        assertThat(tree(send("POST", path + "/resume", null))).isEqualTo(resumed);
+        assertThat(tree(send("GET", path, null))).isEqualTo(resumed);
+        assertHistory();
+    }
+
+    @Test
+    void alreadyActiveResumePreservesAllFields() throws Exception {
+        var original = create();
+        var response = send("POST", ROOT + "/" + original.path("id").asText() + "/resume", null);
+        assertThat(response.statusCode()).isEqualTo(200);
+        assertThat(tree(response)).isEqualTo(original);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"PUT,''", "POST,/pause", "POST,/resume"})
+    void everyMutationProtectsStateAndReturns404ForMissingIdentifiers(String method, String suffix) throws Exception {
+        var id = create().path("id").asText();
+        var path = ROOT + "/" + id + suffix;
+        var snapshot = jdbc.queryForList("SELECT * FROM monitor.monitors");
+        assertThat(request(method, path, valid().toString(), false, false).statusCode()).isEqualTo(401);
+        assertThat(request(method, path, valid().toString(), true, false).statusCode()).isEqualTo(403);
+        assertThat(jdbc.queryForList("SELECT * FROM monitor.monitors")).isEqualTo(snapshot);
+        var missing = send(method, ROOT + "/" + UUID.randomUUID() + suffix, valid());
+        assertThat(missing.statusCode()).isEqualTo(404);
+        assertThat(tree(missing).path("code").asText()).isEqualTo("MONITOR_NOT_FOUND");
+        assertInvalid(send(method, ROOT + "/invalid" + suffix, valid()), "id");
+    }
+
+    @Test
+    void invalidPutDoesNotChangeAnyPersistedField() throws Exception {
+        var id = create().path("id").asText();
+        var snapshot = jdbc.queryForList("SELECT * FROM monitor.monitors");
+        var path = ROOT + "/" + id;
+        for (String field : new String[] {"intervalSeconds", "timeoutSeconds", "expectedStatus",
+                "failureThreshold", "recoveryThreshold"}) {
+            assertInvalid(send("PUT", path, valid().put(field, 0)), field);
+            assertInvalid(send("PUT", path, valid().put(field, "1")), field);
+        }
+        assertInvalid(send("PUT", path, valid().put("url", "http://user:secret@example.org")), "url");
+        assertInvalid(send("PUT", path, valid().put("name", " ")), "name");
+        assertInvalid(send("PUT", path, valid().put("alertRecipient", "invalid")), "alertRecipient");
+        assertInvalid(request("PUT", path, "{", true, true), "body");
+        assertThat(jdbc.queryForList("SELECT * FROM monitor.monitors")).isEqualTo(snapshot);
+    }
+
+    private JsonNode create() throws Exception {
+        var response = send("POST", ROOT, valid());
+        assertThat(response.statusCode()).isEqualTo(201);
+        return tree(response);
+    }
+
+    private void assertHistory() {
+        assertThat(jdbc.queryForObject("SELECT payload FROM monitor.api_history_fixture", String.class))
+                .isEqualTo("original evidence");
     }
 
     private ObjectNode valid() {
