@@ -551,3 +551,12 @@ Build aprovado: Full T7 160/160, runtime build exit 0 e smoke exit 0 (mon02-smok
 | --- | --- | --- |
 
 Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
+
+## T9
+
+Build aprovado sobre implementação final: 160 testes Docker, Checkstyle zero, imagem runtime e smoke mon02-smoke-d81777a8c506 exit 0. README e docs/monitor-api.md confrontados com contratos testados; AD-006 preserva decisões anteriores. Verificador independente após este commit.
+
+| Evidência / assertion | Requisito / resultado | Necessidade |
+| --- | --- | --- |
+
+Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.

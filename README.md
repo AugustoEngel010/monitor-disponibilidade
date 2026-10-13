@@ -1,6 +1,6 @@
 # Monitor de disponibilidade
 
-Base de um monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura executável e MON-03 protege o acesso administrativo. Cadastro de monitores, painel, verificações HTTP, incidentes e notificações pertencem às próximas entregas do [backlog](.specs/task/monitor-disponibilidade-tasks.md).
+Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo e MON-04 permite cadastrar, consultar, editar, pausar, retomar e listar monitores. Painel, verificações HTTP, processamento de incidentes e notificações seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
 
 Build, testes e execução usam contêineres. O host precisa de Docker com daemon Linux e Docker Compose; não precisa de Maven Wrapper, Maven ou JDK. São suportados Docker Desktop com Linux containers e Docker Engine Linux com `host-gateway` (20.10+), Compose v2+ e BuildKit. A validação local foi realizada no Docker Desktop Windows; a execução remota da CI não foi observada.
 
@@ -12,7 +12,7 @@ Para construir e iniciar, na raiz do checkout com a configuração preenchida:
 docker compose up --build
 ```
 
-A aplicação fica em `http://localhost:8080`. A base ainda não tem painel; consulte `http://localhost:8080/actuator/health/readiness`. A resposta pronta é HTTP 200 com `{"status":"UP"}`. Sem banco disponível, a prontidão responde HTTP 503 e `DOWN`. O PostgreSQL não publica porta no host.
+A aplicação fica em `http://localhost:8080`. A API de monitores está em `/api/admin/monitors`; consulte o [contrato completo](docs/monitor-api.md) para configuração, edição, pausa, retomada, paginação e erros. O painel será criado na MON-10. A prontidão pública está em `/actuator/health/readiness`: HTTP 200 com `{"status":"UP"}`; sem banco disponível, HTTP 503 e `DOWN`. O PostgreSQL não publica porta no host.
 
 Os defaults de banco servem para desenvolvimento local. As credenciais administrativas são obrigatórias:
 
@@ -102,7 +102,7 @@ Para executar testes e verificações de qualidade:
 docker compose run --build --rm tests
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 48 casos: um de arquitetura, cinco integrações da MON-02, treze configurações administrativas inválidas e 29 casos de acesso/CSRF. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
+Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 160 casos: 46 unitários e 114 integrações, incluindo os 48 casos anteriores, 39 validações de configuração, seis regras de ciclo/frescor, oito persistências PostgreSQL e 59 contratos HTTP de monitores. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
 Os resultados são copiados para o host mesmo se a suíte falhar:
 
@@ -139,8 +139,9 @@ Limites dos módulos:
 | --- | --- | --- |
 | Bootstrap (`br.com.monitor`) | Inicializar aplicação e infraestrutura | Spring Boot; implementado em MON-02 |
 | Segurança (`br.com.monitor.security`) | Operador Basic, fronteira global, token CSRF e health público mínimo | Spring Security/Actuator; implementado em MON-03 |
+| Administração (`br.com.monitor.administration`) | Configuração, ciclo de vida, API e persistência dos monitores | Modelo puro, JDBC e transações; implementado em MON-04 |
 | Infraestrutura (`src/main/resources`) | Configuração JDBC, prontidão e migrações | Ambiente, PostgreSQL, Flyway; implementada em MON-02 |
-| Monitoramento (futuro `br.com.monitor.monitoring`) | Configuração, ciclo de vida, execução e histórico | Contratos próprios e adaptadores de persistência/HTTP; MON-04 a MON-06 |
+| Monitoramento (futuro `br.com.monitor.monitoring`) | Execução e histórico das verificações | Contratos administrativos e adaptadores HTTP; MON-05/MON-06 |
 | Incidentes (futuro `br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados publicados por monitoramento, sem executar HTTP; MON-07 |
 | Notificações (futuro `br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Contratos de transição e adaptador SMTP; MON-08 |
 | Consultas (futuro `br.com.monitor.reporting`) | Histórico, indicadores e painel | Leitura dos contratos dos módulos, sem alterar estado do executor; MON-09/MON-10 |
@@ -150,3 +151,5 @@ Nenhum módulo de produção depende de bibliotecas de teste; `ArchitectureTest`
 O [contrato MON-03](.specs/features/mon-03-acesso-administrativo/spec.md), [tasks](.specs/features/mon-03-acesso-administrativo/tasks.md) e [evidências](.specs/features/mon-03-acesso-administrativo/evidence.md) relacionam autenticação, configuração e CSRF a MON-03-AC01 até MON-03-AC06. AD-005 estabelece a política para as próximas entregas.
 
 A [validação independente MON-03](.specs/features/mon-03-acesso-administrativo/validation.md) concluiu PASS 6/6: 48 testes, build e smoke Docker aprovados, oito regressões injetadas detectadas e nenhuma sobrevivente. A validação é local; CI remota não executada.
+
+A [spec MON-04](.specs/features/mon-04-ciclo-monitores/spec.md), [tasks](.specs/features/mon-04-ciclo-monitores/tasks.md) e [evidências](.specs/features/mon-04-ciclo-monitores/evidence.md) mantêm MON-04-AC01 a MON-04-AC07. V2 cria `monitor.monitors` sem alterar V1; configurações e estado sobrevivem a reinícios. `configurationVersion` identifica o destino/política; `executionGeneration` invalida trabalho após pausa, retomada ou edição. A integração com execução/cancelamento e o processamento de incidentes serão entregues em MON-05 a MON-07.

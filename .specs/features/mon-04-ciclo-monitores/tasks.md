@@ -148,7 +148,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9
 **Requirement**: LIFE-01 a LIFE-09
 **Tools**: shell, Docker; tlc-spec-driven.
 **Done when**:
-- [ ] Contratos documentados; suíte completa, imagem e smoke aprovados; verifier após commit; gate Build exit 0, sem falhas/skips; baseline 48 testes preservada.
+- [x] Contratos documentados; suíte completa, imagem e smoke aprovados; verifier após commit; gate Build exit 0, sem falhas/skips; baseline 48 testes preservada.
 **Tests**: review
 **Gate**: Build
 **Commit**: `docs(mon-04): document monitor API and validation`

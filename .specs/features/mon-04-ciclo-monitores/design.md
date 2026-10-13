@@ -22,7 +22,7 @@ Reutilizar starter-jdbc, JdbcTemplate, Flyway, bootstrap, chain de segurança, H
 
 ## Data Models
 
-V2 cria monitor.monitors, configuração com CHECKs, UUID PK, createdAt/updatedAt UTC, versões >=1, ciclo/estado, contadores/horários provisórios, lastObservedAt e currentObservation boolean, openIncidentId UUID, nextCheckAt. Índice (created_at,id). Referência de incidente é nullable sem FK por enquanto: MON-07 criará tabela/FK e processamento. História externa futura referencia monitor por ID e versão; nenhuma operação desta entrega remove linhas. Testes usam tabela auxiliar de histórico para provar preservação e seeding de estado DOWN com referência de incidente, sem alegar criação de incidente real.
+V2 cria monitor.monitors, configuração com CHECKs, UUID PK, createdAt/updatedAt UTC, versões >=1, ciclo/estado, contadores/horários provisórios, lastObservedAt e currentObservation boolean, openIncidentId UUID, nextCheckAt. Índice (created_at,id). Referência de incidente é nullable sem FK por enquanto: MON-07 criará tabela/FK e processamento. História externa futura referencia monitor por ID e versão; nenhuma operação desta entrega remove linhas. Testes usam tabela auxiliar de histórico para provar preservação e seeding de estado DOWN com referência de incidente, sem alegar criação de incidente real. AD-006 registra o protocolo de versão/geração compartilhado com as próximas entregas.
 
 ## Error Handling Strategy
 

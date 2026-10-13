@@ -44,6 +44,14 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-13
 - **Status**: active
 
+### AD-006
+- **Decision**: MON-04 aplica os limites e as regras administrativas da MON-01 por instrução atual. Persistir configurationVersion para destino/política e executionGeneration para invalidar trabalho após edição, pausa ou retomada; mudanças de política com incidente aberto retornam 409.
+- **Reason**: Separar identidade da política de invalidação de execução, preservando histórico e incidente sem inventar recuperação.
+- **Trade-off**: MON-06/MON-07 devem bloquear a mesma linha do monitor e comparar versão/geração antes de aplicar resultados; o cancelamento real ainda depende do executor.
+- **Scope**: MON-04 a MON-09; PROD-02 a PROD-10/29. A ratificação se limita aos contratos administrativos usados nesta entrega.
+- **Date**: 2026-10-13
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: MON-03; `.specs/features/mon-03-acesso-administrativo/`.
