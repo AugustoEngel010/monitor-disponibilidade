@@ -84,3 +84,50 @@ Quick Docker exit 0: 46 unitários; seis novos testes de modelo, zero falhas/err
 | `src/test/java/br/com/monitor/MonitorTest.java:98`: `assertThat(monitor.pause(now).evidence(observedAt)).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
 
 Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
+
+## T4
+
+Full Docker exit 0: 46 unitários + 54 integrações = 100; zero falhas/erros/skips/Checkstyle. Sete novos IT PostgreSQL, upgrade V1/V2, reinício, atomicidade, histórico fixture, capacidade concorrente e pausa concorrente. Baseline V1 isolada sem reduzir assertions; ApplicationIT/smoke esperam histórico V1/V2.
+
+| Evidência / assertion | Requisito / resultado | Necessidade |
+| --- | --- | --- |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:61`: `assertThat(history).hasSize(2);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:62`: `assertThat(history.get(0).get("version")).isEqualTo("1");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:63`: `assertThat(history.get(1).get("version")).isEqualTo("2");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:66`: `assertThat(flyway.migrate().migrationsExecuted).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:67`: `assertThat(jdbc.queryForList("SELECT version, checksum, installed_on FROM public.flyway_schema_history"` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:68`: `+ " ORDER BY installed_rank")).isEqualTo(history);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:78`: `assertThat(old.migrate().migrationsExecuted).isEqualTo(1);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:84`: `assertThat(current.migrate().migrationsExecuted).isEqualTo(1);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:85`: `assertThat(current.migrate().migrationsExecuted).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:86`: `assertThat(sql.queryForList("SELECT * FROM public.flyway_schema_history WHERE version='1'"))` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:87`: `.isEqualTo(history);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:88`: `assertThat(sql.queryForObject("SELECT value FROM monitor.previous_data", Integer.class)).isEqualTo(4242);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:89`: `assertThat(sql.queryForObject("SELECT count(*) FROM monitor.monitors", Integer.class)).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:100`: `assertThat(service.get(monitor.id())).isEqualTo(monitor);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:106`: `assertThat(service.get(monitor.id())).isEqualTo(monitor);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:107`: `assertThat(jdbc.queryForObject("SELECT count(*) FROM public.flyway_schema_history", Integer.class))` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:108`: `.isEqualTo(2);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:122`: `.isInstanceOfSatisfying(MonitorProblem.class, error -> assertThat(error.status()).isEqualTo(409));` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:123`: `assertThat(service.get(monitor.id())).isEqualTo(before);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:126`: `assertThat(nameOnly.state()).isEqualTo(before.state());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:128`: `assertThat(service.pause(monitor.id())).isEqualTo(paused);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:130`: `assertThat(service.resume(monitor.id())).isEqualTo(resumed);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:131`: `assertThat(resumed.state().openIncidentId()).isEqualTo(incident);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:132`: `assertThat(resumed.state().confirmedState()).isEqualTo("DOWN");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:133`: `assertThat(resumed.state().recoveryCount()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:134`: `assertThat(jdbc.queryForObject("SELECT payload FROM monitor.history_fixture WHERE monitor_id=?",` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:135`: `String.class, monitor.id())).isEqualTo("historic result");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:144`: `assertThat(service.get(monitor.id())).isEqualTo(changed);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:145`: `assertThat(changed.state().configurationVersion()).isEqualTo(2);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:146`: `assertThat(changed.state().confirmedState()).isEqualTo("UNKNOWN");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:147`: `assertThat(changed.evidence(Instant.now())).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:148`: `assertThat(jdbc.queryForObject("SELECT payload FROM monitor.history_fixture", String.class))` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:149`: `.isEqualTo("original");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:161`: `assertThat(List.of(results.get(0).get(), results.get(1).get())).containsExactlyInAnyOrder(201, 409);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:163`: `assertThat(jdbc.queryForObject("SELECT count(*) FROM monitor.monitors", Integer.class)).isEqualTo(100);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:172`: `assertThat(results.get(0).get()).isEqualTo(results.get(1).get());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:174`: `assertThat(service.get(monitor.id()).state().executionGeneration()).isEqualTo(2);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorRepositoryIT.java:175`: `assertThat(service.get(monitor.id()).state().lifecycle()).isEqualTo("PAUSED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+
+Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.

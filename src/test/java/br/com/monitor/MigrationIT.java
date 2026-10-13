@@ -13,11 +13,16 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MigrationIT {
     @Test
-    void emptyDatabaseIsMigratedExactlyOnce() throws Exception {
+    void emptyDatabaseIsMigratedExactlyOnce(@TempDir java.nio.file.Path directory) throws Exception {
         // MON-02-AC02: V1 creates the schema and restarts do not change migration history.
         try (var db = new PostgreSQLContainer<>("postgres:17.6-alpine")) {
             db.start();
-            var flyway = Flyway.configure().dataSource(db.getJdbcUrl(), db.getUsername(), db.getPassword()).load();
+            // Keep the original V1 contract isolated as subsequent features add migrations.
+            try (var source = getClass().getResourceAsStream("/db/migration/V1__create_monitor_schema.sql")) {
+                Files.copy(source, directory.resolve("V1__create_monitor_schema.sql"));
+            }
+            var flyway = Flyway.configure().dataSource(db.getJdbcUrl(), db.getUsername(), db.getPassword())
+                    .locations("filesystem:" + directory).load();
             assertThat(flyway.migrate().migrationsExecuted).isEqualTo(1);
             var before = flyway.info().applied();
             assertThat(before).hasSize(1);

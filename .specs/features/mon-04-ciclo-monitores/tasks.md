@@ -83,7 +83,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Requirement**: LIFE-01/05/06/08
 **Tools**: shell, Docker; tlc-spec-driven.
 **Done when**:
-- [ ] V2, roundtrip, rollback, locks, capacidade e reinício verificados; atualizar assertions de histórico V1/V2; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
+- [x] V2, roundtrip, rollback, locks, capacidade e reinício verificados; atualizar assertions de histórico V1/V2; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
 **Tests**: integration
 **Gate**: Full
 **Commit**: `feat(mon-04): persist monitor lifecycle in PostgreSQL`
