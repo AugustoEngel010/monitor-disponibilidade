@@ -1,10 +1,12 @@
 # Monitor de disponibilidade
 
-Base de um monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura executável; cadastro de monitores, autenticação, verificações HTTP, incidentes e notificações pertencem às próximas entregas do [backlog](.specs/task/monitor-disponibilidade-tasks.md).
+Base de um monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura executável e MON-03 protege o acesso administrativo. Cadastro de monitores, painel, verificações HTTP, incidentes e notificações pertencem às próximas entregas do [backlog](.specs/task/monitor-disponibilidade-tasks.md).
 
 Build, testes e execução usam contêineres. O host precisa de Docker com daemon Linux e Docker Compose; não precisa de Maven Wrapper, Maven ou JDK. São suportados Docker Desktop com Linux containers e Docker Engine Linux com `host-gateway` (20.10+), Compose v2+ e BuildKit. A validação local foi realizada no Docker Desktop Windows; a execução remota da CI não foi observada.
 
-Para construir e iniciar, na raiz do checkout:
+Antes de iniciar, copie `.env.example` para `.env` e substitua os placeholders de ADMIN_USERNAME e ADMIN_PASSWORD por valores locais. `.env` está ignorado pelo Git e excluído do build. Os placeholders, valores vazios e ausência de qualquer variável administrativa impedem startup; não existe operador ou senha padrão.
+
+Para construir e iniciar, na raiz do checkout com a configuração preenchida:
 
 ```sh
 docker compose up --build
@@ -12,11 +14,13 @@ docker compose up --build
 
 A aplicação fica em `http://localhost:8080`. A base ainda não tem painel; consulte `http://localhost:8080/actuator/health/readiness`. A resposta pronta é HTTP 200 com `{"status":"UP"}`. Sem banco disponível, a prontidão responde HTTP 503 e `DOWN`. O PostgreSQL não publica porta no host.
 
-Os defaults servem para desenvolvimento local. Opcionalmente, copie `.env.example` para `.env` e ajuste os valores antes de iniciar. `.env` está ignorado pelo Git.
+Os defaults de banco servem para desenvolvimento local. As credenciais administrativas são obrigatórias:
 
 | Variável | Default | Uso |
 | --- | --- | --- |
 | APP_PORT | 8080 | Porta da aplicação em 127.0.0.1 |
+| ADMIN_USERNAME | Sem default | Operador único; 1–128 caracteres, não branco, sem colon ou caracteres de controle |
+| ADMIN_PASSWORD | Sem default | Senha não branca de até 72 bytes UTF-8, limite do BCrypt |
 | DB_NAME | monitor | Nome do banco criado pelo PostgreSQL |
 | DB_USER | monitor | Usuário local do PostgreSQL e da aplicação |
 | DB_PASSWORD | local-development-only | Valor descartável de desenvolvimento; substituir para outros ambientes |
@@ -24,6 +28,51 @@ Os defaults servem para desenvolvimento local. Opcionalmente, copie `.env.exampl
 | TESTCONTAINERS_HOST_OVERRIDE | host.docker.internal | Host das portas publicadas pelos contêineres de teste |
 
 Compose deriva `DB_URL=jdbc:postgresql://db:5432/${DB_NAME}` para a aplicação. A configuração Spring recebe DB_URL, DB_USER e DB_PASSWORD pelo ambiente. Credenciais reais não devem ser versionadas. As variáveis de inicialização do PostgreSQL criam usuário/banco apenas quando o volume está vazio; alterar `.env` não altera credenciais de um banco existente.
+
+Exemplo de configuração administrativa, com placeholders que devem ser substituídos somente no `.env` local:
+
+```dotenv
+ADMIN_USERNAME='<choose-admin-username>'
+ADMIN_PASSWORD='<choose-admin-password>'
+```
+
+Use aspas simples em `.env` para preservar valores com `$` ou `#`. Não passe credenciais em URLs, `JAVA_TOOL_OPTIONS` ou comandos de diagnóstico. `docker compose config` sem `--quiet` e inspeções de ambiente Docker podem revelar valores locais; use `docker compose config --quiet` para validar a configuração. A aplicação não registra usuário, senha ou Authorization em nível padrão. Erros de configuração e respostas 401/403 omitem os valores; a senha é codificada com BCrypt somente em memória, sem tabela de usuários. Mantenha logs de segurança no nível padrão e não habilite rastreamento de headers com credenciais reais.
+
+A porta permanece em 127.0.0.1. HTTP Basic transmite a credencial em cada requisição; use HTTPS caso exponha o serviço fora do host.
+
+Para trocar a credencial, edite ADMIN_PASSWORD (e ADMIN_USERNAME, se necessário) no `.env`, depois recrie somente a aplicação:
+
+```sh
+docker compose up -d --force-recreate app
+```
+
+`docker compose restart app` não recarrega variáveis. Após a recriação, a senha anterior recebe 401; a nova permite acesso. Cookies antigos não autenticam. A sessão CSRF está em memória e é descartada na recriação: obtenha um novo token. A troca não altera o volume PostgreSQL.
+
+| Rotas | Acesso |
+| --- | --- |
+| GET/HEAD /actuator/health, /actuator/health/liveness, /actuator/health/readiness | Público, somente status, sem detalhes ou criação de sessão |
+| GET /actuator/info | HTTP Basic do operador |
+| GET /api/admin/csrf | HTTP Basic; entrega token/headerName/parameterName para CSRF |
+| Todas as demais, incluindo /, /api/**, /admin/**, assets e outros actuators | HTTP Basic por padrão; rotas não implementadas retornam 404 após autenticação |
+| POST/PUT/PATCH/DELETE administrativos | Basic + cookie de sessão e token CSRF válido |
+
+Sem Basic válido a resposta é 401, corpo vazio e `WWW-Authenticate: Basic realm="monitor-admin"`, inclusive em escritas sem token. Com Basic válido e CSRF ausente/inválido a resposta é 403 e corpo vazio. O painel ainda será criado na MON-10; sua fronteira já está protegida. Os endpoints `/admin/probe` e `/api/admin/probe` existem somente nos testes.
+
+O futuro painel e clientes API devem obter `GET /api/admin/csrf` com Basic, preservar o cookie JSESSIONID e enviar o campo `token` no header indicado por `headerName` (`X-CSRF-TOKEN`) em cada escrita. Formulários podem enviar o parâmetro `_csrf`. A sessão expira após 30 minutos sem uso; renove o token quando a sessão expirar. GET/HEAD não alteram domínio. Nenhuma API de escrita é isenta de CSRF.
+
+Exemplo JavaScript para cliente na mesma origem, depois da autenticação Basic pelo navegador:
+
+```javascript
+const response = await fetch('/api/admin/csrf', { credentials: 'same-origin' });
+if (!response.ok) throw new Error('Autenticação administrativa necessária');
+const csrf = await response.json();
+// Na futura ação administrativa, inclua este header e preserve o cookie:
+const headers = { [csrf.headerName]: csrf.token };
+```
+
+O servidor mantém o token esperado na sessão e entrega uma versão mascarada. O cookie é HttpOnly e SameSite=Lax; não contém a credencial e não substitui Basic. Outra origem não recebe permissão CORS para ler o token; formulário forjado sem token é rejeitado. O comportamento segue os mecanismos nativos de [CSRF](https://docs.spring.io/spring-security/reference/6.5/servlet/exploits/csrf.html) e [Basic](https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/passwords/basic.html) do Spring Security.
+
+O healthcheck de `db` e `depends_on: service_healthy` do Compose permanecem. O serviço app não possui healthcheck de contêiner; o smoke verifica sua prontidão por HTTP. `/actuator/health/readiness` permanece público para não inserir credenciais nos probes: 200/UP com banco e 503/DOWN sem banco. Isso não torna API, painel ou outros actuators públicos. Configuração administrativa inválida impede que app fique pronto, mesmo com db saudável.
 
 Comandos de operação:
 
@@ -53,7 +102,7 @@ Para executar testes e verificações de qualidade:
 docker compose run --build --rm tests
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte atual tem um teste de arquitetura e cinco integrações: migração inicial/idempotência, checksum alterado, prontidão com/sem banco, credenciais inválidas e reinicialização com usuário/schema de mesmo nome.
+Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 48 casos: um de arquitetura, cinco integrações da MON-02, treze configurações administrativas inválidas e 29 casos de acesso/CSRF. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
 Os resultados são copiados para o host mesmo se a suíte falhar:
 
@@ -70,7 +119,7 @@ O serviço `tests` usa o perfil `tests` e só inicia quando solicitado. Ele mont
 
 As portas aleatórias desses PostgreSQLs são acessadas por `TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal`. Compose adiciona `host.docker.internal:host-gateway` para resolver a rota também no Engine Linux. Essa rota deve alcançar as portas publicadas no host; firewall ou daemon remoto exigem outra configuração e ficam fora do ambiente suportado. Os contêineres de teste não usam bind mounts do código. Ryuk permanece ativo para limpar os recursos de Testcontainers. Os testes não usam nem alteram o banco persistente da aplicação; runtime e build normal não recebem acesso ao daemon.
 
-O smoke operacional automatiza build, startup, migração, comparação integral do histórico, inserção de sentinela e preservação após restart e down/up:
+O smoke operacional automatiza build, startup fechado sem cada variável administrativa, acesso 401/200, rotação de senha inclusive com cookie anterior, ausência de credenciais nos logs, migração, comparação integral do histórico, inserção de sentinela e preservação após restart e down/up:
 
 ```powershell
 # Windows PowerShell
@@ -80,7 +129,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1
 pwsh -File scripts/validate-compose.ps1
 ```
 
-Esse roteiro opcional precisa de PowerShell, cria um projeto Compose com nome único e porta aleatória, grava logs em `.validation` e remove somente seus próprios contêineres/volumes ao terminar. Os comandos normais de operação e testes acima precisam apenas de Docker. `-NoBuild` reutiliza a imagem já construída; `-ProjectDirectory <checkout>` valida outro diretório de código-fonte.
+Esse roteiro opcional precisa de PowerShell, cria um projeto Compose com nome único e porta aleatória, gera credenciais descartáveis em memória, restaura o ambiente anterior, grava logs em `.validation` e remove somente seus próprios contêineres/volumes ao terminar. Não usa a credencial do operador. Os comandos normais de operação e testes acima precisam apenas de Docker. `-NoBuild` reutiliza a imagem já construída; `-ProjectDirectory <checkout>` valida outro diretório de código-fonte.
 
 A [CI](.github/workflows/ci.yml) executa testes/qualidade no serviço tests, constrói runtime e roda o smoke. Uma falha impede sucesso; construir imagem não substitui a suíte. Surefire, Failsafe, Checkstyle e logs do smoke são anexados ao job mesmo em falha. O runner usa Docker e PowerShell; não instala Java ou Maven no host.
 
@@ -89,6 +138,7 @@ Limites dos módulos:
 | Área | Responsabilidade | Dependências permitidas / situação |
 | --- | --- | --- |
 | Bootstrap (`br.com.monitor`) | Inicializar aplicação e infraestrutura | Spring Boot; implementado em MON-02 |
+| Segurança (`br.com.monitor.security`) | Operador Basic, fronteira global, token CSRF e health público mínimo | Spring Security/Actuator; implementado em MON-03 |
 | Infraestrutura (`src/main/resources`) | Configuração JDBC, prontidão e migrações | Ambiente, PostgreSQL, Flyway; implementada em MON-02 |
 | Monitoramento (futuro `br.com.monitor.monitoring`) | Configuração, ciclo de vida, execução e histórico | Contratos próprios e adaptadores de persistência/HTTP; MON-04 a MON-06 |
 | Incidentes (futuro `br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados publicados por monitoramento, sem executar HTTP; MON-07 |
@@ -96,3 +146,5 @@ Limites dos módulos:
 | Consultas (futuro `br.com.monitor.reporting`) | Histórico, indicadores e painel | Leitura dos contratos dos módulos, sem alterar estado do executor; MON-09/MON-10 |
 
 Nenhum módulo de produção depende de bibliotecas de teste; `ArchitectureTest` impõe esse limite. Os pacotes futuros serão criados com suas funcionalidades, sem classes vazias nesta base. As [specs da MON-02](.specs/features/mon-02-base-docker/spec.md), [decisão AD-004](.specs/STATE.md) e [tasks](.specs/features/mon-02-base-docker/tasks.md) mantêm a rastreabilidade MON-02-AC01 a MON-02-AC08.
+
+O [contrato MON-03](.specs/features/mon-03-acesso-administrativo/spec.md), [tasks](.specs/features/mon-03-acesso-administrativo/tasks.md) e [evidências](.specs/features/mon-03-acesso-administrativo/evidence.md) relacionam autenticação, configuração e CSRF a MON-03-AC01 até MON-03-AC06. AD-005 estabelece a política para as próximas entregas.

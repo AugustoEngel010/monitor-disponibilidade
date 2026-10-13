@@ -58,3 +58,16 @@ Adequação A/B/C/D: todos os novos casos correspondem a AUTH-06 e edges AUTH-01
 | Exemplos/Git | `.env.example:3` / 4 placeholders, `.gitignore:2` / 3 env ignorado, `.dockerignore:1` allowlist | Nenhuma credencial administrativa preenchida versionada ou na imagem | AUTH-05 |
 
 Adequação: smoke usa somente seu projeto, credenciais aleatórias e restaura ambiente do processo. Não remove volume de desenvolvimento. Mesmos estágios Dockerfile, gates de CI, rede/socket e cópia de relatórios da MON-02. Compose continua com healthcheck de db; prontidão de app é consultada pelo smoke, não exige segredo nem nova ferramenta no runtime.
+
+## T5
+
+Documentação revisada contra código e comandos executados. Gate Build de T4 permanece válido: T5 só altera README e artefatos, sem mudança na implementação/configuração. Spec --strict/tasks zero erros/avisos; git diff --check exit 0; git ls-files .env* retorna somente .env.example. Nenhuma credencial real definida ou versionada. Revisão independente repete o gate sobre o checkout commitado.
+
+| Critério | file:line + verificação | Resultado / reverse mapping |
+| --- | --- | --- |
+| Configuração e rotação | `README.md:7` instrução de preencher .env; 22/23 variáveis; 43 rotação e 46 comando force-recreate | AUTH-04/05 e edge AUTH-02 |
+| Rotas e CSRF | `README.md:53` tabela; 63 fluxo; 67 exemplo do endpoint; 73 cookie/origem | AUTH-01/02/03/06 |
+| Prontidão | `README.md:75` healthcheck de db, dependência, probe app público e startup fechado | AUTH-03/04; mantém MON-02 |
+| Placeholders e Git | `README.md:35` / 36 placeholders; `.env.example:3` / 4; `.gitignore:2` / 3; `.dockerignore:1` allowlist | AUTH-05; nenhum teste tautológico de frases criado |
+
+Adequação: revisão documental com gate operacional já observado; todos os parágrafos novos rastreiam requisitos de segurança/configuração/CSRF solicitados. Nenhuma interface CRUD ou painel antecipada, nenhum comando Maven/JDK no host.

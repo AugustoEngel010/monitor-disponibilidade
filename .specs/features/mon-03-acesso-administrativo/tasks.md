@@ -4,7 +4,7 @@
 
 Usar tlc-spec-driven, gates por task, commit atômico com status e verificador independente após a última task. Pedido atual autoriza execução local das fases.
 
-**Design:** [design.md](design.md). **Status:** In Progress.
+**Design:** [design.md](design.md). **Status:** Done; verificação independente em andamento.
 
 ## Test Coverage Matrix
 
@@ -95,7 +95,7 @@ T1 -> T2 -> T3 -> T4 -> T5
 **Requirement**: AUTH-01 a AUTH-06
 **Files**: README.md; evidências de gates nos artefatos MON-03.
 **Done when**:
-- [ ] Documentação confrontada com gates aprovados, exemplos sem valores reais, rastreabilidade atualizada; despachar Verifier após commit.
+- [x] Documentação confrontada com Build verde T4, mesma implementação/configuração sem alterações. Spec/tasks sem erros/avisos, git diff --check verde, somente .env.example versionado. Evidências T5; Verifier despachado após este commit.
 **Tests**: review
 **Gate**: Build
 **Commit**: `docs(mon-03): document credentials routes and csrf operation`
