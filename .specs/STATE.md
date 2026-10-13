@@ -36,6 +36,13 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-13
 - **Status**: active
 
+### AD-005
+- **Decision**: Um operador HTTP Basic com ADMIN_USERNAME/ADMIN_PASSWORD obrigatórios; autenticar toda rota salvo GET/HEAD dos três health endpoints. API e painel usam token CSRF em sessão, header X-CSRF-TOKEN ou parâmetro _csrf. Autenticação não é persistida na sessão.
+- **Reason**: Restringir administração e proteger ações de navegador, preservando readiness sem segredo em probes.
+- **Trade-off**: Clientes API também precisam do fluxo CSRF; rotação exige recriar app; HTTPS ao expor fora do host.
+- **Scope**: MON-03/MON-04/MON-10/MON-11; PROD-01. Defaults técnicos documentados na spec MON-03, dentro da execução solicitada.
+- **Date**: 2026-10-13
+- **Status**: active
 ## Handoff
 
 - **Feature**: MON-02; `.specs/features/mon-02-base-docker/`.
