@@ -8,11 +8,17 @@ $evidence = Join-Path $root '.validation'
 New-Item -ItemType Directory -Force -Path $evidence | Out-Null
 $log = Join-Path $evidence ($project + '.log')
 $savedPort = $env:APP_PORT
+$savedAdminUsername = $env:ADMIN_USERNAME
+$savedAdminPassword = $env:ADMIN_PASSWORD
+$env:ADMIN_USERNAME = [guid]::NewGuid().ToString('N')
+$env:ADMIN_PASSWORD = [guid]::NewGuid().ToString('N')
+$initialAdminPassword = $env:ADMIN_PASSWORD
+$rotatedAdminPassword = [guid]::NewGuid().ToString('N')
 $env:APP_PORT = '0'
 Push-Location $root
 
 function Invoke-Compose {
-    param([string[]]$Arguments)
+    param([string[]]$Arguments, [int]$ExpectedExit = 0)
     # Docker writes progress to stderr even on success; its exit code is the gate.
     $previousPreference = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
@@ -21,7 +27,7 @@ function Invoke-Compose {
     $ErrorActionPreference = $previousPreference
     $lines = @($output | ForEach-Object { $_.ToString() })
     Add-Content -Path $log -Value ($lines -join "`n") -Encoding UTF8
-    if ($code -ne 0) { throw "docker compose $($Arguments -join ' ') failed: exit $code`n$($lines -join "`n")" }
+    if ($code -ne $ExpectedExit) { throw "docker compose action failed: expected exit $ExpectedExit, got $code" }
     return $lines
 }
 
@@ -60,12 +66,60 @@ function Wait-Ready {
     throw 'MON-02-AC01 readiness did not become HTTP 200/UP in 120 seconds'
 }
 
+function Assert-AdministrativeAccess {
+    param([string]$Password, [int]$ExpectedStatus, $Session)
+    $address = (Invoke-Compose @('port', 'app', '8080') -join '').Trim()
+    $headers = @{}
+    if ($Password) {
+        $bytes = [Text.Encoding]::UTF8.GetBytes($env:ADMIN_USERNAME + ':' + $Password)
+        $headers.Authorization = 'Basic ' + [Convert]::ToBase64String($bytes)
+    }
+    $request = @{ UseBasicParsing = $true; Uri = "http://$address/actuator/info"; Headers = $headers; TimeoutSec = 5 }
+    if ($Session) { $request.WebSession = $Session }
+    try { $status = (Invoke-WebRequest @request).StatusCode }
+    catch {
+        if (-not $_.Exception.Response) { throw 'Administrative HTTP request failed before receiving a response' }
+        $status = [int]$_.Exception.Response.StatusCode
+    }
+    Assert-Equal $status $ExpectedStatus 'MON-03 administrative HTTP access'
+}
+
+function Assert-NoCredentialLeaks {
+    $contents = Get-Content -Raw -LiteralPath $log
+    foreach ($secret in @($env:ADMIN_USERNAME, $initialAdminPassword, $rotatedAdminPassword)) {
+        if ($contents.Contains($secret)) { throw 'MON-03-AC05 credential found in application logs' }
+    }
+    foreach ($password in @($initialAdminPassword, $rotatedAdminPassword)) {
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($env:ADMIN_USERNAME + ':' + $password))
+        if ($contents.Contains($encoded)) { throw 'MON-03-AC05 Basic credential found in application logs' }
+    }
+    Add-Content -Path $log -Value 'PASS MON-03-AC05 no administrative credential in logs' -Encoding UTF8
+}
+
 try {
     Invoke-Compose @('config', '--quiet') | Out-Host
-    $start = @('up', '-d')
-    if (-not $NoBuild) { $start += '--build' }
-    Invoke-Compose $start | Out-Host
+    if (-not $NoBuild) { Invoke-Compose @('build', 'app') | Out-Host }
+    Invoke-Compose @('up', '-d', '--wait', 'db') | Out-Host
+    foreach ($missing in @('ADMIN_USERNAME=', 'ADMIN_PASSWORD=')) {
+        $output = Invoke-Compose -Arguments @('run', '--rm', '--no-deps', '-T', '-e', $missing, 'app') -ExpectedExit 1
+        if (-not ($output -join "`n").Contains('Administrative credentials are missing or invalid')) {
+            throw 'MON-03-AC04 startup did not report the required configuration error'
+        }
+    }
+    Add-Content -Path $log -Value 'PASS MON-03-AC04 missing username/password prevent startup' -Encoding UTF8
+    Invoke-Compose @('up', '-d', 'app') | Out-Host
     Wait-Ready
+    Assert-AdministrativeAccess -ExpectedStatus 401
+    Assert-AdministrativeAccess -Password $initialAdminPassword -ExpectedStatus 200
+    $address = (Invoke-Compose @('port', 'app', '8080') -join '').Trim()
+    $basic = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($env:ADMIN_USERNAME + ':' + $initialAdminPassword))
+    $null = Invoke-WebRequest -UseBasicParsing -Uri "http://$address/api/admin/csrf" -Headers @{Authorization = "Basic $basic"} -SessionVariable previousSession -TimeoutSec 5
+    $env:ADMIN_PASSWORD = $rotatedAdminPassword
+    Invoke-Compose @('up', '-d', '--force-recreate', 'app') | Out-Host
+    Wait-Ready
+    Assert-AdministrativeAccess -Password $initialAdminPassword -ExpectedStatus 401 -Session $previousSession
+    Assert-AdministrativeAccess -Password $rotatedAdminPassword -ExpectedStatus 200
+    Add-Content -Path $log -Value 'PASS MON-03-AC02 password rotation rejects previous credential and cookie' -Encoding UTF8
     Assert-Equal (Query 'SELECT count(*) FROM flyway_schema_history WHERE success') '1' 'MON-02-AC02 migration count'
     Assert-Equal (Query 'SELECT version FROM flyway_schema_history') '1' 'MON-02-AC02 migration version'
     $history = Query 'SELECT row_to_json(h) FROM flyway_schema_history h ORDER BY installed_rank'
@@ -82,6 +136,8 @@ try {
     Wait-Ready
     Assert-Equal (Query 'SELECT value FROM monitor.mon02_sentinel WHERE id = 1') '4242' 'MON-02-AC03 down/up sentinel'
     Assert-Equal (Query 'SELECT row_to_json(h) FROM flyway_schema_history h ORDER BY installed_rank') $history 'MON-02-AC02 down/up history'
+    Invoke-Compose @('logs', '--no-color') | Out-Null
+    Assert-NoCredentialLeaks
     Add-Content -Path $log -Value 'PASS Compose lifecycle' -Encoding UTF8
     Write-Host "PASS Compose lifecycle; evidence: $log"
 } finally {
@@ -89,5 +145,7 @@ try {
     try { Invoke-Compose @('logs', '--no-color') | Out-Null } catch { Write-Warning $_ }
     try { Invoke-Compose @('down', '--volumes', '--remove-orphans') | Out-Host } catch { Write-Warning $_ }
     $env:APP_PORT = $savedPort
+    $env:ADMIN_USERNAME = $savedAdminUsername
+    $env:ADMIN_PASSWORD = $savedAdminPassword
     Pop-Location
 }

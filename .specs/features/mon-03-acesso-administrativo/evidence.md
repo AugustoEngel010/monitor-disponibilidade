@@ -39,3 +39,22 @@ Falhas corrigidas antes do commit: CsrfConfigurer não oferece accessDeniedHandl
 | Form válido | `src/test/java/br/com/monitor/AdministrativeSecurityIT.java:162`, `isEqualTo(200)`; 163 corpo before+2; 164 estado before+2 | Uma segunda ação executada | AUTH-06 |
 
 Adequação A/B/C/D: todos os novos casos correspondem a AUTH-06 e edges AUTH-01/05, outcomes precisos e estado real observado. Nenhum teste removido/enfraquecido. Estratégia de login CSRF invalidava o token a cada escrita sob STATELESS; desabilitar sessionManagement e usar contexto apenas por requisição resolve Basic contínuo e preserva 404 no dispatch de erro. A confirmação usa a mesma sessão/token em duas ações válidas.
+
+## T4
+
+| Comando | Resultado |
+| --- | --- |
+| docker compose run --build --rm tests | exit 0; 48 testes; zero falhas/erros/skips/Checkstyle; `.validation/mon03-t4-tests.log` |
+| docker compose build app | exit 0; runtime construído; `.validation/mon03-t4-build.log` |
+| powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild | exit 0; projeto mon02-smoke-6c483208df76; `.validation/mon03-t4-smoke.log` e log do projeto |
+
+| Critério | file:line + assertion/verificação | Resultado | Reverse mapping |
+| --- | --- | --- | --- |
+| Externo obrigatório | `compose.yaml:26` e 27 ADMIN_* sem defaults válidos; `scripts/validate-compose.ps1:104` ExpectedExit 1; 105 mensagem genérica | Ausência de cada variável impede app; tests/build independentes | AUTH-04 |
+| Operador válido/ausente | `scripts/validate-compose.ps1:84`, `Assert-Equal $status $ExpectedStatus`; chamadas 112/113 | 401 sem Basic, 200 com Basic | AUTH-01/02 |
+| Rotação | `scripts/validate-compose.ps1:117`, novo ambiente e force-recreate; 120 ExpectedStatus401 com cookie antigo; 121 ExpectedStatus200 nova senha | Senha anterior e sessão antiga não autorizam | AUTH-02/05 |
+| Logs sem segredos | `scripts/validate-compose.ps1:90` / 94 rejeitam texto e Basic codificado; 140 executa verificação | Nenhuma credencial nas duas versões do app ou startups inválidos | AUTH-05 |
+| Persistência/saúde | `scripts/validate-compose.ps1:137` / 138 assertions sentinela/history; Wait-Ready 58/59 200/UP | Prontidão pública e fluxo MON-02 preservados | AUTH-03; regressão MON-02 |
+| Exemplos/Git | `.env.example:3` / 4 placeholders, `.gitignore:2` / 3 env ignorado, `.dockerignore:1` allowlist | Nenhuma credencial administrativa preenchida versionada ou na imagem | AUTH-05 |
+
+Adequação: smoke usa somente seu projeto, credenciais aleatórias e restaura ambiente do processo. Não remove volume de desenvolvimento. Mesmos estágios Dockerfile, gates de CI, rede/socket e cópia de relatórios da MON-02. Compose continua com healthcheck de db; prontidão de app é consultada pelo smoke, não exige segredo nem nova ferramenta no runtime.

@@ -82,7 +82,7 @@ T1 -> T2 -> T3 -> T4 -> T5
 **Requirement**: AUTH-02, AUTH-03, AUTH-04, AUTH-05
 **Files**: compose.yaml, .env.example, scripts/validate-compose.ps1.
 **Done when**:
-- [ ] Build passa; smoke prova configuração ausente, rotação, prontidão pública, persistência e ausência de segredos nos logs; tests sem credenciais externas permanece operacional.
+- [x] Build exit 0: 48 testes/qualidade, runtime e smoke mon02-smoke-6c483208df76. Startup fechado, rotação, prontidão/persistência e logs sem segredos aprovados; evidence.md T4.
 **Tests**: smoke
 **Gate**: Build
 **Commit**: `feat(mon-03): integrate operator configuration into Docker lifecycle`
