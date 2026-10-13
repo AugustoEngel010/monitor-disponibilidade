@@ -62,3 +62,17 @@ Gate completo `docker compose run --build --rm tests`, exit 0; 110 unitários + 
 | AC04 falha parcial | `src/test/java/br/com/monitor/CheckServiceIT.java:170` DataAccessException; :171 interrupted=true; :176 ausência; :177 sem HTTP; :178 count0; :179 retry SUCCESS; :180 count1 | Banco não vira falha externa nem registro parcial | Sim |
 
 Mapeamento reverso: os seis métodos da tabela são todos os casos de CheckServiceIT, necessários aos cenários indicados. Adequação PASS. Segurança administrativa e demais testes da baseline permanecem aprovados. Contrato não cria rota ou agendamento e não aplica resultado ao estado.
+
+## T5
+
+| Comando | Resultado | Log |
+| --- | --- | --- |
+| `python .codex/skills/tlc-spec-driven/scripts/validate_spec.py mon-05-verificacao-http --strict` | exit 0, 0 erros/avisos | Saída local |
+| `python .codex/skills/tlc-spec-driven/scripts/validate_tasks.py mon-05-verificacao-http` | exit 0, 0 erros/avisos | Saída local |
+| `docker compose run --build --rm tests` | exit 0, 264 testes: 110 unitários/154 IT, 0 falhas/erros/skips, Checkstyle 0 | `.validation/mon05-t5.log` |
+| `docker compose build app` | exit 0, imagem runtime construída diretamente do source | `.validation/mon05-runtime.log` |
+| `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild` | exit 0, PASS Compose lifecycle | `.validation/mon05-smoke.log`, `.validation/mon02-smoke-8d9200e527f2.log` |
+
+Smoke: readiness 200/UP; ausência de cada credencial impede startup; consulta administrativa 401 sem Basic e 200 válido; rotação rejeita senha/cookie antigos; histórico count3, versões1,2,3 e linhas completas preservadas após restart/down-up; sentinela4242 preservada; runtime UID10001, sem Maven/javac/socket; logs sem credenciais. Somente o projeto descartável mon02-smoke-8d9200e527f2 foi removido.
+
+Confronto documentação/configuração: `docs/http-checks.md` descreve os resultados que T1–T4 comprovam, as dez colunas de V3 e a origem opcional vazia. `.env.example`, `compose.yaml` e `application.yml` usam MONITOR_DEMO_ORIGIN; nenhum segredo ou destino privado liberado por padrão. AD-007 registra o contrato com as próximas entregas. AC01..AC08 mapeados às assertions nas tabelas anteriores. Testes de configuração demo em CheckServiceIT:105/118; demais configurações/regressão cobertas pelo smoke e suíte. Adequação PASS, sem teste documental que apenas repita texto. CI remota não executada.

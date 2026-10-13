@@ -25,6 +25,7 @@ services:
       JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75.0}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      MONITOR_DEMO_ORIGIN: ${MONITOR_DEMO_ORIGIN:-}
     ports:
       - "127.0.0.1:${APP_PORT:-8080}:8080"
     depends_on:

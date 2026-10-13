@@ -85,7 +85,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T4
 **Requirement**: HTTP-01 a HTTP-08
 **Done when**:
-- [ ] README/env/Compose documentados; suite completa, runtime e smoke passam; evidence.md com assertions file:line e comandos.
+- [x] README/env/Compose documentados; 264 testes completos, runtime e smoke passam; evidence.md com assertions file:line e comandos. Verifier independente pendente.
 **Tests**: integration
 **Gate**: build
 **Commit**: docs(mon-05): document HTTP checks and validation

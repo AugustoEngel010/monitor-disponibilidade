@@ -1,6 +1,6 @@
 # Monitor de disponibilidade
 
-Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo e MON-04 permite cadastrar, consultar, editar, pausar, retomar e listar monitores. Painel, verificações HTTP, processamento de incidentes e notificações seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
+Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores e MON-05 executa e registra uma tentativa HTTP por contrato Java interno. Agendamento, painel, processamento de incidentes e notificações seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
 
 Build, testes e execução usam contêineres. O host precisa de Docker com daemon Linux e Docker Compose; não precisa de Maven Wrapper, Maven ou JDK. São suportados Docker Desktop com Linux containers e Docker Engine Linux com `host-gateway` (20.10+), Compose v2+ e BuildKit. A validação local foi realizada no Docker Desktop Windows; a execução remota da CI não foi observada.
 
@@ -141,7 +141,7 @@ Limites dos módulos:
 | Segurança (`br.com.monitor.security`) | Operador Basic, fronteira global, token CSRF e health público mínimo | Spring Security/Actuator; implementado em MON-03 |
 | Administração (`br.com.monitor.administration`) | Configuração, ciclo de vida, API e persistência dos monitores | Modelo puro, JDBC e transações; implementado em MON-04 |
 | Infraestrutura (`src/main/resources`) | Configuração JDBC, prontidão e migrações | Ambiente, PostgreSQL, Flyway; implementada em MON-02 |
-| Monitoramento (futuro `br.com.monitor.monitoring`) | Execução e histórico das verificações | Contratos administrativos e adaptadores HTTP; MON-05/MON-06 |
+| Monitoramento (`br.com.monitor.monitoring`) | Execução HTTP limitada, política de destinos e resultados idempotentes | Monitor/configuração, Apache HttpClient, JDBC; MON-05 implementada, agendamento em MON-06 |
 | Incidentes (futuro `br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados publicados por monitoramento, sem executar HTTP; MON-07 |
 | Notificações (futuro `br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Contratos de transição e adaptador SMTP; MON-08 |
 | Consultas (futuro `br.com.monitor.reporting`) | Histórico, indicadores e painel | Leitura dos contratos dos módulos, sem alterar estado do executor; MON-09/MON-10 |
@@ -155,3 +155,5 @@ A [validação independente MON-03](.specs/features/mon-03-acesso-administrativo
 A [spec MON-04](.specs/features/mon-04-ciclo-monitores/spec.md), [tasks](.specs/features/mon-04-ciclo-monitores/tasks.md) e [evidências](.specs/features/mon-04-ciclo-monitores/evidence.md) mantêm MON-04-AC01 a MON-04-AC07. V2 cria `monitor.monitors` sem alterar V1; configurações e estado sobrevivem a reinícios. `configurationVersion` identifica o destino/política; `executionGeneration` invalida trabalho após pausa, retomada ou edição. A integração com execução/cancelamento e o processamento de incidentes serão entregues em MON-05 a MON-07.
 
 A [validação independente MON-04](.specs/features/mon-04-ciclo-monitores/validation.md) concluiu PASS nos sete critérios: 160 testes, zero falhas/erros/skips, qualidade, build e smoke Docker aprovados; seis mutações detectadas e nenhuma sobrevivente. A validação é local; CI remota não executada.
+
+O [contrato HTTP MON-05](docs/http-checks.md) documenta GET, timeout total até cabeçalhos, classificações, proteção de rede/TLS e persistência por UUID. `MONITOR_DEMO_ORIGIN` é opcional e vazia por padrão; permite somente a origem interna explicitamente configurada, sem liberar a sub-rede. V3 cria `monitor.check_results`; resultados guardam versão/geração e não alteram estado ou incidentes. [Spec](.specs/features/mon-05-verificacao-http/spec.md), [tasks](.specs/features/mon-05-verificacao-http/tasks.md) e [evidências](.specs/features/mon-05-verificacao-http/evidence.md) mantêm MON-05-AC01 a MON-05-AC08.

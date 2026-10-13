@@ -52,13 +52,21 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-13
 - **Status**: active
 
+### AD-007
+- **Decision**: MON-05 produz resultado por UUID com snapshot de configurationVersion/executionGeneration; primeiro registro vence. HTTP é limitado até cabeçalhos e usa um único IP do snapshot DNS integralmente validado, sem fallback, proxy, redirect ou retry. TLS padrão preservado; exceção interna somente por MONITOR_DEMO_ORIGIN exata e explícita.
+- **Reason**: Evitar rebinding, erro TLS mascarado e alteração de evidência sob repetição; preservar identificação de trabalho tardio para MON-06/07.
+- **Trade-off**: Uma tentativa pode falhar no primeiro IP mesmo que outro esteja acessível; idempotência da persistência não garante envio HTTP único. DNS nativo pode concluir depois do timeout, sem abrir conexão posterior.
+- **Scope**: MON-05 a MON-09; PROD-21/22/23/24/29; MON-05-AC01 a MON-05-AC08. Aplicação ao estado/incidente/intenção continua sob AD-002 em MON-07/08.
+- **Date**: 2026-10-13
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: MON-04; `.specs/features/mon-04-ciclo-monitores/`.
-- **Phase / Task**: Execute concluído; T1 a T9 e verificação independente.
-- **Completed**: Nove commits atômicos 9cdb57c, a3093c4, 50a1415, 97aff0b, 629f4e1, b7f83fe, f83aef2, 7c01733, f46df05. Todos os sete ACs e LIFE08/09 PASS. 160 testes (46 unitários/114 integrações), zero falhas/erros/skips/Checkstyle; runtime e smoke independente aprovados; seis sensores mortos.
-- **In-progress**: Nenhuma implementação pendente da MON-04.
-- **Next step**: MON-05, executor HTTP/registro de resultados e política de rede; usar versão/geração persistentes. MON-06 deve serializar pausa/resultados pelo mesmo lock de linha e comparar versão/geração; MON-07 adicionará incidentes/FKs reais.
-- **Blockers**: Nenhum local. CI remota não executada, push não realizado. API não executa verificações ainda; incidentes/histórico existentes foram representados por fixtures nos testes desta entrega.
-- **Uncommitted files**: Nenhum após commit de fechamento; relatório, backlog, estado e rastreabilidade incluídos nele.
-- **Branch**: main; baseline da7276f, implementação validada f46df05. Banco de desenvolvimento preservado; somente recursos descartáveis da validação removidos.
+- **Feature**: MON-05; `.specs/features/mon-05-verificacao-http/`.
+- **Phase / Task**: T1 a T5 implementadas; verificação independente pendente.
+- **Completed**: Política de rede, executor GET com timeout/cleanup/TLS, V3 e registro idempotente, serviço Spring, configuração demo e documentação. Gates 264 testes (110 unitários/154 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke aprovados. Commits T1 b16132b, T2 d2ca099, T3 0a5aba7, T4 8b4d0eb; T5 neste commit.
+- **In-progress**: Verifier independente e sensor de discriminação; nenhuma implementação pendente conhecida.
+- **Next step**: Validar MON-05 independentemente, atualizar backlog/rastreabilidade e executar validate_state. MON-06 coordenará agendamento/cancelamento e comparação de versão/geração; MON-07 aplicará resultado ao estado/incidente.
+- **Blockers**: Nenhum local. CI remota não executada, push não realizado. Execução é contrato Java interno; não há scheduler/endpoint HTTP novo.
+- **Uncommitted files**: Documentação/configuração T5 até este commit; relatório independente ainda não criado.
+- **Branch**: main; baseline c5ad290. Banco de desenvolvimento preservado; smoke usa somente recursos descartáveis próprios.
