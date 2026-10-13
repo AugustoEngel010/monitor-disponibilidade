@@ -9,6 +9,8 @@ spring:
       connection-timeout: 2000
   flyway:
     enabled: true
+    default-schema: public
+    schemas: public
 management:
   endpoints:
     web:

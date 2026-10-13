@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.sql.DriverManager;
 import java.time.Duration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,33 @@ class ApplicationIT {
             assertThatThrownBy(() -> start(db, "invalid-password"))
                     .hasRootCauseInstanceOf(PSQLException.class)
                     .hasStackTraceContaining("password authentication failed");
+        }
+    }
+
+    @Test
+    void restartPreservesHistoryWhenDatabaseUserMatchesDomainSchema() throws Exception {
+        // MON-02-AC02/03: the PostgreSQL search_path must not move Flyway's history after V1.
+        try (var db = new PostgreSQLContainer<>("postgres:17.6-alpine")
+                .withUsername("monitor").withDatabaseName("monitor")) {
+            db.start();
+            try (var first = start(db, db.getPassword());
+                    var connection = DriverManager.getConnection(db.getJdbcUrl(), db.getUsername(), db.getPassword());
+                    var statement = connection.createStatement()) {
+                statement.execute("CREATE TABLE monitor.restart_sentinel (value integer)");
+                statement.execute("INSERT INTO monitor.restart_sentinel VALUES (4242)");
+            }
+            try (var second = start(db, db.getPassword());
+                    var connection = DriverManager.getConnection(db.getJdbcUrl(), db.getUsername(), db.getPassword());
+                    var statement = connection.createStatement()) {
+                try (var rows = statement.executeQuery("SELECT value FROM monitor.restart_sentinel")) {
+                    rows.next();
+                    assertThat(rows.getInt(1)).isEqualTo(4242);
+                }
+                try (var rows = statement.executeQuery("SELECT count(*) FROM public.flyway_schema_history")) {
+                    rows.next();
+                    assertThat(rows.getInt(1)).isEqualTo(1);
+                }
+            }
         }
     }
 

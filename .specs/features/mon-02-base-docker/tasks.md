@@ -82,9 +82,10 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Where**: `scripts/validate-compose.ps1`
 **Depends on**: T3
 **Requirement**: BASE-01, BASE-02, BASE-03, BASE-07
+**Files**: smoke script, application configuration and ApplicationIT regression for PostgreSQL search_path.
 **Done when**:
-- [ ] Smoke retorna zero com HTTP UP, histórico idêntico, sentinela após restart/down-up e runtime sem ferramentas/socket.
-- [ ] Executar também de checkout limpo sem target nem env local.
+- [x] Smoke retornou zero com HTTP UP, histórico idêntico, sentinela 4242 após restart/down-up e runtime sem ferramentas/socket. Cinco integrações e um unitário passaram, zero falhas/skips.
+- [x] Exportação Git limpa eb6829ab68a80e791be2cfeedd1e3fe6bf82fb77, sem target/env: build e smoke aprovados. Checkout final será repetido pelo verificador independente.
 **Tests**: smoke
 **Gate**: Build
 **Commit**: `test(mon-02): verify Compose lifecycle and persistent data`
@@ -160,3 +161,15 @@ Adequação: teste ligado a AC04, assertion sobre dependência real, nenhuma su�
 | BASE-08, relatórios | `config/run-tests.sh:6`, captura exit code; linha 8, cópia dos relatórios | Verify preservado, XMLs no host | AC08 |
 
 Adequação: cada teste mapeado acima, outcomes exatos, zero skips, nenhuma assertion enfraquecida. Falha inicial de Maven clean sobre bind mount corrigida separando `/reports` de `/workspace/target`.
+
+### T4
+
+| Critério | Evidência / assertion | Resultado definido | Necessidade |
+| --- | --- | --- | --- |
+| BASE-01 | `scripts/validate-compose.ps1:53`, `Assert-Equal ... 200`; linha 54, `Assert-Equal ... UP` | HTTP 200/UP nas três inicializações | AC01 |
+| BASE-02 | `scripts/validate-compose.ps1:79`, comparação integral da linha do histórico; linha 84, após down/up | Histórico exatamente igual | AC02 |
+| BASE-03 | `scripts/validate-compose.ps1:78`, `Assert-Equal ... 4242`; linha 83, após down/up | Valor sentinela preservado | AC03 |
+| BASE-07 | `scripts/validate-compose.ps1:74`, exit zero de test UID/JAR e ausência de Maven/javac/socket | Runtime restrito | AC07 |
+| BASE-02/03, search_path | `src/test/java/br/com/monitor/ApplicationIT.java:69`, `rows.getInt(1) == 4242`; linha 73, count == 1 | Startup repetido preserva linha e histórico em public | Regressão do cenário de reinício |
+
+Adequação: smoke falhou primeiro com busca indevida do histórico em monitor; configuração explicitou public e o teste de regressão foi adicionado no mesmo commit. Nenhuma assertion foi removida/enfraquecida. O export limpo aprovado contém exatamente o código preparado para este commit.
