@@ -28,13 +28,21 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-08
 - **Status**: active
 
+### AD-004
+- **Decision**: Construir, testar e executar exclusivamente por contêineres Docker; abandonar Maven Wrapper e não exigir Maven ou JDK no host.
+- **Reason**: Decisão expressa do usuário para reproduzir MON-02 com `docker compose up --build` diretamente do código-fonte.
+- **Trade-off**: Testcontainers precisa de acesso ao daemon e configuração de rede no serviço tests; testes ficam separados do build runtime.
+- **Scope**: MON-02 a MON-12; MON-02-AC01/AC05/AC06/AC07/AC08. O checkout inicial não continha wrapper; não há arquivos a remover.
+- **Date**: 2026-10-13
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: MON-01; `.specs/features/mon-01-produto-contratos/`.
-- **Phase / Task**: Specify documental; proposta aguardando revisão de produto.
-- **Completed**: spec, context e decisões produzidos; sete critérios de origem mapeados; nenhuma entrega de implementação concluída.
-- **In-progress**: Nenhum código; defaults A-01 a A-10 não ratificados.
-- **Next step**: Revisar/ratificar premissas de MON-01 e atualizar contrato se necessário; então especificar MON-02 a partir desta baseline.
-- **Blockers**: Nenhuma lacuna impeditiva para especificar MON-02; aprovação antes de avançar no fluxo da skill.
-- **Uncommitted files**: Três artefatos em `.specs/`; não há repositório Git inicializado.
-- **Branch**: N/A; Git inexistente. Nenhum commit, build ou teste de aplicação executado.
+- **Feature**: MON-02; `.specs/features/mon-02-base-docker/`.
+- **Phase / Task**: T1 concluída, contrato e decisão Docker.
+- **Completed**: Leitura do backlog atualizado, MON-01 e baseline Git d6a9601; código inexistente confirmado. Gates estruturais sem erros/avisos.
+- **In-progress**: Implementação autorizada pelo usuário.
+- **Next step**: T2, criar bootstrap compilável por Docker.
+- **Blockers**: Nenhum; confirmar imagens durante execução.
+- **Uncommitted files**: SDD de MON-02 e atualização do backlog fornecida pelo usuário.
+- **Branch**: main; Git existe, corrigindo snapshot anterior.

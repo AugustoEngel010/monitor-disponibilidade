@@ -9,6 +9,7 @@
 ## 1. Escopo inicial
 
 - Java e Spring Boot, PostgreSQL e Flyway.
+- Build, testes e execução por contêineres Docker. Maven e JDK ficam nos contêineres de build e testes; o ambiente local precisa de Docker e Docker Compose. A execução usa a imagem da aplicação.
 - Monólito modular, com organização por domínio e limites claros entre módulos.
 - Uma instância da aplicação e um único operador administrativo no MVP.
 - Monitoramento HTTP/HTTPS por GET, com um código de resposta esperado por monitor.
@@ -31,7 +32,7 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 | Fase | ID | Task | Depende de |
 | --- | --- | --- | --- |
 | Definição e base | MON-01 | Definir o produto e os contratos de comportamento | Nenhuma |
-| Definição e base | MON-02 | Preparar a aplicação, o banco e a integração contínua | MON-01 |
+| Definição e base | MON-02 | Preparar a aplicação em Docker, o banco e a integração contínua | MON-01 |
 | Administração | MON-03 | Proteger o acesso administrativo | MON-02 |
 | Administração | MON-04 | Gerenciar o ciclo de vida dos monitores | MON-03 |
 | Execução | MON-05 | Executar e registrar uma verificação HTTP | MON-04 |
@@ -65,24 +66,28 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Conclusão:** produto e regras documentados, sem lacunas impeditivas para MON-02. Questões que alterem o comportamento devem ser resolvidas durante a especificação da entrega afetada.
 
-### MON-02 — Preparar a aplicação, o banco e a integração contínua
+### MON-02 — Preparar a aplicação em Docker, o banco e a integração contínua
 
 **Objetivo:** fornecer uma base executável e uma rotina reproduzível de validação para as próximas entregas.
 
-**Escopo:** projeto Spring Boot, build com wrapper, conexão PostgreSQL, migrações Flyway, configuração por ambiente, organização dos módulos e workflow de CI. Preparar testes unitários e testes de integração com PostgreSQL real em ambiente isolado, por exemplo com Testcontainers.
+**Escopo:** projeto Spring Boot com Maven no contêiner de build, Dockerfile com etapas de build e execução, imagem da aplicação, conexão PostgreSQL, migrações Flyway, configuração por ambiente, organização dos módulos e workflow de CI. Usar Docker Compose para construir a imagem a partir do código e iniciar aplicação e banco. Preparar testes unitários e testes de integração com PostgreSQL real em ambiente isolado, por exemplo com Testcontainers, executados em um serviço de testes separado.
+
+**Decisão de execução:** substituir o Maven Wrapper por build e execução via Docker. Remover mvnw, mvnw.cmd e os arquivos exclusivos de .mvn/wrapper; preservar pom.xml e outras configurações Maven necessárias. Registrar esta decisão nos artefatos de SDD já existentes que dependam do wrapper. Fixar versões compatíveis das imagens de build e execução conforme as decisões do projeto.
 
 **Critérios de aceite:**
 
-- [ ] MON-02-AC01: um checkout limpo compila e executa com as instruções documentadas e as variáveis de configuração previstas.
+- [ ] MON-02-AC01: a partir de um checkout limpo, um ambiente com Docker e Docker Compose constrói a imagem e inicia aplicação e banco com docker compose up --build e as variáveis previstas. A construção parte do código-fonte, sem exigir JAR compilado previamente ou JDK/Maven instalados no host.
 - [ ] MON-02-AC02: uma base vazia recebe as migrações necessárias. Reiniciar a aplicação não reaplica uma migração já concluída.
 - [ ] MON-02-AC03: o banco mantém os dados após reiniciar os serviços de desenvolvimento, usando volume persistente.
 - [ ] MON-02-AC04: os módulos têm responsabilidades documentadas e dependências coerentes com o desenho escolhido.
-- [ ] MON-02-AC05: a CI executa build, análise ou formatação configurada e testes; uma falha em qualquer etapa impede o resultado de sucesso.
-- [ ] MON-02-AC06: o README registra os comandos reais de execução e testes extraídos da configuração criada. Nenhuma credencial real é versionada.
+- [ ] MON-02-AC05: a CI utiliza o fluxo de build e testes em contêineres e valida a construção da imagem da aplicação, as verificações de qualidade e os testes. Uma falha em qualquer etapa impede o resultado de sucesso; um build de imagem bem-sucedido não substitui o resultado da suíte de testes.
+- [ ] MON-02-AC06: o README registra os comandos reais para construir, iniciar, parar, consultar logs e executar testes com Docker, além das variáveis necessárias e da política de persistência. Nenhuma credencial real é versionada.
+- [ ] MON-02-AC07: mvnw, mvnw.cmd e os arquivos exclusivos do wrapper são removidos. Dockerfile, Compose, CI e documentação usam o fluxo em contêineres. A imagem de execução utiliza o runtime Java e o artefato da aplicação, com as ferramentas de build mantidas na etapa de construção.
+- [ ] MON-02-AC08: os testes podem ser executados pelo serviço de testes em contêiner, com saída diferente de zero em caso de falha e relatórios acessíveis. Testcontainers utiliza uma configuração documentada de acesso ao daemon Docker e de rede para o ambiente suportado; a imagem da aplicação não precisa desse acesso.
 
-**Testes:** smoke test de inicialização e integração das migrações com PostgreSQL. A estrutura deve permitir que os testes de comportamento sejam adicionados junto de cada funcionalidade.
+**Testes:** construção da imagem a partir do código e smoke test da aplicação em Compose; integração das migrações com PostgreSQL; reinício dos serviços preservando o volume; execução da suíte pelo serviço de testes. A estrutura deve permitir que os testes de comportamento sejam adicionados junto de cada funcionalidade. O fluxo de testes de integração utiliza um contêiner de testes com acesso ao daemon Docker e a configuração de rede necessária, separado da construção normal da imagem da aplicação.
 
-**Conclusão:** aplicação inicializa e a CI passa com os comandos documentados no repositório.
+**Conclusão:** a imagem da aplicação inicializa em Compose e os comandos de build e testes em contêineres estão documentados e verificados. Registrar separadamente os resultados locais e a execução efetivamente observada da CI.
 
 ### MON-03 — Proteger o acesso administrativo
 
@@ -272,7 +277,7 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-12-AC01: seguindo o README em um ambiente limpo, é possível iniciar aplicação, PostgreSQL, SMTP de testes e API de demonstração com os comandos documentados.
+- [ ] MON-12-AC01: seguindo o README a partir de um checkout limpo, um ambiente com Docker e Docker Compose constrói e inicia a imagem da aplicação, PostgreSQL, SMTP de testes e API de demonstração com os comandos documentados.
 - [ ] MON-12-AC02: a API de demonstração permite alternar entre sucesso, status inesperado e resposta lenta, sem alterar o código do monitor.
 - [ ] MON-12-AC03: o roteiro demonstra sucesso, confirmação de queda, uma única abertura de incidente, notificação, confirmação de recuperação e encerramento.
 - [ ] MON-12-AC04: o roteiro demonstra reinício com incidente aberto e envio pendente, seguido de retomada sem perda dos registros persistidos.
@@ -307,5 +312,7 @@ Foram consultadas as instruções públicas da tlc-spec-driven do Tech Leads Clu
 
 - Skill: https://github.com/tech-leads-club/agent-skills/blob/main/packages/skills-catalog/skills/%28development%29/tlc-spec-driven/SKILL.md
 - Referência de tasks: https://github.com/tech-leads-club/agent-skills/blob/main/packages/skills-catalog/skills/%28development%29/tlc-spec-driven/references/tasks.md
+- [Docker: build com múltiplas etapas](https://docs.docker.com/build/building/multi-stage/).
+- [Testcontainers: execução de testes dentro de contêineres](https://java.testcontainers.org/supported_docker_environment/continuous_integration/dind_patterns/).
 
 Fonte consultada em 8 de outubro de 2026. A versão instalada da skill no ambiente de implementação será a referência para seus próprios formatos e validadores.

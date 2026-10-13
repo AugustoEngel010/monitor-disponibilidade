@@ -42,7 +42,7 @@ Não há área declarada recusada pelo usuário. A-01 a A-10 constam em Assumpti
 
 | Entrega | Detalhe que deve ser resolvido antes de implementar |
 | --- | --- |
-| MON-02 | Versões suportadas, wrapper/build, organização física, dependências, migrações, configuração e comandos reais de CI |
+| MON-02 | Versões suportadas, build/testes/runtime por Docker (AD-004), organização física, dependências, migrações, configuração e comandos reais de CI; wrapper descartado por decisão em 2026-10-13 |
 | MON-03 | Contrato de credenciais obrigatórias, CSRF e proteção de recursos operacionais |
 | MON-04 | Endpoints/DTOs, gramática de e-mail, normalização de URL, paginação e concorrência de alterações administrativas |
 | MON-05 | Enumeração verificável de redes proibidas, resolução/conexão segura, limites efetivos de timeout e sanitização |

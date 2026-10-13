@@ -22,7 +22,7 @@ O projeto também deve permitir que um avaliador de portfólio reproduza localme
 
 O MVP permite autenticar um operador, cadastrar monitores, executar GETs periódicos, registrar verificações, confirmar incidentes, entregar alertas e consultar tudo num painel servido pela aplicação. PostgreSQL mantém o estado; Flyway controla migrações. Java e Spring Boot compõem um monólito modular. Docker Compose executará aplicação, banco, SMTP de testes e API de demonstração.
 
-MON-01 entrega somente esta especificação, o contexto de decisões e a memória do projeto. O MVP será construído de MON-02 a MON-12. Versões de ferramentas, contratos detalhados de endpoints, esquema físico e bibliotecas serão definidos nas entregas que os implementam.
+MON-01 entrega somente esta especificação, o contexto de decisões e a memória do projeto. O MVP será construído de MON-02 a MON-12. Versões de ferramentas, contratos detalhados de endpoints, esquema físico e bibliotecas serão definidos nas entregas que os implementam. AD-004, em 2026-10-13, determina build, testes e runtime por Docker, sem Maven Wrapper, Maven ou JDK no host; MON-02 detalha esse contrato operacional.
 
 ## Out of Scope
 
