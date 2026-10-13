@@ -1,6 +1,6 @@
 # MON-04: ciclo de vida dos monitores
 
-**Data:** 2026-10-13. **Status:** execução local autorizada pelo pedido. Origem: MON-04-AC01 a MON-04-AC07, PROD-02 a PROD-10, AD-001/003/004/005.
+**Data:** 2026-10-13. **Status:** Verified; verificador independente PASS, 160 testes e seis sensores mortos. Execução local autorizada pelo pedido. Origem: MON-04-AC01 a MON-04-AC07, PROD-02 a PROD-10, AD-001/003/004/005.
 
 ## Problem Statement
 

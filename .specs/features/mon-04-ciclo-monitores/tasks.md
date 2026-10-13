@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven, testes derivados da spec, gates antes de conclusão, commit por task com status e verificador independente final. Pedido autoriza execução e commits locais. Oito tasks inicialmente, um lote inline; correção adicional de smoke descoberta no gate operacional. Ferramentas já determinadas pelo usuário: skill, shell e Docker.
 
-**Design:** [design.md](design.md). **Status:** In Progress.
+**Design:** [design.md](design.md). **Status:** Done; verificador independente PASS.
 
 ## Test Coverage Matrix
 
@@ -183,4 +183,8 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9
 
 ## Post-Gate Evidence
 
-Evidências e mapeamento reverso serão registrados em evidence.md por task.
+Evidências e mapeamento reverso estão registrados em [evidence.md](evidence.md) por task.
+
+## Feature-Level Validation
+
+[Relatório independente](validation.md): PASS no range da7276f..f46df05. 160 testes (46 unitários, 114 integrações), zero failures/errors/skips/Checkstyle; runtime e smoke aprovados. Seis sensores mortos, zero sobreviventes, árvore real preservada. validate_state.py exit 0. CI remota não executada.

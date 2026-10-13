@@ -560,3 +560,7 @@ Build aprovado sobre implementação final: 160 testes Docker, Checkstyle zero, 
 | --- | --- | --- |
 
 Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
+
+## Fechamento independente
+
+PASS AC01 a AC07 e LIFE08/09; range da7276f..f46df05. Full repetido em scratch original: 160/160, Checkstyle zero; runtime e smoke mon02-smoke-009037f5b9e1 exit 0. Seis mutações detectadas por assertions sem errors; fontes/restos scratch removidos e porcelain real vazio antes do relatório. Evidências específicas e comandos em [validation.md](validation.md). Gates validate_spec --strict, validate_tasks e validate_state aprovados. Nenhum push; CI remota não executada.

@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02 e MON-03 implementadas e validadas localmente em 2026-10-13. MON-01 permanece proposta documental; demais entregas planejadas. CI remota não observada.
+**Status:** MON-02, MON-03 e MON-04 implementadas e validadas localmente em 2026-10-13. MON-01 permanece proposta documental; demais entregas planejadas. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -116,17 +116,17 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-04-AC01: um cadastro válido persiste a configuração e retorna HTTP 201 com o identificador do monitor.
-- [ ] MON-04-AC02: valores fora dos limites, timeout incompatível com o intervalo e URL com esquema diferente de HTTP/HTTPS recebem HTTP 400 com erros por campo.
-- [ ] MON-04-AC03: a URL administrativa não aceita credenciais embutidas. A política de destinos é complementada pela validação de execução em MON-05.
-- [ ] MON-04-AC04: consultas e alterações de identificador inexistente retornam HTTP 404.
-- [ ] MON-04-AC05: edição válida altera somente a configuração prevista, preservando o histórico existente e respeitando a regra para incidentes abertos.
-- [ ] MON-04-AC06: pausar ou retomar novamente um monitor já nessa condição é idempotente e preserva seu histórico.
-- [ ] MON-04-AC07: a listagem é paginada, tem ordenação estável e informa se o monitor está ativo ou pausado e se possui uma observação recente.
+- [x] MON-04-AC01: um cadastro válido persiste a configuração e retorna HTTP 201 com o identificador do monitor.
+- [x] MON-04-AC02: valores fora dos limites, timeout incompatível com o intervalo e URL com esquema diferente de HTTP/HTTPS recebem HTTP 400 com erros por campo.
+- [x] MON-04-AC03: a URL administrativa não aceita credenciais embutidas. A política de destinos é complementada pela validação de execução em MON-05.
+- [x] MON-04-AC04: consultas e alterações de identificador inexistente retornam HTTP 404.
+- [x] MON-04-AC05: edição válida altera somente a configuração prevista, preservando o histórico existente e respeitando a regra para incidentes abertos.
+- [x] MON-04-AC06: pausar ou retomar novamente um monitor já nessa condição é idempotente e preserva seu histórico.
+- [x] MON-04-AC07: a listagem é paginada, tem ordenação estável e informa se o monitor está ativo ou pausado e se possui uma observação recente.
 
 **Testes:** integração dos contratos administrativos, persistência e validações; testes unitários das regras de edição e ciclo de vida que forem implementadas nesta entrega.
 
-**Conclusão:** operações administrativas verificadas. MON-06 completará a integração entre a configuração de pausa e a execução periódica.
+**Conclusão:** validada localmente em 2026-10-13. API Basic/CSRF, configuração validada, persistência Flyway V2/PostgreSQL, edição com guard de incidente, pausa/retomada idempotentes e paginação estável. 160 testes sem falhas/erros/skips, qualidade/build/smoke Docker aprovados; verificador independente PASS 7/7 e seis sensores mortos. Evidências em `.specs/features/mon-04-ciclo-monitores/validation.md`. MON-06 completará integração com execução/cancelamento; MON-07 criará/processará incidentes reais. CI remota não executada.
 
 ### MON-05 — Executar e registrar uma verificação HTTP
 
