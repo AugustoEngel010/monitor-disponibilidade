@@ -31,3 +31,19 @@ Gate completo `docker compose run --build --rm tests`, exit 0: 110 unitários + 
 | AC05/07 TLS | `src/test/java/br/com/monitor/HttpCheckExecutorIT.java:287` TLS_FAILURE certificado; :289 mensagem fixa; :290 socket fechado; :335 certificado confiável com hostname correto SUCCESS; :339 hostname errado TLS_FAILURE | Cadeia e hostname preservados | Sim |
 
 Mapeamento reverso: cada método de HttpCheckExecutorIT é uma linha desta tabela; as quatro combinações de status pertencem a AC01/05, os demais casos a AC02/03/04/05/07. Todos mantidos. Adequação PASS: payload, erros e recursos observados, sem assertion rasa; nenhum teste existente alterado.
+
+## T3
+
+Gate completo `docker compose run --build --rm tests`, exit 0; 110 unitários + 148 IT = 258, 15 casos novos de persistência, Checkstyle 0, zero falhas/erros/skips. Log `.validation/mon05-t3.log`. PostgreSQL 17.6 exclusivo de Testcontainers; banco de desenvolvimento intocado.
+
+| AC / cenário | Assertion file:line | Outcome da spec | Coberto |
+| --- | --- | --- | --- |
+| AC03/04/07 metadados e sanitização | `src/test/java/br/com/monitor/CheckRepositoryIT.java:61` save igual; :62 find igual; :64 containsOnlyKeys sem corpo; :66..75 valores exatos de cada campo e mensagem | Todos os metadados, nove classificações, sem corpo/erro bruto | Sim |
+| AC08 repetição sequencial | `src/test/java/br/com/monitor/CheckRepositoryIT.java:84` duplicate retorna first; :86 find first; :87 count=1 | Primeiro resultado preservado | Sim |
+| AC08 concorrência | `src/test/java/br/com/monitor/CheckRepositoryIT.java:105` winner isIn(success,failure); :106 second equals winner; :107 persisted winner; :109 count=1 | Única linha mesmo com duas conexões | Sim |
+| AC08 identidade | `src/test/java/br/com/monitor/CheckRepositoryIT.java:124` IllegalArgumentException mensagem fixa; :127 first preservado; :128 count=1 | UUID não muda monitor/versão/geração | Sim |
+| AC03/04 falha parcial | `src/test/java/br/com/monitor/CheckRepositoryIT.java:136` DataAccessException FK; :137 sem linha; :140 duração negativa rejeitada; :142 retry igual; :143/145 SQL erro bruto/status impossível rejeitados; :147 original igual | Sem registro parcial ou mensagem bruta | Sim |
+| AC08 durabilidade/nova conexão | `src/test/java/br/com/monitor/CheckRepositoryIT.java:153` ausência empty; :156 reaberto contains(result); :157 save=result; :158 count=1 | Evidência persistente deduplicada | Sim |
+| Migração e regressão | `src/test/java/br/com/monitor/CheckRepositoryIT.java:177` current migra uma vez; :178 zero repetição; :179 histórico antigo igual; :181 monitor igual; :182 tabela vazia | V3 preserva V1/V2 e dados | Sim |
+
+Mapeamento reverso: nove casos parametrizados = AC03/04/07; repetição/concorrência/identidade/nova conexão = AC08; constraints = AC03/04; migração = preservação da arquitetura requerida. Adequação PASS. Fixtures corrigidas antes da implementação ser aprovada: nullable Integer sem unboxing e relógio fixo com precisão PostgreSQL, sem mudar assertions. Testes antigos preservados; expectativas de histórico ampliadas para 1,2,3. O teste específico de upgrade V1→V2 mantém target 2 e suas assertions originais; teste novo prova V2→V3. TRUNCATE inclui somente a nova tabela filha, sem CASCADE.

@@ -48,7 +48,7 @@ class MonitorRepositoryIT {
 
     @BeforeEach
     void clear() {
-        jdbc.execute("TRUNCATE monitor.history_fixture, monitor.monitors");
+        jdbc.execute("TRUNCATE monitor.history_fixture, monitor.check_results, monitor.monitors");
     }
 
     @AfterAll
@@ -58,9 +58,10 @@ class MonitorRepositoryIT {
     void migrationUpgradesV1AndIsNeverReapplied() {
         var history = jdbc.queryForList("SELECT version, checksum, installed_on FROM public.flyway_schema_history"
                 + " ORDER BY installed_rank");
-        assertThat(history).hasSize(2);
+        assertThat(history).hasSize(3);
         assertThat(history.get(0).get("version")).isEqualTo("1");
         assertThat(history.get(1).get("version")).isEqualTo("2");
+        assertThat(history.get(2).get("version")).isEqualTo("3");
         var flyway = Flyway.configure().dataSource(db.getJdbcUrl(), db.getUsername(), db.getPassword())
                 .defaultSchema("public").load();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
@@ -80,7 +81,7 @@ class MonitorRepositoryIT {
             sql.execute("CREATE TABLE monitor.previous_data (value integer)");
             sql.execute("INSERT INTO monitor.previous_data VALUES (4242)");
             var history = sql.queryForList("SELECT * FROM public.flyway_schema_history WHERE version='1'");
-            var current = Flyway.configure().dataSource(source).defaultSchema("public").load();
+            var current = Flyway.configure().dataSource(source).defaultSchema("public").target("2").load();
             assertThat(current.migrate().migrationsExecuted).isEqualTo(1);
             assertThat(current.migrate().migrationsExecuted).isZero();
             assertThat(sql.queryForList("SELECT * FROM public.flyway_schema_history WHERE version='1'"))
@@ -105,7 +106,7 @@ class MonitorRepositoryIT {
         service = context.getBean(MonitorService.class);
         assertThat(service.get(monitor.id())).isEqualTo(monitor);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM public.flyway_schema_history", Integer.class))
-                .isEqualTo(2);
+                .isEqualTo(3);
     }
 
     @Test

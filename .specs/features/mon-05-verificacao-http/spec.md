@@ -81,7 +81,7 @@ Validação/rede: HTTP-05/06. Falhas/dependências externas: HTTP-02/04 e erro d
 | HTTP-05 | MON-05-AC05 | T1,T2 | DestinationPolicyTest, HttpCheckExecutorIT | Implementing |
 | HTTP-06 | MON-05-AC06 | T1,T4 | DestinationPolicyTest, CheckServiceIT | Implementing |
 | HTTP-07 | MON-05-AC04 | T2,T3,T4 | CheckRepositoryIT, CheckServiceIT | Implementing |
-| HTTP-08 | MON-05-AC08 | T3,T4 | CheckRepositoryIT, CheckServiceIT | Implementing |
+| HTTP-08 | MON-05-AC08 | T3,T4 | CheckRepositoryIT (evidence.md T3), CheckServiceIT | Implementing |
 
 ## Success Criteria
 

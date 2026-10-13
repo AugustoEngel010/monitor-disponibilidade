@@ -63,7 +63,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T2
 **Requirement**: HTTP-03/07/08
 **Done when**:
-- [ ] CheckRepositoryIT verifica metadados, dedup sequencial/concorrente, FK, restart e erros; full passa, mínimo 6 casos novos.
+- [x] CheckRepositoryIT verifica metadados, dedup sequencial/concorrente, FK, nova conexão e erros; full passa: 258 testes (110 unitários/148 IT), 15 casos novos, zero falhas/erros/skips.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-05): persist idempotent check results

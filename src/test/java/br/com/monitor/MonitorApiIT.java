@@ -60,7 +60,7 @@ class MonitorApiIT {
     }
 
     @BeforeEach
-    void clear() { jdbc.execute("TRUNCATE monitor.api_history_fixture, monitor.monitors"); }
+    void clear() { jdbc.execute("TRUNCATE monitor.api_history_fixture, monitor.check_results, monitor.monitors"); }
 
     @AfterAll
     void stop() { context.close(); db.stop(); }
