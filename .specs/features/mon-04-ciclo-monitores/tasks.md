@@ -96,7 +96,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Requirement**: LIFE-01/02/03/04/08/09
 **Tools**: shell, Docker; tlc-spec-driven.
 **Done when**:
-- [ ] POST 201, GET 200, payload, erros 400/404/409, Basic/CSRF e persistência verificados; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
+- [x] POST 201, GET 200, payload, erros 400/404/409, Basic/CSRF e persistência verificados; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
 **Tests**: integration
 **Gate**: Full
 **Commit**: `feat(mon-04): expose monitor registration and lookup`

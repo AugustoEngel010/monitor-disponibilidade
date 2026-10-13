@@ -131,3 +131,67 @@ Full Docker exit 0: 46 unitários + 54 integrações = 100; zero falhas/erros/sk
 | `src/test/java/br/com/monitor/MonitorRepositoryIT.java:175`: `assertThat(service.get(monitor.id()).state().lifecycle()).isEqualTo("PAUSED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
 
 Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
+
+## T5
+
+Full Docker exit 0: 46 unitários + 88 integrações = 134, zero falhas/erros/skips/Checkstyle. 34 cenários HTTP novos: payload integral 201/Location, consulta, defaults, limites/tipos, erros sanitizados, 404, limite 409 e Basic/CSRF com ausência de efeito.
+
+| Evidência / assertion | Requisito / resultado | Necessidade |
+| --- | --- | --- |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:53`: `assertThat(csrf.statusCode()).isEqualTo(200);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:56`: `assertThat(token).isNotBlank();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:68`: `assertThat(response.statusCode()).isEqualTo(201);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:71`: `assertThat(response.headers().firstValue("location")).contains(ROOT + "/" + id);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:74`: `assertThat(monitor.get(field.getKey())).isEqualTo(field.getValue());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:76`: `assertThat(monitor.path("lifecycle").asText()).isEqualTo("ACTIVE");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:77`: `assertThat(monitor.path("confirmedState").asText()).isEqualTo("UNKNOWN");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:78`: `assertThat(monitor.path("evidence").asText()).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:79`: `assertThat(monitor.path("recentObservation").asBoolean()).isFalse();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:80`: `assertThat(monitor.path("failureCount").asInt()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:81`: `assertThat(monitor.path("recoveryCount").asInt()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:82`: `assertThat(monitor.path("configurationVersion").asLong()).isEqualTo(1);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:83`: `assertThat(monitor.path("executionGeneration").asLong()).isEqualTo(1);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:84`: `assertThat(monitor.path("lastObservedAt").isNull()).isTrue();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:85`: `assertThat(monitor.path("openIncidentId").isNull()).isTrue();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:86`: `assertThat(monitor.path("nextCheckAt")).isEqualTo(monitor.path("createdAt"));` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:87`: `assertThat(monitor.path("updatedAt")).isEqualTo(monitor.path("createdAt"));` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:88`: `assertThat(tree(send("GET", ROOT + "/" + id, null))).isEqualTo(monitor);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:89`: `assertThat(jdbc.queryForObject("SELECT name FROM monitor.monitors WHERE id=?", String.class, id))` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:90`: `.isEqualTo("Demo");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:99`: `assertThat(response.statusCode()).isEqualTo(201);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:101`: `assertThat(monitor.path("name").asText()).isEqualTo("Demo");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:102`: `assertThat(monitor.path("url").asText()).isEqualTo("https://example.org/a");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:103`: `assertThat(monitor.path("alertRecipient").asText()).isEqualTo("ops@example.org");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:104`: `assertThat(monitor.path("intervalSeconds").asInt()).isEqualTo(60);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:105`: `assertThat(monitor.path("timeoutSeconds").asInt()).isEqualTo(5);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:106`: `assertThat(monitor.path("expectedStatus").asInt()).isEqualTo(200);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:107`: `assertThat(monitor.path("failureThreshold").asInt()).isEqualTo(3);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:108`: `assertThat(monitor.path("recoveryThreshold").asInt()).isEqualTo(2);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:110`: `assertThat(count()).isEqualTo(2);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:119`: `assertThat(count()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:129`: `assertThat(response.statusCode()).isEqualTo(400);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:130`: `assertThat(tree(response).path("errors").size()).isEqualTo(8);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:131`: `assertThat(count()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:140`: `assertThat(response.body()).doesNotContain(url, "secret");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:141`: `assertThat(count()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:150`: `assertThat(count()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:157`: `assertThat(count()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:170`: `assertThat(count()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:175`: `assertThat(request("GET", ROOT + "/" + UUID.randomUUID(), null, false, false).statusCode())` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:176`: `.isEqualTo(401);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:177`: `assertThat(request("POST", ROOT, valid().toString(), false, false).statusCode()).isEqualTo(401);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:178`: `assertThat(request("POST", ROOT, valid().toString(), true, false).statusCode()).isEqualTo(403);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:179`: `assertThat(count()).isZero();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:180`: `assertThat(send("POST", ROOT, valid()).statusCode()).isEqualTo(201);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:186`: `assertThat(missing.statusCode()).isEqualTo(404);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:187`: `assertThat(tree(missing).path("code").asText()).isEqualTo("MONITOR_NOT_FOUND");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:194`: `for (int i = 0; i < 100; i++) { assertThat(send("POST", ROOT, input).statusCode()).isEqualTo(201); }` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:196`: `assertThat(response.statusCode()).isEqualTo(409);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:197`: `assertThat(tree(response).path("code").asText()).isEqualTo("MONITOR_LIMIT");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:198`: `assertThat(count()).isEqualTo(100);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:212`: `assertThat(response.statusCode()).isEqualTo(400);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:213`: `assertThat(tree(response).path("code").asText()).isEqualTo("VALIDATION_ERROR");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:214`: `assertThat(tree(response).path("errors").has(field)).isTrue();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorApiIT.java:215`: `assertThat(tree(response).path("errors").path(field).asText()).isNotBlank();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+
+Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
