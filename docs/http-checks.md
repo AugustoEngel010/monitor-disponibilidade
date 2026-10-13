@@ -26,6 +26,8 @@ A URI precisa passar pelas regras administrativas: HTTP/HTTPS, host e porta vál
 
 Uma tentativa usa o primeiro endereço do snapshot validado, sem resolução adicional nem fallback. O host original permanece no HTTP e no TLS, preservando cadeia de confiança, hostname e SNI. Fallback entre IPs não pode mascarar erro TLS. O pool pertence somente à tentativa e não reaproveita sockets entre monitores. APIs oficiais consultadas: [DNS/operador de conexão Apache 5.5.2](https://raw.githubusercontent.com/apache/httpcomponents-client/rel/v5.5.2/httpclient5/src/main/java/org/apache/hc/client5/http/impl/io/DefaultHttpClientConnectionOperator.java) e [cancelamento duro](https://hc.apache.org/components/httpcomponents-client-5.3.x/5.3.1/httpclient5/apidocs/org/apache/hc/client5/http/config/RequestConfig.Builder.html).
 
+Referências das faixas especiais: [registro IPv4 da IANA](https://www.iana.org/assignments/iana-ipv4-special-registry) e [registro IPv6 da IANA](https://www.iana.org/assignments/iana-ipv6-special-registry). A política conserva bloqueios amplos de faixas especiais, mesmo quando existam subalocações públicas específicas.
+
 `MONITOR_DEMO_ORIGIN` vazia mantém a política pública. Para um serviço de demonstração configurado separadamente, definir, por exemplo:
 
 ```dotenv

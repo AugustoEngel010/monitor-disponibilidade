@@ -1,6 +1,6 @@
 # MON-05: executar e registrar uma verificação HTTP
 
-**Data:** 2026-10-13. **Status:** Implementing. Execução local autorizada pelo pedido.
+**Data:** 2026-10-13. **Status:** Verified; [verificação independente](validation.md) PASS 8/8, 264 testes e seis mutações mortas. Execução local autorizada pelo pedido.
 **Origem:** MON-05-AC01 a MON-05-AC08; PROD-21/22/23/24/29; AD-001 a AD-006.
 
 ## Problem Statement
@@ -74,14 +74,14 @@ Validação/rede: HTTP-05/06. Falhas/dependências externas: HTTP-02/04 e erro d
 
 | Requirement ID | Origem | Task | Teste | Status |
 | --- | --- | --- | --- | --- |
-| HTTP-01 | MON-05-AC01 | T2,T4 | HttpCheckExecutorIT, CheckServiceIT | Implementing |
-| HTTP-02 | MON-05-AC02 | T2 | HttpCheckExecutorIT | Implementing |
-| HTTP-03 | MON-05-AC03 | T2,T3,T4 | HttpCheckExecutorIT, CheckRepositoryIT | Implementing |
-| HTTP-04 | MON-05-AC07 | T2 | HttpCheckExecutorIT | Implementing |
-| HTTP-05 | MON-05-AC05 | T1,T2 | DestinationPolicyTest, HttpCheckExecutorIT | Implementing |
-| HTTP-06 | MON-05-AC06 | T1,T4 | DestinationPolicyTest, CheckServiceIT | Implementing |
-| HTTP-07 | MON-05-AC04 | T2,T3,T4 | CheckRepositoryIT, CheckServiceIT | Implementing |
-| HTTP-08 | MON-05-AC08 | T3,T4 | CheckRepositoryIT (evidence.md T3), CheckServiceIT | Implementing |
+| HTTP-01 | MON-05-AC01 | T2,T4 | HttpCheckExecutorIT, CheckServiceIT | Verified |
+| HTTP-02 | MON-05-AC02 | T2 | HttpCheckExecutorIT | Verified |
+| HTTP-03 | MON-05-AC03 | T2,T3,T4 | HttpCheckExecutorIT, CheckRepositoryIT | Verified |
+| HTTP-04 | MON-05-AC07 | T2 | HttpCheckExecutorIT | Verified |
+| HTTP-05 | MON-05-AC05 | T1,T2 | DestinationPolicyTest, HttpCheckExecutorIT | Verified |
+| HTTP-06 | MON-05-AC06 | T1,T4 | DestinationPolicyTest, CheckServiceIT | Verified |
+| HTTP-07 | MON-05-AC04 | T2,T3,T4 | CheckRepositoryIT, CheckServiceIT | Verified |
+| HTTP-08 | MON-05-AC08 | T3,T4 | CheckRepositoryIT (evidence.md T3), CheckServiceIT | Verified |
 
 ## Success Criteria
 

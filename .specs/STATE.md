@@ -63,10 +63,10 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 ## Handoff
 
 - **Feature**: MON-05; `.specs/features/mon-05-verificacao-http/`.
-- **Phase / Task**: T1 a T5 implementadas; verificação independente pendente.
-- **Completed**: Política de rede, executor GET com timeout/cleanup/TLS, V3 e registro idempotente, serviço Spring, configuração demo e documentação. Gates 264 testes (110 unitários/154 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke aprovados. Commits T1 b16132b, T2 d2ca099, T3 0a5aba7, T4 8b4d0eb; T5 neste commit.
-- **In-progress**: Verifier independente e sensor de discriminação; nenhuma implementação pendente conhecida.
-- **Next step**: Validar MON-05 independentemente, atualizar backlog/rastreabilidade e executar validate_state. MON-06 coordenará agendamento/cancelamento e comparação de versão/geração; MON-07 aplicará resultado ao estado/incidente.
+- **Phase / Task**: Execute concluído; T1 a T5 e Verifier independente PASS 8/8.
+- **Completed**: Política de rede, executor GET com timeout/cleanup/TLS, V3 e registro idempotente, serviço Spring, configuração demo e documentação. Gates autor/Verifier: 264 testes (110 unitários/154 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke aprovados. Seis mutações mortas, nenhuma sobrevivente. Commits T1 b16132b, T2 d2ca099, T3 0a5aba7, T4 8b4d0eb, T5 d65d791.
+- **In-progress**: Nenhuma implementação pendente da MON-05. Relatório independente em `.specs/features/mon-05-verificacao-http/validation.md`.
+- **Next step**: MON-06 coordenará agendamento/cancelamento e comparação de versão/geração sob o mesmo lock administrativo; MON-07 aplicará resultado ao estado/incidente/intenção atomicamente conforme AD-002.
 - **Blockers**: Nenhum local. CI remota não executada, push não realizado. Execução é contrato Java interno; não há scheduler/endpoint HTTP novo.
-- **Uncommitted files**: Documentação/configuração T5 até este commit; relatório independente ainda não criado.
-- **Branch**: main; baseline c5ad290. Banco de desenvolvimento preservado; smoke usa somente recursos descartáveis próprios.
+- **Uncommitted files**: Nenhum após o commit de fechamento; relatório e estados incluídos nele. Nenhuma alteração de código após d65d791.
+- **Branch**: main; baseline c5ad290, implementação validada d65d791. Banco de desenvolvimento preservado; projetos Docker descartáveis próprios removidos. Fontes restauradas e evidências locais em `.validation/`.

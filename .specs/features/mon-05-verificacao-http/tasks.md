@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven: testes derivados da spec, gate antes do commit, commit atômico com status e Verifier independente após T5. Pedido autoriza execução local; ferramentas Docker/PowerShell/Python e skill já escolhidas pelo usuário/contexto.
 
-**Status:** In Progress. **Design:** [design.md](design.md).
+**Status:** Done; [Verifier](validation.md) PASS, seis mutações mortas. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -85,7 +85,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T4
 **Requirement**: HTTP-01 a HTTP-08
 **Done when**:
-- [x] README/env/Compose documentados; 264 testes completos, runtime e smoke passam; evidence.md com assertions file:line e comandos. Verifier independente pendente.
+- [x] README/env/Compose documentados; 264 testes completos, runtime e smoke passam; evidence.md com assertions file:line e comandos. Verifier independente PASS 8/8 e seis sensores mortos.
 **Tests**: integration
 **Gate**: build
 **Commit**: docs(mon-05): document HTTP checks and validation

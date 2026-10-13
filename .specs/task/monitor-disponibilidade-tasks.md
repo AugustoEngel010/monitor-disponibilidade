@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02, MON-03 e MON-04 implementadas e validadas localmente em 2026-10-13. MON-01 permanece proposta documental; demais entregas planejadas. CI remota não observada.
+**Status:** MON-02, MON-03, MON-04 e MON-05 implementadas e validadas localmente em 2026-10-13. MON-01 permanece proposta documental; demais entregas planejadas. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -136,18 +136,18 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-05-AC01: o código esperado gera sucesso; outro código gera falha HTTP e preserva o status recebido.
-- [ ] MON-05-AC02: uma requisição que excede o timeout é encerrada e registrada como timeout. Nenhuma tentativa pode bloquear o executor por tempo indefinido.
-- [ ] MON-05-AC03: cada resultado informa o monitor, identificador da execução, início, término, duração, classificação e status HTTP quando disponível.
-- [ ] MON-05-AC04: a consulta não persiste o corpo da resposta. Recursos de conexão são liberados ao concluir ou cancelar a tentativa.
-- [ ] MON-05-AC05: destinos de rede proibidos são bloqueados também na resolução e conexão, de acordo com a política especificada. Redirecionamentos automáticos ficam desabilitados no MVP.
-- [ ] MON-05-AC06: o ambiente de demonstração permite somente o destino interno de testes configurado explicitamente. Esse acesso não amplia automaticamente a política dos demais destinos.
-- [ ] MON-05-AC07: um resultado rejeitado pela política de destino ou causado por erro interno é distinguido de uma indisponibilidade observada do serviço.
-- [ ] MON-05-AC08: repetir a persistência do mesmo identificador de execução não cria um segundo resultado.
+- [x] MON-05-AC01: o código esperado gera sucesso; outro código gera falha HTTP e preserva o status recebido.
+- [x] MON-05-AC02: uma requisição que excede o timeout é encerrada e registrada como timeout. Nenhuma tentativa pode bloquear o executor por tempo indefinido.
+- [x] MON-05-AC03: cada resultado informa o monitor, identificador da execução, início, término, duração, classificação e status HTTP quando disponível.
+- [x] MON-05-AC04: a consulta não persiste o corpo da resposta. Recursos de conexão são liberados ao concluir ou cancelar a tentativa.
+- [x] MON-05-AC05: destinos de rede proibidos são bloqueados também na resolução e conexão, de acordo com a política especificada. Redirecionamentos automáticos ficam desabilitados no MVP.
+- [x] MON-05-AC06: o ambiente de demonstração permite somente o destino interno de testes configurado explicitamente. Esse acesso não amplia automaticamente a política dos demais destinos.
+- [x] MON-05-AC07: um resultado rejeitado pela política de destino ou causado por erro interno é distinguido de uma indisponibilidade observada do serviço.
+- [x] MON-05-AC08: repetir a persistência do mesmo identificador de execução não cria um segundo resultado.
 
 **Testes:** integração com servidor HTTP controlado para sucesso, status inesperado, resposta lenta e conexão interrompida; cenários de resolução e destinos bloqueados; persistência repetida do mesmo identificador.
 
-**Conclusão:** uma tentativa produz um resultado durável e os recursos são liberados em todos os caminhos previstos.
+**Conclusão:** validada localmente em 2026-10-13: executor GET com timeout total e duração até cabeçalhos, DNS/HTTP/TLS seguros, demo explícita por origem e V3 com registro idempotente. 264 testes sem falhas/erros/skips, qualidade, runtime e smoke aprovados. Verifier independente PASS 8/8 e seis mutações mortas; [relatório](../features/mon-05-verificacao-http/validation.md). Agendamento e aplicação ao estado/incidente permanecem nas entregas seguintes; CI remota não observada.
 
 ### MON-06 — Agendar verificações com concorrência controlada
 
