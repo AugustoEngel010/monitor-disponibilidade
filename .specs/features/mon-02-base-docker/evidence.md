@@ -48,4 +48,4 @@ PASS Compose lifecycle
 1. `mvn clean` tentou apagar bind mount de target; exit 1. Build agora usa diretório interno e copia para `/reports`, preservando o código de saída.
 2. Usuário PostgreSQL monitor passou a buscar histórico no schema monitor criado por V1; restart falhou. `spring.flyway.default-schema=public` e `schemas=public` corrigem. Teste adicional usa usuário/schema iguais, reinicia contexto e verifica sentinela e histórico.
 
-O verificador independente registrará o checkout final, os testes negativos e o sensor em validation.md. Esta evidência parcial não substitui seu veredito.
+O [verificador independente](validation.md) concluiu PASS 8/8 no checkout final 6c4eafc, inicialmente limpo e sem target/env. Build runtime `--no-cache`, seis testes, Checkstyle e smoke aprovados. Dois testes negativos detectaram as regressões injetadas; um deles demonstrou build runtime aprovado com suíte de integração falhando. Relatórios/XMLs adicionais foram preservados em `.validation/verifier-*`; o scratch foi removido e a imagem runtime restaurada. CI remota não observada.

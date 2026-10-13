@@ -4,7 +4,7 @@
 
 Aplicar `tlc-spec-driven`: testes por spec, gates antes de conclusão, um commit por task, verificador independente e sensor. O pedido autoriza implementação e commits locais. Não executar push ou CI remota.
 
-**Design:** [design.md](design.md). **Status:** In Progress.
+**Design:** [design.md](design.md). **Status:** Done.
 
 ## Test Coverage Matrix
 
@@ -152,9 +152,9 @@ Adequação: teste ligado a AC04, assertion sobre dependência real, nenhuma su�
 
 | Critério | Evidência / assertion | Resultado definido | Necessidade |
 | --- | --- | --- | --- |
-| BASE-01, pronto | `src/test/java/br/com/monitor/ApplicationIT.java:30`, `healthy.statusCode() == 200`; linha 31, `status == UP` | 200/UP com banco real | AC01 |
-| BASE-01, banco indisponível | `src/test/java/br/com/monitor/ApplicationIT.java:34`, `unhealthy.statusCode() == 503`; linha 35, `status == DOWN` | 503/DOWN | Edge case |
-| BASE-01/02, configuração inválida | `src/test/java/br/com/monitor/ApplicationIT.java:46`, `hasRootCauseInstanceOf(PSQLException.class)`; linha 47, mensagem de autenticação | Startup falha | Edge case |
+| BASE-01, pronto | `src/test/java/br/com/monitor/ApplicationIT.java:31`, `healthy.statusCode() == 200`; linha 32, `status == UP` | 200/UP com banco real | AC01 |
+| BASE-01, banco indisponível | `src/test/java/br/com/monitor/ApplicationIT.java:35`, `unhealthy.statusCode() == 503`; linha 36, `status == DOWN` | 503/DOWN | Edge case |
+| BASE-01/02, configuração inválida | `src/test/java/br/com/monitor/ApplicationIT.java:47`, `hasRootCauseInstanceOf(PSQLException.class)`; linha 48, mensagem de autenticação | Startup falha | Edge case |
 | BASE-02, V1 | `src/test/java/br/com/monitor/MigrationIT.java:21`, `migrationsExecuted == 1`; linha 30, schema count == 1 | Uma migração e schema monitor | AC02 |
 | BASE-02, idempotência | `src/test/java/br/com/monitor/MigrationIT.java:32`, `migrationsExecuted == 0`; linhas 35/36, checksum e installedOn iguais | Histórico preservado | AC02 |
 | BASE-02, checksum | `src/test/java/br/com/monitor/MigrationIT.java:53`, `isInstanceOf(FlywayValidateException.class)` e mensagem checksum mismatch | Alteração rejeitada | Edge case |
@@ -188,8 +188,12 @@ Adequação: workflow usa o fluxo já verificado, sem ferramentas Java no host. 
 
 | Critério | Evidência | Resultado / necessidade |
 | --- | --- | --- |
-| BASE-04 | `README.md:93`, tabela de responsabilidades e dependências; ArchitectureTest | Módulos entregues/futuros distinguidos, sem dependência de produção em tests; AC04 |
-| BASE-06 | `README.md:9`, comando principal; tabela de ambiente e comandos abaixo | Build/início/parada/logs/testes reais, relatórios e persistência; AC06 |
+| BASE-04 | `README.md:87`, tabela de responsabilidades e dependências; ArchitectureTest | Módulos entregues/futuros distinguidos, sem dependência de produção em tests; AC04 |
+| BASE-06 | `README.md:10`, comando principal; tabela de ambiente e comandos abaixo | Build/início/parada/logs/testes reais, relatórios e persistência; AC06 |
 | Gate | `evidence.md` e logs locais t6-up/t5-workflow-smoke/t4-tests | Código não mudou após gates; daemon recuperado e up confirmado |
 
 Adequação: revisão documental compara comandos reais, sem teste tautológico de frases. Nenhuma credencial real no README/exemplo. Revisão independente e sensor ainda necessários para conclusão da feature.
+
+## Feature-Level Validation
+
+Verificador independente PASS, 8/8 critérios, no checkout final 6c4eafc. Build runtime sem cache, seis testes, Checkstyle e smoke aprovados. Sensores: schema incorreto fez integração falhar apesar do build passar; prontidão sem banco fez falhar a expectativa HTTP 503. Dois mutantes mortos, nenhum sobrevivente. Scratch removido e runtime restaurado. `validate_state.py` passou sem erros. [Relatório completo](validation.md); CI remota não observada.

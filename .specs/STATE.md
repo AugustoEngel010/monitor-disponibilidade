@@ -2,7 +2,7 @@
 
 ## Decisions
 
-As decisões abaixo registram a baseline solicitada e os contratos propostos em MON-01. `active` significa vigente nesta proposta; aprovação de produto segue pendente onde indicado. Nenhuma implementação existe.
+As decisões abaixo registram a baseline solicitada e os contratos propostos em MON-01. `active` significa vigente; aprovação de produto segue pendente onde indicado. MON-02 entrega a base executável por Docker, sem alterar os contratos de negócio ainda propostos por MON-01.
 
 ### AD-001
 - **Decision**: Usar monólito modular Java/Spring Boot com PostgreSQL/Flyway, uma instância e execução local por Docker Compose.
@@ -39,10 +39,10 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 ## Handoff
 
 - **Feature**: MON-02; `.specs/features/mon-02-base-docker/`.
-- **Phase / Task**: T1 concluída, contrato e decisão Docker.
-- **Completed**: Leitura do backlog atualizado, MON-01 e baseline Git d6a9601; código inexistente confirmado. Gates estruturais sem erros/avisos.
-- **In-progress**: Implementação autorizada pelo usuário.
-- **Next step**: T2, criar bootstrap compilável por Docker.
-- **Blockers**: Nenhum; confirmar imagens durante execução.
-- **Uncommitted files**: SDD de MON-02 e atualização do backlog fornecida pelo usuário.
-- **Branch**: main; Git existe, corrigindo snapshot anterior.
+- **Phase / Task**: Execute concluído; T1 a T6 e verificação independente.
+- **Completed**: Seis commits locais até 6c4eafc; verificador PASS nos oito ACs. Checkout final limpo, build sem cache, um unitário e cinco integrações, qualidade, startup e persistência após restart/down-up. Dois sensores mortos; runtime restaurado.
+- **In-progress**: Nenhuma implementação pendente da MON-02.
+- **Next step**: MON-03, especificar proteção administrativa; confirmar premissas de negócio de MON-01 na entrega afetada.
+- **Blockers**: Nenhum local. GitHub Actions configurada, sem execução remota observada; push não realizado.
+- **Uncommitted files**: Nenhum após o commit de fechamento; relatório, rastreabilidade e este snapshot incluídos nele.
+- **Branch**: main; baseline d6a9601. Aplicação local pronta; banco de desenvolvimento preservado.

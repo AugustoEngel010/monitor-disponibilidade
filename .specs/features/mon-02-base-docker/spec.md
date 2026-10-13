@@ -1,6 +1,6 @@
 # MON-02: base executável por Docker
 
-**Data:** 2026-10-13. **Status:** Implementing. Pedido do usuário autoriza especificação e execução local.
+**Data:** 2026-10-13. **Status:** Verified. Pedido do usuário autoriza especificação e execução local.
 **Origem:** [backlog](../../task/monitor-disponibilidade-tasks.md), MON-02-AC01 até MON-02-AC08.
 **Convenção:** SHALL significa DEVE. IDs BASE-NN atendem ao formato da skill; os IDs de origem permanecem intactos.
 
@@ -90,14 +90,14 @@ O checkout contém somente documentação de produto. O operador precisa constru
 
 | Requirement ID | Origem | Task | Teste / evidência prevista | Status |
 | --- | --- | --- | --- | --- |
-| BASE-01 | MON-02-AC01 | T2, T3, T4 | ApplicationIT; smoke Compose; checkout limpo | Implementing |
-| BASE-02 | MON-02-AC02 | T3, T4 | MigrationIT: quatro assertions de histórico + checksum; histórico SQL no smoke ainda pendente | Implementing |
-| BASE-03 | MON-02-AC03 | T4 | Sentinela SQL após restart/down-up | Implementing |
-| BASE-04 | MON-02-AC04 | T2, T6 | ArchitectureTest e README | Implementing |
-| BASE-05 | MON-02-AC05 | T5 | Workflow, gate local e sensor de falha | Implementing |
-| BASE-06 | MON-02-AC06 | T6 | Comandos documentados confrontados com execução | Implementing |
-| BASE-07 | MON-02-AC07 | T2, T4 | Inspeção checkout e runtime | Implementing |
-| BASE-08 | MON-02-AC08 | T3, T5 | Surefire/Failsafe; sensor de falha | Implementing |
+| BASE-01 | MON-02-AC01 | T2, T3, T4 | ApplicationIT; smoke Compose; checkout limpo | Verified |
+| BASE-02 | MON-02-AC02 | T3, T4 | MigrationIT: quatro assertions de histórico + checksum; histórico SQL no smoke ainda pendente | Verified |
+| BASE-03 | MON-02-AC03 | T4 | Sentinela SQL após restart/down-up | Verified |
+| BASE-04 | MON-02-AC04 | T2, T6 | ArchitectureTest e README | Verified |
+| BASE-05 | MON-02-AC05 | T5 | Workflow, gate local e sensor de falha | Verified |
+| BASE-06 | MON-02-AC06 | T6 | Comandos documentados confrontados com execução | Verified |
+| BASE-07 | MON-02-AC07 | T2, T4 | Inspeção checkout e runtime | Verified |
+| BASE-08 | MON-02-AC08 | T3, T5 | Surefire/Failsafe; sensor de falha | Verified |
 
 ## Success Criteria
 
