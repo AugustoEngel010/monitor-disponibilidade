@@ -38,3 +38,49 @@ Quick Docker exit 0; 40 unitários, zero failures/errors/skips; 39 novos cenári
 | `src/test/java/br/com/monitor/MonitorConfigurationTest.java:114`: `assertThat(problem.getMessage()).doesNotContain("secret", "token@example");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
 
 Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
+
+## T3
+
+Quick Docker exit 0: 46 unitários; seis novos testes de modelo, zero falhas/erros/skips. LIFE-05/06/07: igualdade integral de state, incidente preservado, versões, counters e fronteira inclusiva de frescor.
+
+| Evidência / assertion | Requisito / resultado | Necessidade |
+| --- | --- | --- |
+| `src/test/java/br/com/monitor/MonitorTest.java:20`: `assertThat(monitor.state()).isEqualTo(new Monitor.State("ACTIVE", "UNKNOWN", 0, 0,` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:22`: `assertThat(monitor.evidence(now)).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:23`: `assertThat(monitor.createdAt()).isEqualTo(now);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:24`: `assertThat(monitor.updatedAt()).isEqualTo(now);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:31`: `assertThat(changed.state()).isEqualTo(monitor.state());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:32`: `assertThat(changed.id()).isEqualTo(monitor.id());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:33`: `assertThat(changed.createdAt()).isEqualTo(monitor.createdAt());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:34`: `assertThat(changed.configuration().name()).isEqualTo("new");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:35`: `assertThat(changed.configuration().alertRecipient()).isEqualTo("new@e.org");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:36`: `assertThat(changed.updatedAt()).isEqualTo(now);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:37`: `assertThat(changed.edit(changed.configuration(), now.plusSeconds(10))).isEqualTo(changed);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:45`: `assertThat(error.status()).isEqualTo(409);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:46`: `assertThat(error.code()).isEqualTo("OPEN_INCIDENT");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:49`: `assertThat(monitor.configuration()).isEqualTo(config);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:50`: `assertThat(monitor.state().confirmedState()).isEqualTo("DOWN");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:51`: `assertThat(monitor.state().recoveryCount()).isEqualTo(1);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:59`: `assertThat(changed.id()).isEqualTo(monitor.id());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:60`: `assertThat(changed.createdAt()).isEqualTo(monitor.createdAt());` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:61`: `assertThat(changed.configuration()).isEqualTo(policy);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:62`: `assertThat(changed.state()).isEqualTo(new Monitor.State("ACTIVE", "UNKNOWN", 0, 0,` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:64`: `assertThat(changed.evidence(now)).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:68`: `assertThat(changed.state().lifecycle()).isEqualTo("PAUSED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:69`: `assertThat(changed.state().nextCheckAt()).isNull();` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:76`: `assertThat(paused.state()).isEqualTo(new Monitor.State("PAUSED", "DOWN", 0, 0, null, null,` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:78`: `assertThat(paused.pause(now.plusSeconds(1))).isEqualTo(paused);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:79`: `assertThat(paused.evidence(now)).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:81`: `assertThat(resumed.state()).isEqualTo(new Monitor.State("ACTIVE", "DOWN", 0, 0, null, null,` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:83`: `assertThat(resumed.resume(now.plusSeconds(3))).isEqualTo(resumed);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:84`: `assertThat(resumed.evidence(now.plusSeconds(2))).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:85`: `assertThat(monitor.resume(now)).isEqualTo(monitor);` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:86`: `assertThat(Monitor.create(UUID.randomUUID(), config, now).pause(now).state().confirmedState())` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:87`: `.isEqualTo("UNKNOWN");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:94`: `assertThat(monitor.evidence(observedAt)).isEqualTo("FRESH");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:95`: `assertThat(monitor.evidence(observedAt.plusSeconds(125))).isEqualTo("FRESH");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:96`: `assertThat(monitor.evidence(observedAt.plusSeconds(125).plusNanos(1))).isEqualTo("STALE");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:97`: `assertThat(monitor.evidence(observedAt.minusNanos(1))).isEqualTo("STALE");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+| `src/test/java/br/com/monitor/MonitorTest.java:98`: `assertThat(monitor.pause(now).evidence(observedAt)).isEqualTo("NEVER_OBSERVED");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
+
+Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.

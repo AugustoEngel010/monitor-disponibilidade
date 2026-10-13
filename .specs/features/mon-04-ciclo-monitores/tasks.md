@@ -70,7 +70,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Requirement**: LIFE-05/06/07
 **Tools**: shell, Docker; tlc-spec-driven.
 **Done when**:
-- [ ] Estado inicial, edição, incidente, idempotência e frescor verificados; gate Quick exit 0, sem falhas/skips; baseline 48 testes preservada.
+- [x] Estado inicial, edição, incidente, idempotência e frescor verificados; gate Quick exit 0, sem falhas/skips; baseline 48 testes preservada.
 **Tests**: unit
 **Gate**: Quick
 **Commit**: `feat(mon-04): model monitor lifecycle transitions`
