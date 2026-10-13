@@ -8,6 +8,8 @@ Spring Security aplica uma única SecurityFilterChain a qualquer rota. Um BasicA
 
 GET/HEAD dos três health endpoints são públicos. anyRequest exige o operador. Health mantém show-details/show-components=never. Não se liberam /error, OPTIONS, assets ou actuators por wildcard.
 
+StatusOnlyHealthWebExtension conserva cálculo/status HTTP nativo e retorna somente status, removendo também os nomes de grupos do health agregado. A primeira execução do teste revelou que show-details=never não remove groups; a extensão atende à resposta mínima da spec sem enfraquecer assertions.
+
 CSRF usa HttpSessionCsrfTokenRepository e o mascaramento XOR padrão. GET /api/admin/csrf entrega token/headerName/parameterName; clientes enviam cookie mais token por header ou parâmetro em toda escrita. Sem CORS aberto. Cookie HttpOnly e SameSite=Lax, sessão 30 min. Códigos 401/403 usam corpo vazio e não ecoam inputs.
 
 Alternativa cookie legível pelo JavaScript requer cuidado com token bruto e BREACH; token em sessão reutiliza os defaults de segurança. Sessão de login ampliaria o mecanismo de autenticação e complicaria rotação; Basic por requisição atende o MVP.

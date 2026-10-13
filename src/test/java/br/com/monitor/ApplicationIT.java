@@ -6,6 +6,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.DriverManager;
 import java.time.Duration;
+import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.postgresql.util.PSQLException;
@@ -79,6 +80,7 @@ class ApplicationIT {
     private ServletWebServerApplicationContext start(PostgreSQLContainer<?> db, String password) {
         return (ServletWebServerApplicationContext) new SpringApplicationBuilder(MonitorApplication.class)
                 .run("--server.port=0", "--spring.datasource.url=" + db.getJdbcUrl(),
+                        "--ADMIN_USERNAME=" + UUID.randomUUID(), "--ADMIN_PASSWORD=" + UUID.randomUUID(),
                         "--spring.datasource.username=" + db.getUsername(), "--spring.datasource.password=" + password);
     }
 }

@@ -54,9 +54,9 @@ T1 -> T2 -> T3 -> T4 -> T5
 **Where**: componente security
 **Depends on**: T1
 **Requirement**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05
-**Files**: pom.xml, AdministrativeSecurityConfiguration.java, application.yml, AdministrativeConfigurationIT.java, AdministrativeSecurityIT.java, ApplicationIT.java.
+**Files**: pom.xml, AdministrativeSecurityConfiguration.java, StatusOnlyHealthWebExtension.java, application.yml, AdministrativeConfigurationIT.java, AdministrativeSecurityIT.java, ApplicationIT.java.
 **Done when**:
-- [ ] Full passa incluindo 6 testes anteriores e novos cenários de acesso/configuração; 401 inclusive escritas sem token; health sem detalhes e sem sessão.
+- [x] Full exit 0: 43 testes (1 unitário + 42 integrações), zero failures/errors/skips/Checkstyle. Seis anteriores preservados; mapeamento e adequação em evidence.md T2.
 **Tests**: integration
 **Gate**: Full
 **Commit**: `feat(mon-03): require configured operator for administrative access`
