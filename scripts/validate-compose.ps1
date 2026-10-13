@@ -42,8 +42,9 @@ function Query {
     # Read database name/user from the running container, including custom .env values.
     $user = (Invoke-Compose @('exec', '-T', 'db', 'printenv', 'POSTGRES_USER') -join '').Trim()
     $database = (Invoke-Compose @('exec', '-T', 'db', 'printenv', 'POSTGRES_DB') -join '').Trim()
-    return (Invoke-Compose @('exec', '-T', 'db', 'psql', '-U', $user, '-d', $database,
-            '-v', 'ON_ERROR_STOP=1', '-Atc', $Sql) -join "`n").Trim()
+    $queryLines = Invoke-Compose @('exec', '-T', 'db', 'psql', '-U', $user, '-d', $database,
+            '-v', 'ON_ERROR_STOP=1', '-Atc', $Sql)
+    return ($queryLines -join "`n").Trim()
 }
 
 function Wait-Ready {

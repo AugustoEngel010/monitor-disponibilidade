@@ -2,7 +2,7 @@
 
 ## Execution Protocol
 
-Aplicar tlc-spec-driven, testes derivados da spec, gates antes de conclusão, commit por task com status e verificador independente final. Pedido autoriza execução e commits locais. Oito tasks, um lote inline. Ferramentas já determinadas pelo usuário: skill, shell e Docker.
+Aplicar tlc-spec-driven, testes derivados da spec, gates antes de conclusão, commit por task com status e verificador independente final. Pedido autoriza execução e commits locais. Oito tasks inicialmente, um lote inline; correção adicional de smoke descoberta no gate operacional. Ferramentas já determinadas pelo usuário: skill, shell e Docker.
 
 **Design:** [design.md](design.md). **Status:** In Progress.
 
@@ -15,6 +15,7 @@ Guidelines: README.md, pom.xml, config/checkstyle.xml; exemplos ArchitectureTest
 | Configuração/domínio | unit | Todos os limites e ramos de transição/frescor da spec | src/test/java/br/com/monitor/*Test.java | Quick |
 | Repositório/serviço | integration | PostgreSQL real, rollback, locks, limite, estado e reinício | src/test/java/br/com/monitor/*IT.java | Full |
 | HTTP | integration | Rotas válidas, inválidas, inexistentes, Basic/CSRF e payloads completos | src/test/java/br/com/monitor/*IT.java | Full |
+| Smoke Docker | smoke | Histórico integral V1/V2, restart/down-up e segurança MON-03 | scripts/validate-compose.ps1 | Build |
 | SDD/docs | review | Rastreabilidade, comandos e erros | .specs/ e README.md | Structural |
 
 ## Gate Check Commands
@@ -31,7 +32,7 @@ Guidelines: README.md, pom.xml, config/checkstyle.xml; exemplos ArchitectureTest
 ### Phase 1: Entrega
 
 ```text
-T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
+T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9
 ```
 
 ## Task Breakdown
@@ -127,11 +128,23 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Gate**: Full
 **Commit**: `feat(mon-04): list monitors with stable pagination`
 
-### T8: Documentar contratos e evidências
+### T8: Corrigir composição multilinha do smoke
+
+**What**: Compor resultado SQL em string única antes da comparação integral de histórico.
+**Where**: scripts/validate-compose.ps1
+**Depends on**: T7
+**Requirement**: LIFE-01/05/06 e regressão MON-02-AC02
+**Done when**:
+- [x] Smoke Docker exit 0, histórico V1/V2 idêntico após restart e down/up, sem enfraquecer assertions.
+**Tests**: smoke
+**Gate**: Build
+**Commit**: `fix(mon-04): compare complete multi-migration history in smoke`
+
+### T9: Documentar contratos e evidências
 
 **What**: Documentar contratos e evidências.
 **Where**: README.md
-**Depends on**: T7
+**Depends on**: T8
 **Requirement**: LIFE-01 a LIFE-09
 **Tools**: shell, Docker; tlc-spec-driven.
 **Done when**:
@@ -152,6 +165,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 | T6 | T5 | T5 -> T6 | Match |
 | T7 | T6 | T6 -> T7 | Match |
 | T8 | T7 | T7 -> T8 | Match |
+| T9 | T8 | T8 -> T9 | Match |
 
 ## Test Co-location Validation
 
@@ -164,7 +178,8 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 | T5 | HTTP | integration | Match |
 | T6 | HTTP | integration | Match |
 | T7 | HTTP | integration | Match |
-| T8 | docs | review | Match |
+| T8 | smoke | smoke | Match |
+| T9 | docs | review | Match |
 
 ## Post-Gate Evidence
 

@@ -542,3 +542,12 @@ Full Docker exit 0: 46 unitários + 114 integrações = 160; zero falhas/erros/s
 | `src/test/java/br/com/monitor/MonitorRepositoryIT.java:186`: `assertThat(error.errors()).containsOnlyKeys("size");` | Spec MON-04; outcomes/limites do cenário nomeado no teste | Manter: requisito correspondente |
 
 Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
+
+## T8
+
+Build aprovado: Full T7 160/160, runtime build exit 0 e smoke exit 0 (mon02-smoke-d81777a8c506). Correção Query compõe linhas antes de join/Trim; comparação integral de histórico mantida. Primeira execução revelou composição em array e não foi declarada verde.
+
+| Evidência / assertion | Requisito / resultado | Necessidade |
+| --- | --- | --- |
+
+Adequação: assertions de estado/valores, sem mocks de chamada, todos os cenários ligados à spec; JUnit/AssertJ e Checkstyle da baseline. Nenhum teste removido, enfraquecido ou ignorado.
