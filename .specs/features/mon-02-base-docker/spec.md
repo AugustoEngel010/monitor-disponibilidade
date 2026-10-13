@@ -33,7 +33,7 @@ O checkout contém somente documentação de produto. O operador precisa constru
 | Imagens | Maven 3.9.11 / Temurin 21; runtime Temurin 21.0.8_9 JRE Jammy; PostgreSQL 17.6 Alpine | Mesma versão principal Java; runtime sem ferramentas de build | Default técnico |
 | Configuração local | Variáveis com defaults locais descartáveis e `.env` ignorado | Permitir o comando principal sem credenciais reais | Default técnico |
 | Testcontainers | Socket Unix; `host.docker.internal` via host-gateway; sem bind mounts no PostgreSQL de teste | Funciona com contêineres irmãos e portas publicadas; aplicação não recebe socket | Default técnico |
-| CI | GitHub Actions em Ubuntu; execução remota não observada | Não existe workflow nem remote configurado | Default técnico |
+| CI | GitHub Actions em Ubuntu; execução remota não observada | Existe origin GitHub; nenhum workflow anterior | Default técnico |
 | Esquema inicial | Schema `monitor`, sem antecipar tabelas de domínio | Estabelece migração real, sem implementar MON-04 prematuramente | Default técnico |
 | Automação operacional | PowerShell para smoke test em Windows e CI; comandos usuais só exigem Docker | Shell já disponível no ambiente; nenhum Java no host | Default técnico |
 

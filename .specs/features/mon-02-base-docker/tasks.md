@@ -57,7 +57,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Requirement**: BASE-01, BASE-04, BASE-07
 **Files**: pom, Dockerfile, ignores, Checkstyle, bootstrap, configuração e ArchitectureTest.
 **Done when**:
-- [ ] Build passa qualidade e um teste unitário; runtime copia somente JAR/JRE e não usa root.
+- [x] `docker build --target build -t monitor-bootstrap .` passou: um unitário, zero falhas/skips, zero violações Checkstyle. Runtime copia somente JAR/JRE e usa UID 10001; inspeção operacional em T4.
 **Tests**: unit
 **Gate**: Bootstrap
 **Commit**: `build(mon-02): add containerized Spring Boot bootstrap`
@@ -134,3 +134,15 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 | T4 | Compose | smoke | Match |
 | T5 | CI | integration | Match |
 | T6 | docs | revisão e smoke | Match |
+
+## Post-Gate Evidence
+
+### T2
+
+| Critério | Evidência / assertion | Resultado esperado | Necessidade |
+| --- | --- | --- | --- |
+| BASE-04, limites de produção | `src/test/java/br/com/monitor/ArchitectureTest.java:17`, `noClasses().should().dependOnClassesThat().resideInAnyPackage(...).check(production)` | Nenhuma dependência de produção em bibliotecas de teste | Manter: AC04 |
+| BASE-01, build a partir do código | `Dockerfile:5`, COPY pom/config/src; `Dockerfile:10`, `mvn ... package` | Compilar release 21 e gerar target/monitor.jar | Gate build passou |
+| BASE-07, separação runtime | `Dockerfile:12`, JRE; `Dockerfile:14`, único COPY do JAR; `Dockerfile:15`, USER | Sem etapa Maven no runtime | Revisão; confirmação dinâmica T4 |
+
+Adequação: teste ligado a AC04, assertion sobre dependência real, nenhuma suíte anterior removida; Checkstyle aplicado a produção e testes. Gates restantes não são declarados aprovados por esta revisão.
