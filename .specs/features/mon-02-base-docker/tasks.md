@@ -97,7 +97,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Depends on**: T4
 **Requirement**: BASE-05, BASE-08
 **Done when**:
-- [ ] Os comandos do workflow passam localmente; job não ignora códigos de saída; execução remota explicitamente não observada.
+- [x] Comandos locais aprovados: verify em T4, build app e smoke -NoBuild (mon02-smoke-83dab4da827e). Job não ignora exit codes; relatórios always. Execução remota não observada.
 **Tests**: integration
 **Gate**: Build
 **Commit**: `ci(mon-02): gate container tests quality and runtime build`
@@ -173,3 +173,13 @@ Adequação: cada teste mapeado acima, outcomes exatos, zero skips, nenhuma asse
 | BASE-02/03, search_path | `src/test/java/br/com/monitor/ApplicationIT.java:69`, `rows.getInt(1) == 4242`; linha 73, count == 1 | Startup repetido preserva linha e histórico em public | Regressão do cenário de reinício |
 
 Adequação: smoke falhou primeiro com busca indevida do histórico em monitor; configuração explicitou public e o teste de regressão foi adicionado no mesmo commit. Nenhuma assertion foi removida/enfraquecida. O export limpo aprovado contém exatamente o código preparado para este commit.
+
+### T5
+
+| Critério | Evidência | Resultado / necessidade |
+| --- | --- | --- |
+| BASE-05 | `.github/workflows/ci.yml:19`, serviço tests antes de build (linha 21) e smoke (linha 24) | Três gates obrigatórios; sem continue-on-error; AC05 |
+| BASE-08 | `.github/workflows/ci.yml:26`, `if: always()`; relatórios Surefire/Failsafe/Checkstyle | Relatórios mesmo em falha; AC08 |
+| BASE-05, comandos locais | `.specs/features/mon-02-base-docker/evidence.md:19`; logs locais t4-tests/t5-image-build/t5-workflow-smoke | verify, build e smoke exit 0; não afirma execução remota |
+
+Adequação: workflow usa o fluxo já verificado, sem ferramentas Java no host. Sensor negativo fica com o verificador independente; execução remota pendente não é apresentada como sucesso observado.

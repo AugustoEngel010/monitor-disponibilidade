@@ -1,0 +1,38 @@
+name: container-validation
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+      - name: Tests and quality in container
+        run: docker compose run --build --rm tests
+      - name: Build runtime image from source
+        run: docker compose build app
+      - name: Verify startup migrations and persistent data
+        shell: pwsh
+        run: ./scripts/validate-compose.ps1 -NoBuild
+      - name: Upload test quality and lifecycle reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-reports
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
+            target/checkstyle-result.xml
+            .validation/*.log
+          if-no-files-found: warn
+      - name: Clean CI test resources
+        if: always()
+        run: docker compose down --volumes --remove-orphans
