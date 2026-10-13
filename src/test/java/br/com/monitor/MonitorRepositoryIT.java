@@ -175,6 +175,18 @@ class MonitorRepositoryIT {
         assertThat(service.get(monitor.id()).state().lifecycle()).isEqualTo("PAUSED");
     }
 
+    @Test
+    void serviceRejectsInvalidPaginationFieldsBeforeQuerying() {
+        assertThatThrownBy(() -> service.list(-1, 0)).isInstanceOfSatisfying(MonitorProblem.class, error -> {
+            assertThat(error.status()).isEqualTo(400);
+            assertThat(error.errors()).containsOnlyKeys("page", "size");
+        });
+        assertThatThrownBy(() -> service.list(0, 101)).isInstanceOfSatisfying(MonitorProblem.class, error -> {
+            assertThat(error.status()).isEqualTo(400);
+            assertThat(error.errors()).containsOnlyKeys("size");
+        });
+    }
+
     private ConfigurableApplicationContext open() {
         return new SpringApplicationBuilder(MonitorApplication.class).run("--server.port=0",
                 "--spring.datasource.url=" + db.getJdbcUrl(), "--spring.datasource.username=" + db.getUsername(),

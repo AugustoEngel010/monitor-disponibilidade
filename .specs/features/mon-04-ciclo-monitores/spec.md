@@ -103,9 +103,9 @@ Pausa efetiva torna PAUSED, incrementa executionGeneration, zera sequências/hor
 | LIFE-04 | MON-04-AC04 | T5,T6 | MonitorApiIT | Verified |
 | LIFE-05 | MON-04-AC05 | T3,T4,T6 | MonitorTest, MonitorRepositoryIT, MonitorApiIT | Verified |
 | LIFE-06 | MON-04-AC06 | T3,T4,T6 | MonitorTest, MonitorRepositoryIT, MonitorApiIT | Verified |
-| LIFE-07 | MON-04-AC07 | T3,T7 | MonitorTest, MonitorApiIT | Pending |
+| LIFE-07 | MON-04-AC07 | T3,T7 | MonitorTest, MonitorApiIT | Verified |
 | LIFE-08 | PROD-04 | T4,T5 | MonitorRepositoryIT, MonitorApiIT | Verified |
-| LIFE-09 | AD-005 | T5,T6,T7 | MonitorApiIT, AdministrativeSecurityIT | Pending |
+| LIFE-09 | AD-005 | T5,T6,T7 | MonitorApiIT, AdministrativeSecurityIT | Verified |
 
 ## Success Criteria
 

@@ -122,7 +122,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Requirement**: LIFE-07/09
 **Tools**: shell, Docker; tlc-spec-driven.
 **Done when**:
-- [ ] Ordem estável, totais, páginas vazias, parâmetros inválidos e dimensões verificadas; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
+- [x] Ordem estável, totais, páginas vazias, parâmetros inválidos e dimensões verificadas; gate Full exit 0, sem falhas/skips; baseline 48 testes preservada.
 **Tests**: integration
 **Gate**: Full
 **Commit**: `feat(mon-04): list monitors with stable pagination`

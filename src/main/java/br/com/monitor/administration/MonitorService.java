@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
@@ -52,7 +53,10 @@ public class MonitorService {
 
     @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public Page list(int page, int size) {
-        if (page < 0 || size < 1 || size > 100) { throw MonitorProblem.invalid(Map.of("page", "invalid pagination")); }
+        var errors = new LinkedHashMap<String, String>();
+        if (page < 0) { errors.put("page", "must be nonnegative"); }
+        if (size < 1 || size > 100) { errors.put("size", "must be between 1 and 100"); }
+        if (!errors.isEmpty()) { throw MonitorProblem.invalid(errors); }
         long count = repository.count();
         return new Page(repository.list(page, size), page, size, count, (count + size - 1) / size);
     }

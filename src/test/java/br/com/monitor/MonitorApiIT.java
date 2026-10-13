@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.UUID;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -363,6 +364,118 @@ class MonitorApiIT {
         assertInvalid(send("PUT", path, valid().put("alertRecipient", "invalid")), "alertRecipient");
         assertInvalid(request("PUT", path, "{", true, true), "body");
         assertThat(jdbc.queryForList("SELECT * FROM monitor.monitors")).isEqualTo(snapshot);
+    }
+
+    @Test
+    void paginationDefaultsEmptyAndOutOfRangePagesAreExplicit() throws Exception {
+        var response = send("GET", ROOT, null);
+        assertThat(response.statusCode()).isEqualTo(200);
+        var empty = tree(response);
+        assertThat(empty.path("items").size()).isZero();
+        assertThat(empty.path("page").asInt()).isZero();
+        assertThat(empty.path("size").asInt()).isEqualTo(20);
+        assertThat(empty.path("totalElements").asLong()).isZero();
+        assertThat(empty.path("totalPages").asLong()).isZero();
+        create();
+        var beyond = tree(send("GET", ROOT + "?page=2147483647&size=100", null));
+        assertThat(beyond.path("items").size()).isZero();
+        assertThat(beyond.path("page").asInt()).isEqualTo(2147483647);
+        assertThat(beyond.path("size").asInt()).isEqualTo(100);
+        assertThat(beyond.path("totalElements").asLong()).isEqualTo(1);
+        assertThat(beyond.path("totalPages").asLong()).isEqualTo(1);
+    }
+
+    @Test
+    void adjacentPagesAreOrderedByCreationAndUuidWithoutOverlap() throws Exception {
+        var ids = new ArrayList<String>();
+        for (int i = 0; i < 5; i++) { ids.add(create().path("id").asText()); }
+        jdbc.update("UPDATE monitor.monitors SET created_at='2026-10-13T12:00:00Z'");
+        var sorted = ids.stream().sorted().toList();
+        // The smallest UUID is deliberately newer, proving created_at is the primary key.
+        jdbc.update("UPDATE monitor.monitors SET created_at='2026-10-13T13:00:00Z' WHERE id=?::uuid", sorted.get(0));
+        var expected = new ArrayList<>(sorted.subList(1, 5));
+        expected.add(sorted.get(0));
+        var actual = new ArrayList<String>();
+        for (int page = 0; page < 3; page++) {
+            var response = send("GET", ROOT + "?page=" + page + "&size=2", null);
+            assertThat(response.statusCode()).isEqualTo(200);
+            var body = tree(response);
+            assertThat(body.path("page").asInt()).isEqualTo(page);
+            assertThat(body.path("size").asInt()).isEqualTo(2);
+            assertThat(body.path("totalElements").asLong()).isEqualTo(5);
+            assertThat(body.path("totalPages").asLong()).isEqualTo(3);
+            assertThat(body.path("items").size()).isEqualTo(page == 2 ? 1 : 2);
+            for (var item : body.path("items")) { actual.add(item.path("id").asText()); }
+            assertThat(tree(send("GET", ROOT + "?page=" + page + "&size=2", null))).isEqualTo(body);
+        }
+        assertThat(actual).containsExactlyElementsOf(expected);
+        assertThat(actual).doesNotHaveDuplicates();
+        var after = tree(send("GET", ROOT + "?page=3&size=2", null));
+        assertThat(after.path("items").size()).isZero();
+        assertThat(after.path("totalElements").asInt()).isEqualTo(5);
+        assertThat(after.path("totalPages").asInt()).isEqualTo(3);
+    }
+
+    @Test
+    void listingSeparatesLifecycleHealthAndObservationFreshness() throws Exception {
+        var never = create().path("id").asText();
+        var fresh = create().path("id").asText();
+        var stale = create().path("id").asText();
+        var paused = create().path("id").asText();
+        jdbc.update("UPDATE monitor.monitors SET confirmed_state='UP', last_observed_at=now(),"
+                + " current_observation=true WHERE id=?::uuid", fresh);
+        jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=?,"
+                + " last_observed_at=now()-interval '126 seconds', current_observation=true WHERE id=?::uuid",
+                UUID.randomUUID(), stale);
+        assertThat(send("POST", ROOT + "/" + paused + "/pause", null).statusCode()).isEqualTo(200);
+        var response = send("GET", ROOT, null);
+        assertThat(response.statusCode()).isEqualTo(200);
+        var listedIds = new ArrayList<String>();
+        for (var item : tree(response).path("items")) { listedIds.add(item.path("id").asText()); }
+        assertThat(listedIds).containsExactlyInAnyOrder(never, fresh, stale, paused);
+        for (var item : tree(response).path("items")) {
+            var id = item.path("id").asText();
+            if (id.equals(never)) {
+                assertThat(item.path("lifecycle").asText()).isEqualTo("ACTIVE");
+                assertThat(item.path("confirmedState").asText()).isEqualTo("UNKNOWN");
+                assertThat(item.path("evidence").asText()).isEqualTo("NEVER_OBSERVED");
+                assertThat(item.path("recentObservation").asBoolean()).isFalse();
+            } else if (id.equals(fresh)) {
+                assertThat(item.path("lifecycle").asText()).isEqualTo("ACTIVE");
+                assertThat(item.path("confirmedState").asText()).isEqualTo("UP");
+                assertThat(item.path("evidence").asText()).isEqualTo("FRESH");
+                assertThat(item.path("recentObservation").asBoolean()).isTrue();
+            } else if (id.equals(stale)) {
+                assertThat(item.path("lifecycle").asText()).isEqualTo("ACTIVE");
+                assertThat(item.path("confirmedState").asText()).isEqualTo("DOWN");
+                assertThat(item.path("evidence").asText()).isEqualTo("STALE");
+                assertThat(item.path("recentObservation").asBoolean()).isFalse();
+                assertThat(item.path("openIncidentId").isNull()).isFalse();
+            } else if (id.equals(paused)) {
+                assertThat(item.path("lifecycle").asText()).isEqualTo("PAUSED");
+                assertThat(item.path("confirmedState").asText()).isEqualTo("UNKNOWN");
+                assertThat(item.path("evidence").asText()).isEqualTo("NEVER_OBSERVED");
+                assertThat(item.path("recentObservation").asBoolean()).isFalse();
+            }
+        }
+        assertThat(tree(response).path("items").size()).isEqualTo(4);
+        assertThat(request("GET", ROOT, null, false, false).statusCode()).isEqualTo(401);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"page,-1", "page,1.5", "page,invalid", "page,2147483648", "page,''",
+            "size,0", "size,101", "size,2.5", "size,invalid", "size,''"})
+    void paginationErrorsAreReportedPerField(String field, String value) throws Exception {
+        assertInvalid(send("GET", ROOT + "?" + field + "=" + value, null), field);
+        assertThat(count()).isZero();
+    }
+
+    @Test
+    void bothInvalidPaginationFieldsAreReportedTogether() throws Exception {
+        var response = send("GET", ROOT + "?page=-1&size=0", null);
+        assertInvalid(response, "page");
+        assertInvalid(response, "size");
+        assertThat(tree(response).path("errors").size()).isEqualTo(2);
     }
 
     private JsonNode create() throws Exception {

@@ -3,6 +3,7 @@ package br.com.monitor.administration;
 import java.net.URI;
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -45,6 +47,33 @@ public class MonitorController {
 
     @PostMapping("/{id}/resume")
     public View resume(@PathVariable String id) { return view(service.resume(identifier(id))); }
+
+    @GetMapping
+    public PageView list(@RequestParam(required = false) String page, @RequestParam(required = false) String size) {
+        var errors = new LinkedHashMap<String, String>();
+        int p = pagination(page, "page", 0, 0, Integer.MAX_VALUE, errors);
+        int s = pagination(size, "size", 20, 1, 100, errors);
+        if (!errors.isEmpty()) { throw MonitorProblem.invalid(errors); }
+        var result = service.list(p, s);
+        var now = service.now();
+        return new PageView(result.items().stream().map(monitor -> view(monitor, now)).toList(),
+                result.page(), result.size(), result.totalElements(), result.totalPages());
+    }
+
+    private int pagination(String input, String field, int fallback, int min, int max, Map<String, String> errors) {
+        if (input == null) { return fallback; }
+        try {
+            if (!input.matches("[0-9]+")) { throw new NumberFormatException(); }
+            int value = Integer.parseInt(input);
+            if (value < min || value > max) { throw new NumberFormatException(); }
+            return value;
+        } catch (NumberFormatException exception) {
+            errors.put(field, "must be an integer between " + min + " and " + max);
+            return fallback;
+        }
+    }
+
+    public record PageView(List<View> items, int page, int size, long totalElements, long totalPages) { }
 
     private UUID identifier(String id) {
         try {
@@ -101,8 +130,12 @@ public class MonitorController {
     }
 
     private View view(Monitor monitor) {
+        return view(monitor, service.now());
+    }
+
+    private View view(Monitor monitor, Instant now) {
         var s = monitor.state();
-        var evidence = monitor.evidence(service.now());
+        var evidence = monitor.evidence(now);
         return new View(monitor.id(), monitor.configuration(), s.lifecycle(), s.confirmedState(), evidence,
                 "FRESH".equals(evidence), s.lastObservedAt(), s.openIncidentId(), s.failureCount(), s.recoveryCount(),
                 s.configurationVersion(), s.executionGeneration(), s.nextCheckAt(), monitor.createdAt(),
