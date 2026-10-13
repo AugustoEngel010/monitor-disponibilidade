@@ -109,7 +109,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Depends on**: T5
 **Requirement**: BASE-04, BASE-06
 **Done when**:
-- [ ] README confrontado com execução; gates passam; despachar verificador e sensor ao concluir.
+- [x] README confrontado com build/up/logs/ps/testes e política de parada já executados; gates estruturais sem erros/avisos, suíte atual 6/6 e smoke aprovados. Verificador independente será despachado imediatamente após este commit.
 **Tests**: revisão e smoke
 **Gate**: Build
 **Commit**: `docs(mon-02): document Docker operation and test environment`
@@ -183,3 +183,13 @@ Adequação: smoke falhou primeiro com busca indevida do histórico em monitor; 
 | BASE-05, comandos locais | `.specs/features/mon-02-base-docker/evidence.md:19`; logs locais t4-tests/t5-image-build/t5-workflow-smoke | verify, build e smoke exit 0; não afirma execução remota |
 
 Adequação: workflow usa o fluxo já verificado, sem ferramentas Java no host. Sensor negativo fica com o verificador independente; execução remota pendente não é apresentada como sucesso observado.
+
+### T6
+
+| Critério | Evidência | Resultado / necessidade |
+| --- | --- | --- |
+| BASE-04 | `README.md:93`, tabela de responsabilidades e dependências; ArchitectureTest | Módulos entregues/futuros distinguidos, sem dependência de produção em tests; AC04 |
+| BASE-06 | `README.md:9`, comando principal; tabela de ambiente e comandos abaixo | Build/início/parada/logs/testes reais, relatórios e persistência; AC06 |
+| Gate | `evidence.md` e logs locais t6-up/t5-workflow-smoke/t4-tests | Código não mudou após gates; daemon recuperado e up confirmado |
+
+Adequação: revisão documental compara comandos reais, sem teste tautológico de frases. Nenhuma credencial real no README/exemplo. Revisão independente e sensor ainda necessários para conclusão da feature.
