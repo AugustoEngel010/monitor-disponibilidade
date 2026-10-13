@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02 implementada e validada localmente em 2026-10-13. MON-01 permanece proposta documental; demais entregas planejadas. CI remota não observada.
+**Status:** MON-02 e MON-03 implementadas e validadas localmente em 2026-10-13. MON-01 permanece proposta documental; demais entregas planejadas. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -97,16 +97,16 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-03-AC01: uma requisição sem credencial válida não acessa os recursos administrativos e recebe HTTP 401.
-- [ ] MON-03-AC02: uma credencial válida permite acesso aos recursos administrativos existentes.
-- [ ] MON-03-AC03: a proteção aplica-se também ao painel quando ele for criado, incluindo ações de configuração.
-- [ ] MON-03-AC04: uma configuração administrativa obrigatória ausente impede uma inicialização insegura, conforme o contrato de configuração.
-- [ ] MON-03-AC05: credenciais não aparecem em logs, respostas, exemplos preenchidos ou arquivos versionados.
-- [ ] MON-03-AC06: ações administrativas originadas no navegador têm proteção contra requisições forjadas de outra origem, conforme o mecanismo definido para o painel.
+- [x] MON-03-AC01: uma requisição sem credencial válida não acessa os recursos administrativos e recebe HTTP 401.
+- [x] MON-03-AC02: uma credencial válida permite acesso aos recursos administrativos existentes.
+- [x] MON-03-AC03: a proteção aplica-se também ao painel quando ele for criado, incluindo ações de configuração.
+- [x] MON-03-AC04: uma configuração administrativa obrigatória ausente impede uma inicialização insegura, conforme o contrato de configuração.
+- [x] MON-03-AC05: credenciais não aparecem em logs, respostas, exemplos preenchidos ou arquivos versionados.
+- [x] MON-03-AC06: ações administrativas originadas no navegador têm proteção contra requisições forjadas de outra origem, conforme o mecanismo definido para o painel.
 
 **Testes:** integração de acesso sem autenticação, com credencial inválida e com credencial válida; verificação da configuração obrigatória e da proteção das ações administrativas do navegador.
 
-**Conclusão:** regras de acesso passam nos testes e estão documentadas. O escopo desta entrega é um único operador.
+**Conclusão:** verificada localmente em 2026-10-13: um operador Basic obrigatório, fronteira global incluindo futuro painel/API, token CSRF em sessão, startup fechado, rotação e logs sem segredos. 48 testes sem falhas/skips; build runtime e smoke de prontidão/persistência da MON-02 aprovados. Verificador independente PASS 6/6 e oito mutações mortas. Evidências em `.specs/features/mon-03-acesso-administrativo/validation.md`; CI remota não observada.
 
 ### MON-04 — Gerenciar o ciclo de vida dos monitores
 

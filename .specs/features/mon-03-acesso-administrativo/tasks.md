@@ -4,7 +4,7 @@
 
 Usar tlc-spec-driven, gates por task, commit atômico com status e verificador independente após a última task. Pedido atual autoriza execução local das fases.
 
-**Design:** [design.md](design.md). **Status:** Done; verificação independente em andamento.
+**Design:** [design.md](design.md). **Status:** Done; verificação independente PASS.
 
 ## Test Coverage Matrix
 
@@ -122,4 +122,8 @@ T1 -> T2 -> T3 -> T4 -> T5
 
 ## Post-Gate Evidence
 
-Preencher com resultados observados em cada task; cobertura por file:line e reverse mapping em evidence.md, depois revisão independente em validation.md.
+Resultados observados de cada task, cobertura por file:line e reverse mapping em [evidence.md](evidence.md); revisão independente em [validation.md](validation.md).
+
+## Feature-Level Validation
+
+[Verifier independente](validation.md) PASS no range 54d1f01..46c7832, em checkout isolado inicialmente sem .env/target. 48 testes, zero failures/errors/skips, qualidade, build e smoke aprovados. Oito mutações mortas, nenhuma sobrevivente; runtime restaurado e árvore real preservada. validate_state.py exit 0. Evidências de cada task em [evidence.md](evidence.md). Nenhum push ou execução remota de CI.

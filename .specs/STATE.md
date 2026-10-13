@@ -43,13 +43,14 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Scope**: MON-03/MON-04/MON-10/MON-11; PROD-01. Defaults técnicos documentados na spec MON-03, dentro da execução solicitada.
 - **Date**: 2026-10-13
 - **Status**: active
+
 ## Handoff
 
-- **Feature**: MON-02; `.specs/features/mon-02-base-docker/`.
-- **Phase / Task**: Execute concluído; T1 a T6 e verificação independente.
-- **Completed**: Seis commits locais até 6c4eafc; verificador PASS nos oito ACs. Checkout final limpo, build sem cache, um unitário e cinco integrações, qualidade, startup e persistência após restart/down-up. Dois sensores mortos; runtime restaurado.
-- **In-progress**: Nenhuma implementação pendente da MON-02.
-- **Next step**: MON-03, especificar proteção administrativa; confirmar premissas de negócio de MON-01 na entrega afetada.
-- **Blockers**: Nenhum local. GitHub Actions configurada, sem execução remota observada; push não realizado.
-- **Uncommitted files**: Nenhum após o commit de fechamento; relatório, rastreabilidade e este snapshot incluídos nele.
-- **Branch**: main; baseline d6a9601. Aplicação local pronta; banco de desenvolvimento preservado.
+- **Feature**: MON-03; `.specs/features/mon-03-acesso-administrativo/`.
+- **Phase / Task**: Execute concluído; T1 a T5 e verificação independente.
+- **Completed**: Cinco commits atômicos f692ef3, e844db0, df3b70c, 54e1c9d e 46c7832; relatório PASS nos seis ACs. Checkout isolado sem .env/target inicial: 48 testes (1 unitário + 47 integrações), zero falhas/erros/skips, qualidade, build e smoke aprovados. Oito sensores mortos, runtime restaurado e scratch removido.
+- **In-progress**: Nenhuma implementação pendente da MON-03.
+- **Next step**: MON-04, especificar CRUD e validar as premissas de negócio afetadas da MON-01; usar Basic/CSRF da AD-005.
+- **Blockers**: Nenhum local. CI remota não executada e push não realizado. Operação normal exige preencher ADMIN_USERNAME/ADMIN_PASSWORD externamente; testes e smoke usam credenciais descartáveis.
+- **Uncommitted files**: Nenhum após o commit de fechamento; validation, rastreabilidade, backlog e este snapshot incluídos nele.
+- **Branch**: main; baseline MON-03 54d1f01, implementação validada 46c7832. Banco de desenvolvimento preservado; somente projetos descartáveis da validação removidos.

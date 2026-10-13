@@ -1,6 +1,6 @@
 # MON-03: proteger o acesso administrativo
 
-**Data:** 2026-10-13. **Status:** Implementing. Execução local autorizada pelo pedido.
+**Data:** 2026-10-13. **Status:** Verified. Execução local autorizada pelo pedido; [verificação independente](validation.md) PASS 6/6, 48 testes e 8 sensores mortos.
 **Origem:** MON-03-AC01 a MON-03-AC06; PROD-01; AD-001/004.
 **Convenção:** SHALL significa DEVE; AUTH-NN são IDs internos da skill.
 

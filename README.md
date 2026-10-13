@@ -148,3 +148,5 @@ Limites dos módulos:
 Nenhum módulo de produção depende de bibliotecas de teste; `ArchitectureTest` impõe esse limite. Os pacotes futuros serão criados com suas funcionalidades, sem classes vazias nesta base. As [specs da MON-02](.specs/features/mon-02-base-docker/spec.md), [decisão AD-004](.specs/STATE.md) e [tasks](.specs/features/mon-02-base-docker/tasks.md) mantêm a rastreabilidade MON-02-AC01 a MON-02-AC08.
 
 O [contrato MON-03](.specs/features/mon-03-acesso-administrativo/spec.md), [tasks](.specs/features/mon-03-acesso-administrativo/tasks.md) e [evidências](.specs/features/mon-03-acesso-administrativo/evidence.md) relacionam autenticação, configuração e CSRF a MON-03-AC01 até MON-03-AC06. AD-005 estabelece a política para as próximas entregas.
+
+A [validação independente MON-03](.specs/features/mon-03-acesso-administrativo/validation.md) concluiu PASS 6/6: 48 testes, build e smoke Docker aprovados, oito regressões injetadas detectadas e nenhuma sobrevivente. A validação é local; CI remota não executada.
