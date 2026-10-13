@@ -14,7 +14,7 @@ Reutilizar Monitor, MonitorConfiguration.validated, NamedParameterJdbcTemplate, 
 ## Components
 
 - DestinationPolicy valida URI, literal e todos os endereços resolvidos, com exceção por origem exata.
-- HttpCheckExecutor recebe Monitor/UUID; Future com orçamento monotônico total; interrupção cancela request/conexão. DNS é resolvido uma vez antes do cliente; DnsResolver fornece somente os IPs validados. TLS usa o host original e defaults de confiança/hostname.
+- HttpCheckExecutor recebe Monitor/UUID; Future com orçamento monotônico total; interrupção cancela request/conexão. DNS é resolvido uma vez antes do cliente; todos os IPs são validados e DnsResolver fornece somente o primeiro IP. Fallback de endereço não pode esconder falha TLS. TLS usa o host original e defaults de confiança/hostname.
 - CheckResult registra dados imutáveis; Outcome declara evidência externa e mensagem fixa.
 - CheckRepository.save retorna o primeiro registro; ON CONFLICT DO NOTHING com UUID PK e leitura posterior, rejeitando reutilização por outra identidade.
 - CheckService coordena HTTP/save; interrupção é temporariamente limpa somente ao registrar CANCELLED e restaurada no finally.

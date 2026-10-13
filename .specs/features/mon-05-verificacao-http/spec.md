@@ -31,7 +31,7 @@ A administração persiste configurações, mas ainda não produz observações 
 | Cancelamento | Interrupção da thread chamadora; resultado CANCELLED, flag restaurada após persistência | MON-06 poderá solicitar cancelamento sem nova API HTTP |
 | Erros | Mensagem fixa por classificação, nunca exception.getMessage ou URL | Sanitização por construção |
 | Demo | MONITOR_DEMO_ORIGIN vazia por padrão; origem HTTP/HTTPS exata, sem path além de /, query, fragment ou userinfo | Exceção explícita para host/esquema/porta, nunca sub-rede |
-| DNS | Validar todos os A/AAAA; rejeitar resposta mista; conectar somente ao snapshot validado | Fecha rebinding entre validação e conexão |
+| DNS | Validar todos os A/AAAA; rejeitar resposta mista; conectar ao primeiro IP do snapshot sem fallback | Fecha rebinding e impede fallback de mascarar erro TLS; uma tentativa sem retry |
 | IPv6 | Permitir somente unicast global 2000::/3, excluindo faixas especiais/documentação/transição | Política conservadora; mapeamento IPv4 é tratado como IPv4 |
 | Duplicação | Primeiro registro vence; retorno do registro original; conflito de identidade monitor/versão/geração rejeitado | Não reescrever evidência nem associar UUID a outro monitor |
 | Falha no banco | Propagar erro de infraestrutura; permitir repetir save do resultado | Banco indisponível não vira falha HTTP nem registro fictício |
@@ -49,10 +49,10 @@ A administração persiste configurações, mas ainda não produz observações 
 1. WHEN os cabeçalhos de GET forem recebidos THEN o executor SHALL retornar SUCCESS se código = esperado, senão HTTP_FAILURE, preservando o status recebido (HTTP-01; MON-05-AC01).
 2. IF a tentativa ultrapassar T segundos THEN o executor SHALL retornar TIMEOUT e cancelar a operação, liberando conexão também em sucesso, falha e cancelamento (HTTP-02; MON-05-AC02).
 3. WHEN a tentativa terminar THEN o resultado SHALL conter monitorId, executionId, configurationVersion, executionGeneration, startedAt/finishedAt UTC e durationNanos monotônico não negativo, medido até os cabeçalhos ou erro sem aguardar corpo (HTTP-03; MON-05-AC03).
-4. IF ocorrer erro de DNS, conexão, TLS, interno, cancelamento ou bloqueio THEN o executor SHALL classificar respectivamente DNS_FAILURE, CONNECTION_FAILURE, TLS_FAILURE, INTERNAL_ERROR, CANCELLED ou DESTINATION_BLOCKED; somente SUCCESS/HTTP_FAILURE/TIMEOUT/DNS_FAILURE/CONNECTION_FAILURE/TLS_FAILURE são evidências externas (HTTP-04; MON-05-AC04).
+4. IF ocorrer erro de DNS, conexão, TLS, interno, cancelamento ou bloqueio THEN o executor SHALL classificar respectivamente DNS_FAILURE, CONNECTION_FAILURE, TLS_FAILURE, INTERNAL_ERROR, CANCELLED ou DESTINATION_BLOCKED; somente SUCCESS/HTTP_FAILURE/TIMEOUT/DNS_FAILURE/CONNECTION_FAILURE/TLS_FAILURE são evidências externas (HTTP-04; MON-05-AC07).
 5. The executor SHALL rejeitar URLs inválidas e destinos não públicos em validação/resolução/conexão, sem conectar ao endereço bloqueado, mantendo redirects desabilitados e validação padrão de cadeia TLS e hostname (HTTP-05; MON-05-AC05).
 6. WHERE MONITOR_DEMO_ORIGIN estiver explicitamente configurada o executor SHALL permitir endereço privado somente para a origem exata autorizada e endereço resolvido para esse host, sem liberar outra origem ou a sub-rede (HTTP-06; MON-05-AC06).
-7. WHEN o resultado for registrado THEN a persistência SHALL armazenar somente os metadados definidos, status HTTP opcional e erro fixo sanitizado, sem corpo, headers, URL ou mensagem bruta (HTTP-07; MON-05-AC07).
+7. WHEN o resultado for registrado THEN a persistência SHALL armazenar somente os metadados definidos, status HTTP opcional e erro fixo sanitizado, sem corpo, headers, URL ou mensagem bruta (HTTP-07; MON-05-AC04).
 8. WHEN um UUID de execução for registrado repetidamente ou concorrentemente THEN a persistência SHALL manter uma única linha e retornar o primeiro registro sem alterar seus metadados (HTTP-08; MON-05-AC08).
 
 **Independent Test:** Servidor HTTP/TLS controlado e PostgreSQL Testcontainers executados pelo serviço tests.
@@ -77,10 +77,10 @@ Validação/rede: HTTP-05/06. Falhas/dependências externas: HTTP-02/04 e erro d
 | HTTP-01 | MON-05-AC01 | T2,T4 | HttpCheckExecutorIT, CheckServiceIT | Implementing |
 | HTTP-02 | MON-05-AC02 | T2 | HttpCheckExecutorIT | Implementing |
 | HTTP-03 | MON-05-AC03 | T2,T3,T4 | HttpCheckExecutorIT, CheckRepositoryIT | Implementing |
-| HTTP-04 | MON-05-AC04 | T2 | HttpCheckExecutorIT | Implementing |
+| HTTP-04 | MON-05-AC07 | T2 | HttpCheckExecutorIT | Implementing |
 | HTTP-05 | MON-05-AC05 | T1,T2 | DestinationPolicyTest, HttpCheckExecutorIT | Implementing |
 | HTTP-06 | MON-05-AC06 | T1,T4 | DestinationPolicyTest, CheckServiceIT | Implementing |
-| HTTP-07 | MON-05-AC07 | T2,T3,T4 | CheckRepositoryIT, CheckServiceIT | Implementing |
+| HTTP-07 | MON-05-AC04 | T2,T3,T4 | CheckRepositoryIT, CheckServiceIT | Implementing |
 | HTTP-08 | MON-05-AC08 | T3,T4 | CheckRepositoryIT, CheckServiceIT | Implementing |
 
 ## Success Criteria

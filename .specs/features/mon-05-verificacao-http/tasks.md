@@ -52,7 +52,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T1
 **Requirement**: HTTP-01/02/03/04/05
 **Done when**:
-- [ ] HttpCheckExecutorIT cobre servidor controlado, TLS/DNS, cancelamento e cleanup; full passa, mínimo 15 casos novos.
+- [x] HttpCheckExecutorIT cobre servidor controlado, TLS/DNS, cancelamento e cleanup; full passa: 243 testes (110 unitários/133 IT), 19 casos novos, zero falhas/erros/skips.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-05): execute bounded HTTP checks
