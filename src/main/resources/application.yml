@@ -1,3 +1,5 @@
+monitor:
+  demo-origin: ${MONITOR_DEMO_ORIGIN:}
 spring:
   application:
     name: monitor-disponibilidade

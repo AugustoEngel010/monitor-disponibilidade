@@ -74,7 +74,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T3
 **Requirement**: HTTP-01/03/06/07/08
 **Done when**:
-- [ ] CheckServiceIT prova resultado HTTP persistido, demo por configuração, cancelamento e snapshot antigo; full passa, mínimo 4 casos novos.
+- [x] CheckServiceIT prova resultado HTTP persistido, demo por configuração, cancelamento e snapshot antigo; full passa: 264 testes (110 unitários/154 IT), 6 casos novos, zero falhas/erros/skips.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-05): wire HTTP execution and recording

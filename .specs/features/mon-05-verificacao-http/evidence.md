@@ -47,3 +47,18 @@ Gate completo `docker compose run --build --rm tests`, exit 0; 110 unitários + 
 | Migração e regressão | `src/test/java/br/com/monitor/CheckRepositoryIT.java:177` current migra uma vez; :178 zero repetição; :179 histórico antigo igual; :181 monitor igual; :182 tabela vazia | V3 preserva V1/V2 e dados | Sim |
 
 Mapeamento reverso: nove casos parametrizados = AC03/04/07; repetição/concorrência/identidade/nova conexão = AC08; constraints = AC03/04; migração = preservação da arquitetura requerida. Adequação PASS. Fixtures corrigidas antes da implementação ser aprovada: nullable Integer sem unboxing e relógio fixo com precisão PostgreSQL, sem mudar assertions. Testes antigos preservados; expectativas de histórico ampliadas para 1,2,3. O teste específico de upgrade V1→V2 mantém target 2 e suas assertions originais; teste novo prova V2→V3. TRUNCATE inclui somente a nova tabela filha, sem CASCADE.
+
+## T4
+
+Gate completo `docker compose run --build --rm tests`, exit 0; 110 unitários + 154 IT = 264, seis casos novos de serviço, zero falhas/erros/skips/Checkstyle. Log `.validation/mon05-t4.log`.
+
+| AC / cenário | Assertion file:line | Outcome da spec | Coberto |
+| --- | --- | --- | --- |
+| AC01/03/04 resultado persistido | `src/test/java/br/com/monitor/CheckServiceIT.java:81` SUCCESS; :82 status200; :83..88 metadados; :89 find=result; :90 monitor igual; :95 erro null; :96 não contém corpo/URL | Metadados persistentes, sem efeito administrativo | Sim |
+| AC08 repetição | `src/test/java/br/com/monitor/CheckServiceIT.java:92` segunda tentativa retorna primeiro; :93 hits=2; :94 count=1 | Persistência idempotente; não promete envio HTTP único | Sim |
+| AC06/07 demo opt-in | `src/test/java/br/com/monitor/CheckServiceIT.java:105` DESTINATION_BLOCKED sem config; :106 external=false; :108 persisted; :109 hits=0; :118 alias bloqueado; :120 hits=0 | Origem exata, política default fechada | Sim |
+| AC03 snapshot antigo | `src/test/java/br/com/monitor/CheckServiceIT.java:131` generation1; :132 monitor paused igual; :133 generation2; :134 registro persistido | História preserva versão/geração sem aplicar estado | Sim |
+| AC04/07 cancelamento persistido | `src/test/java/br/com/monitor/CheckServiceIT.java:154` CANCELLED; :155 interrupted=true; :156 persisted; :157 statusnull; :159 peer fechado | Cancelamento durável e recursos liberados | Sim |
+| AC04 falha parcial | `src/test/java/br/com/monitor/CheckServiceIT.java:170` DataAccessException; :171 interrupted=true; :176 ausência; :177 sem HTTP; :178 count0; :179 retry SUCCESS; :180 count1 | Banco não vira falha externa nem registro parcial | Sim |
+
+Mapeamento reverso: os seis métodos da tabela são todos os casos de CheckServiceIT, necessários aos cenários indicados. Adequação PASS. Segurança administrativa e demais testes da baseline permanecem aprovados. Contrato não cria rota ou agendamento e não aplica resultado ao estado.
