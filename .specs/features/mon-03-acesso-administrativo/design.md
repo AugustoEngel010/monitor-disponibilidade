@@ -12,6 +12,8 @@ StatusOnlyHealthWebExtension conserva cálculo/status HTTP nativo e retorna some
 
 CSRF usa HttpSessionCsrfTokenRepository e o mascaramento XOR padrão. GET /api/admin/csrf entrega token/headerName/parameterName; clientes enviam cookie mais token por header ou parâmetro em toda escrita. Sem CORS aberto. Cookie HttpOnly e SameSite=Lax, sessão 30 min. Códigos 401/403 usam corpo vazio e não ecoam inputs.
 
+Contexto de autenticação fica em RequestAttributeSecurityContextRepository para preservar a identidade no dispatch de erro da mesma requisição. SessionManagement é desabilitado: não existe login por sessão. A política STATELESS com a estratégia CSRF padrão ainda acionava CsrfAuthenticationStrategy a cada escrita, invalidando o token após uma ação; a suíte detectou isso e a integração foi corrigida sem enfraquecer testes.
+
 Alternativa cookie legível pelo JavaScript requer cuidado com token bruto e BREACH; token em sessão reutiliza os defaults de segurança. Sessão de login ampliaria o mecanismo de autenticação e complicaria rotação; Basic por requisição atende o MVP.
 
 ## Code Reuse Analysis

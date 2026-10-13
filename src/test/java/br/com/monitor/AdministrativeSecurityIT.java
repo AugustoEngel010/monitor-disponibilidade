@@ -1,6 +1,7 @@
 package br.com.monitor;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -8,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -105,6 +108,103 @@ class AdministrativeSecurityIT {
         assertThat(send(path, "HEAD", null).statusCode()).isEqualTo(200);
         assertUnauthorized(send(path, "POST", null));
     }
+
+    @Test
+    void csrfEndpointRequiresBasicAndReturnsSessionTokenWithoutCors() throws Exception {
+        // MON-03-AC01/05/06: another origin cannot read the token; the cookie alone cannot authenticate.
+        assertUnauthorized(send("/api/admin/csrf", "GET", null));
+        assertUnauthorized(send("/api/admin/csrf", "GET", basic(username, "wrong-password")));
+        var request = HttpRequest.newBuilder(URI.create(address + "/api/admin/csrf"))
+                .header("Authorization", basic(username, password)).header("Origin", "https://forged.example")
+                .GET().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertThat(response.statusCode()).isEqualTo(200);
+        var token = new ObjectMapper().readTree(response.body());
+        assertThat(token.path("token").asText()).isNotBlank();
+        assertThat(token.path("headerName").asText()).isEqualTo("X-CSRF-TOKEN");
+        assertThat(token.path("parameterName").asText()).isEqualTo("_csrf");
+        assertThat(response.headers().firstValue("set-cookie").orElseThrow())
+                .contains("JSESSIONID=", "HttpOnly", "SameSite=Lax");
+        assertThat(response.headers().allValues("Access-Control-Allow-Origin")).isEmpty();
+        assertThat(response.headers().firstValue("Cache-Control").orElseThrow()).contains("no-store");
+        assertThat(response.body()).doesNotContain(username, password, basic(username, password));
+        assertUnauthorized(client.send(HttpRequest.newBuilder(URI.create(address + "/actuator/info"))
+                .header("Cookie", cookie(response)).GET().build(), HttpResponse.BodyHandlers.ofString()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"POST", "PUT", "PATCH", "DELETE"})
+    void csrfProtectsEveryAdministrativeMutationAndRejectsForgedForms(String method) throws Exception {
+        // MON-03-AC06: failures have no side effect; both header and form contracts work.
+        var session = csrfSession();
+        var otherSession = csrfSession();
+        var probe = context.getBean(ProbeController.class);
+        String authorization = basic(username, password);
+        for (String path : new String[] {"/api/admin/probe", "/admin/probe"}) {
+            int before = probe.mutations.get();
+            assertForbidden(mutate(path, method, authorization, session.cookie(), null, false, false));
+            assertForbidden(mutate(path, method, authorization, session.cookie(), "invalid", false, false));
+            assertForbidden(mutate(path, method, authorization, otherSession.cookie(),
+                    session.token(), false, false));
+            assertForbidden(mutate(path, method, authorization, null, session.token(), false, false));
+            assertForbidden(mutate(path, method, authorization, session.cookie(), null, true, true));
+            assertUnauthorized(mutate(path, method, null, session.cookie(), session.token(), false, false));
+            assertUnauthorized(mutate(path, method, basic(username, "wrong-password"),
+                    session.cookie(), session.token(), false, false));
+            assertThat(probe.mutations.get()).isEqualTo(before);
+
+            var validHeader = mutate(path, method, authorization, session.cookie(), session.token(), false, false);
+            assertThat(validHeader.statusCode()).isEqualTo(200);
+            assertThat(validHeader.body()).isEqualTo(Integer.toString(before + 1));
+            assertThat(probe.mutations.get()).isEqualTo(before + 1);
+
+            var validForm = mutate(path, method, authorization, session.cookie(), session.token(), true, false);
+            assertThat(validForm.statusCode()).isEqualTo(200);
+            assertThat(validForm.body()).isEqualTo(Integer.toString(before + 2));
+            assertThat(probe.mutations.get()).isEqualTo(before + 2);
+        }
+    }
+
+    private void assertForbidden(HttpResponse<String> response) {
+        assertThat(response.statusCode()).isEqualTo(403);
+        assertThat(response.body()).isEmpty();
+    }
+
+    private CsrfSession csrfSession() throws Exception {
+        var response = send("/api/admin/csrf", "GET", basic(username, password));
+        assertThat(response.statusCode()).isEqualTo(200);
+        JsonNode body = new ObjectMapper().readTree(response.body());
+        return new CsrfSession(cookie(response), body.path("token").asText());
+    }
+
+    private String cookie(HttpResponse<String> response) {
+        return response.headers().firstValue("set-cookie").orElseThrow().split(";", 2)[0];
+    }
+
+    private HttpResponse<String> mutate(String path, String method, String authorization, String cookie,
+            String token, boolean form, boolean crossOrigin) throws Exception {
+        String body = form && token != null ? "_csrf=" + URLEncoder.encode(token, StandardCharsets.UTF_8) : "";
+        var request = HttpRequest.newBuilder(URI.create(address + path))
+                .method(method, HttpRequest.BodyPublishers.ofString(body));
+        if (authorization != null) {
+            request.header("Authorization", authorization);
+        }
+        if (cookie != null) {
+            request.header("Cookie", cookie);
+        }
+        if (!form && token != null) {
+            request.header("X-CSRF-TOKEN", token);
+        }
+        if (form) {
+            request.header("Content-Type", "application/x-www-form-urlencoded");
+        }
+        if (crossOrigin) {
+            request.header("Origin", "https://forged.example");
+        }
+        return client.send(request.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    private record CsrfSession(String cookie, String token) { }
 
     private void assertUnauthorized(HttpResponse<String> response) {
         assertThat(response.statusCode()).isEqualTo(401);

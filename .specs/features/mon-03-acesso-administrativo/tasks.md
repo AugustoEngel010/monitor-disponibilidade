@@ -67,9 +67,9 @@ T1 -> T2 -> T3 -> T4 -> T5
 **Where**: componente CsrfController
 **Depends on**: T2
 **Requirement**: AUTH-01, AUTH-05, AUTH-06
-**Files**: CsrfController.java, AdministrativeSecurityIT.java.
+**Files**: CsrfController.java, AdministrativeSecurityIT.java, AdministrativeSecurityConfiguration.java (integração do contexto por requisição sem estratégia de login).
 **Done when**:
-- [ ] Full passa com POST/PUT/PATCH/DELETE, header/parâmetro válidos, ausente/inválido/outra sessão, formulário cross-origin e cookie sem Basic; contadores comprovam ausência de efeito.
+- [x] Full exit 0: 48 testes, zero failures/errors/skips/Checkstyle. Todas as variantes de CSRF e efeitos passam; adequação em evidence.md T3.
 **Tests**: integration
 **Gate**: Full
 **Commit**: `feat(mon-03): expose session csrf token and verify protected actions`

@@ -79,12 +79,12 @@ A base MON-02 não autentica requisições. O operador precisa proteger consulta
 
 | Requirement ID | Origem | Task | Teste / evidência | Status |
 | --- | --- | --- | --- | --- |
-| AUTH-01 | MON-03-AC01 | T2, T3 | AdministrativeSecurityIT | Implementing |
+| AUTH-01 | MON-03-AC01 | T2, T3 | AdministrativeSecurityIT; evidence.md T2/T3 | Verified |
 | AUTH-02 | MON-03-AC02 | T2, T4 | AdministrativeSecurityIT; smoke rotação | Implementing |
 | AUTH-03 | MON-03-AC03 | T2, T4 | Rotas de prova; ApplicationIT; smoke | Implementing |
-| AUTH-04 | MON-03-AC04 | T2, T4 | AdministrativeConfigurationIT; smoke sem configuração | Implementing |
+| AUTH-04 | MON-03-AC04 | T2, T4 | AdministrativeConfigurationIT; smoke sem configuração | Verified |
 | AUTH-05 | MON-03-AC05 | T2, T4, T5 | Captura logs/respostas; revisão Git e exemplos | Implementing |
-| AUTH-06 | MON-03-AC06 | T3 | AdministrativeSecurityIT, efeitos da ação | Implementing |
+| AUTH-06 | MON-03-AC06 | T3 | AdministrativeSecurityIT, efeitos da ação; evidence.md T3 | Verified |
 
 ## Success Criteria
 
