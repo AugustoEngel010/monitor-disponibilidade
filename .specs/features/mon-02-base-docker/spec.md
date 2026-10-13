@@ -91,7 +91,7 @@ O checkout contém somente documentação de produto. O operador precisa constru
 | Requirement ID | Origem | Task | Teste / evidência prevista | Status |
 | --- | --- | --- | --- | --- |
 | BASE-01 | MON-02-AC01 | T2, T3, T4 | ApplicationIT; smoke Compose; checkout limpo | Implementing |
-| BASE-02 | MON-02-AC02 | T3, T4 | MigrationIT; histórico SQL no smoke | Implementing |
+| BASE-02 | MON-02-AC02 | T3, T4 | MigrationIT: quatro assertions de histórico + checksum; histórico SQL no smoke ainda pendente | Implementing |
 | BASE-03 | MON-02-AC03 | T4 | Sentinela SQL após restart/down-up | Implementing |
 | BASE-04 | MON-02-AC04 | T2, T6 | ArchitectureTest e README | Implementing |
 | BASE-05 | MON-02-AC05 | T5 | Workflow, gate local e sensor de falha | Implementing |

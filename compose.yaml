@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-monitor}
+      POSTGRES_USER: ${DB_USER:-monitor}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-local-development-only}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+  app:
+    image: monitor-disponibilidade:local
+    build:
+      context: .
+      target: runtime
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-monitor}
+      DB_USER: ${DB_USER:-monitor}
+      DB_PASSWORD: ${DB_PASSWORD:-local-development-only}
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75.0}
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+  tests:
+    profiles: ["tests"]
+    build:
+      context: .
+      target: source
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+      TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
+      TESTCONTAINERS_HOST_OVERRIDE: ${TESTCONTAINERS_HOST_OVERRIDE:-host.docker.internal}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - maven-cache:/root/.m2
+      - ./target:/reports
+    command: ["sh", "config/run-tests.sh"]
+
+volumes:
+  postgres-data:
+  maven-cache:

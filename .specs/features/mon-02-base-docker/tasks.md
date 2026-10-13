@@ -70,8 +70,8 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Requirement**: BASE-01, BASE-02, BASE-08
 **Files**: compose, env example, V1, MigrationIT e ApplicationIT.
 **Done when**:
-- [ ] verify passa um unitário e quatro testes de integração sem skips; relatórios no host.
-- [ ] Runtime inicia sem socket; tests tem socket e rede documentados.
+- [x] verify passou um unitário e quatro testes de integração, zero falhas/skips; XMLs em target/surefire-reports e target/failsafe-reports, Checkstyle zero violações.
+- [x] `docker compose up --build -d` iniciou PostgreSQL saudável e app; HTTP 200/UP; histórico V1 `1|t`. Socket/rede exclusivos do tests no Compose.
 **Tests**: integration
 **Gate**: Full
 **Commit**: `feat(mon-02): wire PostgreSQL Compose and isolated integration tests`
@@ -146,3 +146,17 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 | BASE-07, separação runtime | `Dockerfile:12`, JRE; `Dockerfile:14`, único COPY do JAR; `Dockerfile:15`, USER | Sem etapa Maven no runtime | Revisão; confirmação dinâmica T4 |
 
 Adequação: teste ligado a AC04, assertion sobre dependência real, nenhuma suíte anterior removida; Checkstyle aplicado a produção e testes. Gates restantes não são declarados aprovados por esta revisão.
+
+### T3
+
+| Critério | Evidência / assertion | Resultado definido | Necessidade |
+| --- | --- | --- | --- |
+| BASE-01, pronto | `src/test/java/br/com/monitor/ApplicationIT.java:30`, `healthy.statusCode() == 200`; linha 31, `status == UP` | 200/UP com banco real | AC01 |
+| BASE-01, banco indisponível | `src/test/java/br/com/monitor/ApplicationIT.java:34`, `unhealthy.statusCode() == 503`; linha 35, `status == DOWN` | 503/DOWN | Edge case |
+| BASE-01/02, configuração inválida | `src/test/java/br/com/monitor/ApplicationIT.java:46`, `hasRootCauseInstanceOf(PSQLException.class)`; linha 47, mensagem de autenticação | Startup falha | Edge case |
+| BASE-02, V1 | `src/test/java/br/com/monitor/MigrationIT.java:21`, `migrationsExecuted == 1`; linha 30, schema count == 1 | Uma migração e schema monitor | AC02 |
+| BASE-02, idempotência | `src/test/java/br/com/monitor/MigrationIT.java:32`, `migrationsExecuted == 0`; linhas 35/36, checksum e installedOn iguais | Histórico preservado | AC02 |
+| BASE-02, checksum | `src/test/java/br/com/monitor/MigrationIT.java:53`, `isInstanceOf(FlywayValidateException.class)` e mensagem checksum mismatch | Alteração rejeitada | Edge case |
+| BASE-08, relatórios | `config/run-tests.sh:6`, captura exit code; linha 8, cópia dos relatórios | Verify preservado, XMLs no host | AC08 |
+
+Adequação: cada teste mapeado acima, outcomes exatos, zero skips, nenhuma assertion enfraquecida. Falha inicial de Maven clean sobre bind mount corrigida separando `/reports` de `/workspace/target`.

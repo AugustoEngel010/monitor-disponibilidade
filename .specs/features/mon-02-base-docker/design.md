@@ -47,4 +47,4 @@ Banco indisponível → health/readiness 503; checksum alterado → migração f
 
 Fontes oficiais: [compatibilidade Spring Boot 3.5](https://docs.spring.io/spring-boot/3.5/system-requirements.html), [Testcontainers em contêineres irmãos](https://java.testcontainers.org/supported_docker_environment/continuous_integration/dind_patterns/), [ordem e saúde no Compose](https://docs.docker.com/compose/how-tos/startup-order/).
 
-Usar daemon do host em vez de Docker-in-Docker segue a decisão do usuário e evita um segundo daemon. Compartilhar apenas `target` para relatórios e cache Maven em volume; o código entra por COPY na etapa de testes.
+Usar daemon do host em vez de Docker-in-Docker segue a decisão do usuário e evita um segundo daemon. Montar o `target` do host em `/reports` e copiar a saída após `clean verify`, preservando seu exit code. Não montar o diretório de build `/workspace/target`: Maven clean falha ao tentar apagar um ponto de montagem. Cache Maven em volume; código por COPY na etapa de testes.
