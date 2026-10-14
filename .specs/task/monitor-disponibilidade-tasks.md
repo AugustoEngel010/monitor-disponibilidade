@@ -157,18 +157,18 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-06-AC01: monitores ativos elegíveis são executados conforme a política de agendamento. Monitores pausados não iniciam novas verificações.
-- [ ] MON-06-AC02: novas rodadas do agendador não iniciam uma segunda execução enquanto o mesmo monitor tiver uma tentativa em andamento.
-- [ ] MON-06-AC03: a quantidade de verificações em andamento respeita o limite configurado. O excedente permanece pendente sem criar uma fila ilimitada em memória.
-- [ ] MON-06-AC04: um monitor lento ocupa somente sua parcela da capacidade; outros monitores continuam avançando.
-- [ ] MON-06-AC05: reiniciar a aplicação mantém configuração, histórico, incidentes e próximo agendamento. Execuções interrompidas não ficam bloqueadas permanentemente.
-- [ ] MON-06-AC06: um monitor vencido após reinício gera uma nova tentativa conforme a política, sem executar em rajada todas as verificações perdidas.
-- [ ] MON-06-AC07: observações que ultrapassam o limite de frescor são apresentadas como sem dados recentes. A ausência de execução não é transformada em sucesso ou falha externa.
-- [ ] MON-06-AC08: a interação entre pausa e uma tentativa já iniciada segue o contrato de MON-01, sem mudar o monitor para disponível por causa da pausa.
+- [x] MON-06-AC01: monitores ativos elegíveis são executados conforme a política de agendamento. Monitores pausados não iniciam novas verificações.
+- [x] MON-06-AC02: novas rodadas do agendador não iniciam uma segunda execução enquanto o mesmo monitor tiver uma tentativa em andamento.
+- [x] MON-06-AC03: a quantidade de verificações em andamento respeita o limite configurado. O excedente permanece pendente sem criar uma fila ilimitada em memória.
+- [x] MON-06-AC04: um monitor lento ocupa somente sua parcela da capacidade; outros monitores continuam avançando.
+- [x] MON-06-AC05: reiniciar a aplicação mantém configuração, histórico, incidentes e próximo agendamento. Execuções interrompidas não ficam bloqueadas permanentemente.
+- [x] MON-06-AC06: um monitor vencido após reinício gera uma nova tentativa conforme a política, sem executar em rajada todas as verificações perdidas.
+- [x] MON-06-AC07: observações que ultrapassam o limite de frescor são apresentadas como sem dados recentes. A ausência de execução não é transformada em sucesso ou falha externa.
+- [x] MON-06-AC08: a interação entre pausa e uma tentativa já iniciada segue o contrato de MON-01, sem mudar o monitor para disponível por causa da pausa.
 
 **Testes:** relógio controlável para seleção e atraso; integração de concorrência e reinício com estado persistido; servidor lento e servidor saudável executados no mesmo cenário. Evitar testes dependentes de esperas longas de relógio real.
 
-**Conclusão:** execução periódica verificável, limitada e recuperável após reinício.
+**Conclusão:** validada localmente em 2026-10-14: V4, reserva durável, polling, concorrência limitada e recuperação sem replay. 301 testes sem falhas/erros/skips, qualidade, runtime e smoke aprovados. Verifier independente PASS 8/8 e cinco mutações mortas; [relatório](../features/mon-06-agendamento/validation.md). Aplicação ao estado/incidente permanece MON-07; CI remota não executada.
 
 ### MON-07 — Identificar queda e recuperação e manter incidentes
 

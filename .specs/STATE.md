@@ -71,10 +71,10 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 ## Handoff
 
 - **Feature**: MON-06; `.specs/features/mon-06-agendamento/`.
-- **Phase / Task**: T1–T4 concluídas; gates do autor aprovados; Verifier independente em seguida.
-- **Completed**: V4, reserva durável/recuperação, coordenador limitado, polling Spring, pausa/edição/shutdown e 37 novos testes. Full: 301 testes (124 unitários/177 IT), zero falhas/erros/skips/Checkstyle; runtime Docker aprovado. Commits T1 52826be, T2 c9deb64, T3 e47a640.
-- **In-progress**: Relatório independente pendente; smoke PASS e runtime aprovados. Não declarar feature concluída antes de validation.md PASS.
-- **Next step**: Executar Verifier com sensor. Após PASS, MON-07 aplica resultados ao estado/incidente/intenção atomicamente conforme AD-002 e versão/geração AD-006/008.
+- **Phase / Task**: Execute concluído; T1–T4 e Verifier independente PASS 8/8.
+- **Completed**: V4, reserva durável/recuperação, coordenador limitado, polling Spring, pausa/edição/shutdown e 37 novos testes. Autor/Verifier: 301 testes (124 unitários/177 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke Docker aprovados. Cinco mutações mortas, zero sobreviventes. Commits T1 52826be, T2 c9deb64, T3 e47a640, T4 a09f257.
+- **In-progress**: Nenhuma implementação pendente da MON-06. Relatório independente em `.specs/features/mon-06-agendamento/validation.md`; validate_state sem erros.
+- **Next step**: MON-07 aplica resultados ao estado/incidente/intenção atomicamente conforme AD-002 e comparação de versão/geração sob lock AD-006/008. Reservas fornecem início lógico/snapshot; resultado persistido continua imutável.
 - **Blockers**: Nenhum local. Daemon Docker disponível via execução autorizada fora do sandbox. CI remota e push não executados.
-- **Uncommitted files**: Documentação/env/README, expectativa V4 do smoke e snapshot de fechamento.
+- **Uncommitted files**: Nenhum após commit de fechamento; relatório, backlog e snapshot incluídos nele. Código Java/testes inalterados após e47a640.
 - **Branch**: main; baseline 1e0ba8e. Banco do operador preservado; testes e smoke usam PostgreSQLs descartáveis próprios. Logs locais `.validation/mon06-*.log`.

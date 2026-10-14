@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven, testes por AC antes da implementação, gate antes de marcar completo e commit atômico por task. Pedido já autoriza ferramentas Docker/PowerShell/Python e execução. Quatro tasks inline; Verifier independente obrigatório no fechamento.
 
-**Status:** Done; gates do autor aprovados, Verifier independente pendente. **Design:** [design.md](design.md).
+**Status:** Done; [Verifier independente](validation.md) PASS 8/8, 301 testes e cinco mutações mortas. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 

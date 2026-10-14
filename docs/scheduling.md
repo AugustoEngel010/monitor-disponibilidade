@@ -54,3 +54,5 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1
 ScheduleStoreIT verifica reserva/ordem/rollback/recuperação no PostgreSQL. CheckSchedulerTest usa relógio mutável e latches para sobreposição, limite, cancelamento e falhas. SchedulerRuntimeIT verifica polling real, servidores lento e saudável, timeout, pausa/edição, restart Spring/PostgreSQL, falha de gravação, upgrade V3→V4 e frescor por HTTP. Relógio real é usado somente para timeout HTTP e esperas limitadas de sincronização.
 
 [Spec e rastreabilidade](../.specs/features/mon-06-agendamento/spec.md), [tasks](../.specs/features/mon-06-agendamento/tasks.md), [evidências de gates](../.specs/features/mon-06-agendamento/evidence.md) e [decisão AD-008](../.specs/STATE.md).
+
+[Validação independente](../.specs/features/mon-06-agendamento/validation.md): PASS nos oito critérios, 301 testes e cinco mutações mortas; build e smoke aprovados.

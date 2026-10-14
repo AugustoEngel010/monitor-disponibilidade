@@ -1,6 +1,6 @@
 # MON-06: agendamento com concorrência controlada
 
-**Data:** 2026-10-14. **Status:** Implemented; gates do autor aprovados, Verifier pendente. Execução local autorizada pelo pedido atual.
+**Data:** 2026-10-14. **Status:** Verified; [Verifier independente](validation.md) PASS 8/8, 301 testes e cinco mutações mortas. Execução local autorizada pelo pedido atual.
 **Origem:** MON-06-AC01 a MON-06-AC08; PROD-05/06/17/25/26/27/28/29; AD-001 a AD-007.
 
 ## Problem Statement
