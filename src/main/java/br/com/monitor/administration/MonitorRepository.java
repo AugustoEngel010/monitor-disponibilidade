@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,11 +48,15 @@ public class MonitorRepository {
         return jdbc.queryForObject("SELECT count(*) FROM monitor.monitors", new MapSqlParameterSource(), Long.class);
     }
 
-    public List<Monitor> due(Instant now) {
+    public List<Monitor> due(Instant now, Collection<UUID> running) {
+        var parameters = new MapSqlParameterSource("now", Timestamp.from(now));
+        String excluded = "";
+        if (!running.isEmpty()) { excluded = " AND m.id NOT IN (:running)"; parameters.addValue("running", running); }
         return jdbc.query("SELECT m.* FROM monitor.monitors m WHERE lifecycle='ACTIVE' AND next_check_at<=:now"
                 + " AND NOT EXISTS (SELECT 1 FROM monitor.check_attempts a WHERE a.monitor_id=m.id)"
+                + excluded
                 + " ORDER BY next_check_at, id LIMIT 1 FOR UPDATE OF m SKIP LOCKED",
-                new MapSqlParameterSource("now", Timestamp.from(now)), this::map);
+                parameters, this::map);
     }
 
     public void schedule(UUID id, Instant next) {

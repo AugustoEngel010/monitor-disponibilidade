@@ -44,7 +44,8 @@ class MonitorApiIT {
     void start() throws Exception {
         db.start();
         context = (ServletWebServerApplicationContext) new SpringApplicationBuilder(MonitorApplication.class)
-                .run("--server.port=0", "--spring.datasource.url=" + db.getJdbcUrl(),
+                .run("--server.port=0", "--monitor.scheduler.enabled=false",
+                        "--spring.datasource.url=" + db.getJdbcUrl(),
                         "--spring.datasource.username=" + db.getUsername(),
                         "--spring.datasource.password=" + db.getPassword(),
                         "--ADMIN_USERNAME=" + username, "--ADMIN_PASSWORD=" + password);

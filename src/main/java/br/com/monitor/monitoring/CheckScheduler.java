@@ -44,7 +44,7 @@ public final class CheckScheduler implements AutoCloseable {
             if (!running.containsKey(monitorId)) { store.recover(monitorId, now()); }
         }
         while (running.size() < capacity) {
-            var claimed = store.claim(now());
+            var claimed = store.claim(now(), running.keySet());
             if (claimed.isEmpty()) { break; }
             var attempt = claimed.orElseThrow();
             var work = new Work(attempt);

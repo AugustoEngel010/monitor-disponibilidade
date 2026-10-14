@@ -60,6 +60,14 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-13
 - **Status**: active
 
+### AD-008
+- **Decision**: MON-06 reserva uma tentativa por monitor no PostgreSQL, com início lógico/horário vencido e snapshot de versão/geração. Na reserva, nextCheckAt=início lógico+I; sem fila de execuções e sem replay. Workers limitados a C=1..16 (padrão 4), polling 250 ms (positivo/configurável), uma instância. Pausa/edição interrompem worker na rodada seguinte, mantendo vaga até sua saída.
+- **Reason**: Evitar sobreposição e trabalho ilimitado; preservar agendamento e identificar tentativas interrompidas após crash.
+- **Trade-off**: Não coordena múltiplas instâncias; retomada exige instância anterior parada. Reserva órfã sem resultado recebe CANCELLED com duração desconhecida 0 e quebra sequências da geração corrente; resultado já persistido vence. Aplicação das observações ao estado/incidente continua MON-07 sob AD-002.
+- **Scope**: MON-06 a MON-11; PROD-05/06/17/25/26/27/28/29; MON-06-AC01 a MON-06-AC08. Contratos de agendamento/frescor/pausa da MON-01 aplicados no pedido atual.
+- **Date**: 2026-10-14
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: MON-05; `.specs/features/mon-05-verificacao-http/`.

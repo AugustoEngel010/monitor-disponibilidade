@@ -23,7 +23,7 @@ MonitorRepository/MonitorService fornecem lock e Clock. Monitor.evidence e Monit
 
 ## Data Models
 
-V4 cria monitor.check_attempts: monitor_id PK/FK, execution_id UUID UNIQUE, configuration_version/execution_generation, scheduled_at e started_at. Só reservas ainda não concluídas ocupam a tabela; resultado permanece em check_results. Índice parcial monitors(next_check_at,id) WHERE ACTIVE. Seleção exclui monitor com reserva mesmo após retomada. scheduled_at preserva vencimento original para diagnóstico de atraso; next_check_at continua na API.
+V4 cria monitor.check_attempts: monitor_id PK/FK, execution_id UUID UNIQUE, configuration_version/execution_generation, scheduled_at e started_at. Só reservas ainda não concluídas ocupam a tabela; resultado permanece em check_results. Índice parcial monitors(next_check_at,id) WHERE ACTIVE. Seleção exclui monitor com reserva mesmo após retomada e IDs ainda no mapa local, cobrindo a janela entre commit da conclusão e finally do worker. scheduled_at preserva vencimento original para diagnóstico de atraso; next_check_at continua na API.
 
 ## Error Handling Strategy
 

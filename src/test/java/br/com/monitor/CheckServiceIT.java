@@ -189,6 +189,7 @@ class CheckServiceIT {
 
     private ConfigurableApplicationContext open(String allowedOrigin) {
         return new SpringApplicationBuilder(MonitorApplication.class).run("--server.port=0",
+                "--monitor.scheduler.enabled=false",
                 "--spring.datasource.url=" + db.getJdbcUrl(), "--spring.datasource.username=" + db.getUsername(),
                 "--spring.datasource.password=" + db.getPassword(), "--ADMIN_USERNAME=" + UUID.randomUUID(),
                 "--ADMIN_PASSWORD=" + UUID.randomUUID(), "--monitor.demo-origin=" + allowedOrigin);

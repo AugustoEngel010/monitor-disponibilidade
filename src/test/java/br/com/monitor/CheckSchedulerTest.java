@@ -43,7 +43,7 @@ class CheckSchedulerTest {
     private final ConcurrentHashMap<UUID, Thread> threads = new ConcurrentHashMap<>();
 
     CheckSchedulerTest() {
-        when(store.claim(any())).thenAnswer(call -> Optional.ofNullable(due.poll()));
+        when(store.claim(any(), any())).thenAnswer(call -> Optional.ofNullable(due.poll()));
         when(store.pending()).thenReturn(List.of());
         when(store.current(any())).thenReturn(true);
         doAnswer(call -> { results.add(call.getArgument(1)); return null; }).when(store).finish(any(), any());
@@ -187,7 +187,7 @@ class CheckSchedulerTest {
 
     @Test
     void claimFailureDoesNotConsumeCapacity() {
-        when(store.claim(any())).thenThrow(new IllegalStateException("database unavailable"));
+        when(store.claim(any(), any())).thenThrow(new IllegalStateException("database unavailable"));
         try (var scheduler = new CheckScheduler(store,
                 (monitor, id) -> result(monitor, id, Outcome.SUCCESS), clock, 1)) {
             assertThatThrownBy(scheduler::tick).isInstanceOf(IllegalStateException.class);
@@ -250,6 +250,7 @@ class CheckSchedulerTest {
 
     static final class MutableClock extends Clock {
         private final AtomicReference<Instant> time = new AtomicReference<>(Instant.parse("2026-10-14T12:00:00Z"));
+        void reset() { time.set(Instant.parse("2026-10-14T12:00:00Z")); }
         void advance(long seconds) { time.updateAndGet(value -> value.plusSeconds(seconds)); }
         @Override public Instant instant() { return time.get(); }
         @Override public ZoneId getZone() { return ZoneOffset.UTC; }

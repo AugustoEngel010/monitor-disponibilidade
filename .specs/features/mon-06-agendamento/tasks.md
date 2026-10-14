@@ -63,7 +63,7 @@ T1 → T2 → T3 → T4
 **Depends on**: T2
 **Requirement**: SCHED-01/03/04/05/06/07/08
 **Done when**:
-- [ ] SchedulerRuntimeIT prova runtime, servidor lento/saudável, timeout/cancelamento, restart e consulta de frescor; Full passa sem skips.
+- [x] SchedulerRuntimeIT prova runtime, servidor lento/saudável, timeout/cancelamento, restart, janela de cleanup e consulta de frescor; Full aprovado: 301 testes (124 unitários/177 IT), zero falhas/erros/skips/Checkstyle.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-06): enable periodic scheduling lifecycle

@@ -1,5 +1,9 @@
 monitor:
   demo-origin: ${MONITOR_DEMO_ORIGIN:}
+  scheduler:
+    enabled: ${MONITOR_SCHEDULER_ENABLED:true}
+    concurrency: ${MONITOR_CHECK_CONCURRENCY:4}
+    poll-ms: ${MONITOR_SCHEDULER_POLL_MS:250}
 spring:
   application:
     name: monitor-disponibilidade

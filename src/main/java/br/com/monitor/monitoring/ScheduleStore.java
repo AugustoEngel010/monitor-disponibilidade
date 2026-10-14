@@ -2,6 +2,7 @@ package br.com.monitor.monitoring;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,8 +32,12 @@ public class ScheduleStore {
     public record Attempt(Monitor monitor, UUID executionId, Instant scheduledAt, Instant startedAt) { }
 
     public Optional<Attempt> claim(Instant now) {
+        return claim(now, List.of());
+    }
+
+    public Optional<Attempt> claim(Instant now, Collection<UUID> running) {
         return transaction.execute(status -> {
-            var due = monitors.due(now);
+            var due = monitors.due(now, running);
             if (due.isEmpty()) { return Optional.empty(); }
             var monitor = due.getFirst();
             var attempt = new Attempt(monitor, UUID.randomUUID(), monitor.state().nextCheckAt(), now);
