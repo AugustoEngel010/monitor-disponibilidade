@@ -6,8 +6,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
+import br.com.monitor.incident.IncidentRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -17,10 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class MonitorService {
     private final MonitorRepository repository;
     private final Clock clock;
+    private final IncidentRepository incidents;
 
-    public MonitorService(MonitorRepository repository, Clock clock) {
+    public MonitorService(MonitorRepository repository, Clock clock, IncidentRepository incidents) {
         this.repository = repository;
         this.clock = clock;
+        this.incidents = incidents;
     }
 
     @Bean
@@ -66,7 +70,13 @@ public class MonitorService {
     private Monitor change(UUID id, UnaryOperator<Monitor> operation) {
         var before = required(id, true);
         var after = operation.apply(before);
-        if (!before.equals(after)) { repository.save(after); }
+        if (!before.equals(after)) {
+            repository.save(after);
+            if (after.state().openIncidentId() != null
+                    && !Objects.equals(before.state().recoveryStartedAt(), after.state().recoveryStartedAt())) {
+                incidents.recoveryStarted(after.state().openIncidentId(), after.state().recoveryStartedAt());
+            }
+        }
         return after;
     }
 

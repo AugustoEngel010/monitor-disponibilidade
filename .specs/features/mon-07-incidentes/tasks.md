@@ -75,7 +75,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T3
 **Requirement**: INC-05/06/07/08
 **Done when**:
-- [ ] IncidentLifecycleIT prova reinício de contexto, pausa concorrente, edição, geração antiga e reserva recuperável; regressão de scheduler permanece coberta e Full passa.
+- [x] IncidentLifecycleIT prova reinício de contexto, pausa concorrente, edição, geração antiga e reserva recuperável; Full passou: 356 testes (138 unitários/218 IT), quinze novos, zero falhas/erros/skips/Checkstyle. Regressão de scheduler atualizada para MON-07 e coberta.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-07): integrate recoverable incident processing

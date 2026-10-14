@@ -56,3 +56,26 @@ Premissas: primeiro registro bruto vence, lock de monitor precede deduplicação
 Mapeamento reverso: os doze métodos de IncidentProcessorIT, 20 casos incluindo parametrizações, correspondem na ordem às doze linhas acima. Cada um verifica AC/borda, sem teste especulativo ou chamada mock como evidência. Snapshots incluem contadores, instantes e payloads completos em seis tabelas. Adequação PASS; padrões Testcontainers/AssertJ/Checkstyle respeitados; sem SPEC_DEVIATION.
 
 Gate T3: `docker compose run --build --rm tests`, exit 0, 341 testes (138 unitários/203 IT), zero falhas/erros/skips/Checkstyle. Log `.validation/mon07-t3.log`. Resultado bruto sobrevive aos oito cenários de rollback e pode ser reaplicado sem novo HTTP.
+
+## T4: reservas e administração
+
+Premissas: conclusão aplica antes de remover reserva; reconciliação nunca descarta resultado já salvo; pausa e processador usam o mesmo lock. Arquivos: ScheduleStore, MonitorService, IncidentLifecycleIT, contratos anteriores de ScheduleStoreIT/SchedulerRuntimeIT e SDD. Testes anteriores atualizados com autorização explícita: SUCCESS agora estabelece UP e limpa falhas. Assertions de configuração/versão/geração/horário/histórico permanecem; igualdade integral do monitor renomeado foi preservada com estado esperado UP/observação corrente.
+
+| Critério / resultado definido | file:line + assertion | Coberto |
+| --- | --- | --- |
+| INC-01/03/04/08: HTTP real em scheduler, novo incidente após fechado | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:100` DOWN; :101/102 tempos base/120; :113/114 recuperação 180/240; :120 ID diferente; :121 fechado imutável; :125 hits=8 | Sim |
+| INC-06/07: reinício com duas falhas dentro/fora de L | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:137` monitor integral igual; :139/140 contador=3/DOWN ou 1/UNKNOWN; :142 primeira falha exata | Sim |
+| INC-07: recuperação parcial sobrevive reinício sem tentativa | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:152/153` monitor/incidente integrais; :156/157 tempos 180/240 | Sim |
+| INC-07: pausa/retomada idempotentes com incidente | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:167/175` igualdade integral; :170 contador=0; :172 início incidente null; :182 novo contador=1; :184 intenção preservada | Sim |
+| INC-05/06/07: resultado tardio após pausa/retomada/política | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:204/207` monitor igual; :205 resultado salvo; :206 replay=false; :208/209 counts=0 | Sim |
+| INC-07: nome/e-mail preservam sequência e intenção; política 409 | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:220` estado integral igual; :221 intenção igual; :229 HTTP 409 por cada campo; :230 monitor integral; :234/237 destinatários distintos por transição | Sim |
+| INC-06/07: reserva interrompida limpa recuperação, preserva incidente | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:253` CANCELLED; :256 mesmo ID; :257/258 contador/início monitor zero/null; :259 início incidente null; :260/261 observação/agendamento preservados | Sim |
+| INC-05/07/08: resultado salvo antes de aplicar, restart e replay | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:281` resultado original; :282 DOWN; :283 confirmação=120; :287 monitor integral após replay; :288/289 counts=1 | Sim |
+| INC-08: rollback deixa reserva e resultado recuperáveis | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:303` reserva presente; :304 contador=2; :305/306 counts=0; :307 resultado=3; :311 DOWN após restart; :313 HTTP único | Sim |
+| INC-07/08: corrida pausa/terceira falha serializada | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:335` estado conforme vencedor; :337/338/339 todos counts=1 ou todos 0; :345 monitor pausado integral após replay | Sim |
+| INC-07/08: falha na sincronização do incidente faz rollback de pausa | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:357` DataAccessException; :359/360 monitor/incidente integrais iguais | Sim |
+| Integridade de reserva/resultados | `src/test/java/br/com/monitor/IncidentLifecycleIT.java:369` IllegalArgumentException; :370 monitor integral; :371 reserva preservada; :372 resultado ausente; :373/374 zero efeitos | Sim |
+
+Mapeamento reverso: os doze métodos, quinze casos parametrizados, correspondem às doze linhas acima. Cada assertion verifica resultado/estado exigido pelo AC/borda; nenhum teste mock ou fora da spec. Contextos Spring realmente encerrados/reabertos, PostgreSQL persistido durante o cenário. Relógio controlável, sem sleeps de regras temporais. Adequação PASS, sem SPEC_DEVIATION.
+
+Gate final T4: `docker compose run --build --rm tests`, exit 0, 356 testes (138 unitários/218 IT), zero falhas/erros/skips/Checkstyle. Logs `.validation/mon07-t4.log` (duas expectativas pré-MON-07 detectadas) e `.validation/mon07-t4-final.log` (PASS). Quinze casos novos; total da feature até aqui: 55. Nenhum teste anterior removido/desabilitado.

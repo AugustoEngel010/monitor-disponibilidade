@@ -8,6 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 import br.com.monitor.administration.Monitor;
 import br.com.monitor.administration.MonitorRepository;
+import br.com.monitor.incident.IncidentProcessor;
+import br.com.monitor.incident.IncidentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -20,13 +23,22 @@ public class ScheduleStore {
     private final MonitorRepository monitors;
     private final CheckRepository results;
     private final TransactionTemplate transaction;
+    private final IncidentProcessor processor;
 
     public ScheduleStore(NamedParameterJdbcTemplate jdbc, MonitorRepository monitors, CheckRepository results,
             PlatformTransactionManager manager) {
+        this(jdbc, monitors, results, manager,
+                new IncidentProcessor(monitors, results, new IncidentRepository(jdbc), jdbc, manager));
+    }
+
+    @Autowired
+    public ScheduleStore(NamedParameterJdbcTemplate jdbc, MonitorRepository monitors, CheckRepository results,
+            PlatformTransactionManager manager, IncidentProcessor processor) {
         this.jdbc = jdbc;
         this.monitors = monitors;
         this.results = results;
         this.transaction = new TransactionTemplate(manager);
+        this.processor = processor;
     }
 
     public record Attempt(Monitor monitor, UUID executionId, Instant scheduledAt, Instant startedAt) { }
@@ -68,16 +80,23 @@ public class ScheduleStore {
     }
 
     public void finish(Attempt attempt, CheckResult result) {
+        if (!attempt.executionId().equals(result.executionId())
+                || !attempt.monitor().id().equals(result.monitorId())
+                || attempt.monitor().state().configurationVersion() != result.configurationVersion()
+                || attempt.monitor().state().executionGeneration() != result.executionGeneration()) {
+            throw new IllegalArgumentException("Result does not belong to the reserved snapshot");
+        }
         transaction.executeWithoutResult(status -> {
             monitors.find(attempt.monitor().id(), true).orElseThrow();
             results.save(result);
+            processor.process(result.executionId());
             remove(attempt.monitor().id(), attempt.executionId());
         });
     }
 
     public void recover(UUID monitorId, Instant now) {
         transaction.executeWithoutResult(status -> {
-            var monitor = monitors.find(monitorId, true).orElseThrow();
+            monitors.find(monitorId, true).orElseThrow();
             var parameters = new MapSqlParameterSource("monitor", monitorId);
             var rows = jdbc.queryForList("SELECT * FROM monitor.check_attempts WHERE monitor_id=:monitor", parameters);
             if (rows.isEmpty()) { return; }
@@ -88,9 +107,8 @@ public class ScheduleStore {
             if (results.find(id).isEmpty()) {
                 results.save(new CheckResult(monitorId, id, version, generation,
                         ((Timestamp) row.get("started_at")).toInstant(), now, 0, CheckResult.Outcome.CANCELLED, null));
-                if (monitor.state().configurationVersion() == version
-                        && monitor.state().executionGeneration() == generation) { monitors.clearSequences(monitorId); }
             }
+            processor.process(id);
             remove(monitorId, id);
         });
     }

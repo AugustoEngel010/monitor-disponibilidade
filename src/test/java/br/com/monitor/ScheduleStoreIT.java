@@ -148,7 +148,7 @@ class ScheduleStoreIT {
     }
 
     @Test
-    void recordedResultWinsRecoveryAndRestartWithoutAttemptPreservesCounters() {
+    void recordedResultWinsRecoveryIsAppliedOnceAndRestartWithoutAttemptPreservesState() {
         var monitor = create(UUID.randomUUID(), now);
         var attempt = store.claim(now).orElseThrow();
         var result = new CheckResult(monitor.id(), attempt.executionId(), 1, 1, now, now.plusSeconds(1),
@@ -158,7 +158,11 @@ class ScheduleStoreIT {
         store.recover(monitor.id(), now.plusSeconds(600));
         store.recover(monitor.id(), now.plusSeconds(601));
         assertThat(results.find(attempt.executionId())).contains(result);
-        assertThat(monitors.find(monitor.id(), false).orElseThrow().state().failureCount()).isEqualTo(2);
+        assertThat(monitors.find(monitor.id(), false).orElseThrow().state().failureCount()).isZero();
+        assertThat(monitors.find(monitor.id(), false).orElseThrow().state().confirmedState()).isEqualTo("UP");
+        var after = monitors.find(monitor.id(), false).orElseThrow();
+        store.recover(monitor.id(), now.plusSeconds(999));
+        assertThat(monitors.find(monitor.id(), false)).contains(after);
         assertThat(store.pending()).isEmpty();
     }
 

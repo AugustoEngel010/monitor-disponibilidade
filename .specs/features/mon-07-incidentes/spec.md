@@ -76,6 +76,7 @@ Reinício sem reserva interrompida mantém estado/contadores e próximo agendame
 - Pausa concorrente com processamento; sucesso tardio após pausa/retomada; edição de nome com recuperação parcial e 409 para cada campo de política.
 - Reinício com duas falhas, recuperação parcial, reserva interrompida e resultado salvo antes de aplicação; migração V4 para V5 preserva dados/checksums.
 - SQL direto tenta segundo incidente aberto; incidente fechado permite novo incidente com outra identidade.
+- Resultado de outro executionId/snapshot não pode concluir nem liberar a reserva de uma tentativa diferente.
 
 ## Dimensões implícitas
 

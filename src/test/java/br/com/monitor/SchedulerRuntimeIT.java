@@ -213,8 +213,10 @@ class SchedulerRuntimeIT {
             assertThat(rows.get(0)).containsEntry("configuration_version", 1L).containsEntry("outcome", "CANCELLED");
             assertThat(rows.get(1)).containsEntry("configuration_version", 2L)
                     .containsEntry("execution_generation", 2L).containsEntry("outcome", "SUCCESS");
-            assertThat(monitors.get(slow.id()).state().confirmedState()).isEqualTo("UNKNOWN");
-            assertThat(monitors.get(slow.id()).state().currentObservation()).isFalse();
+            assertThat(monitors.get(slow.id()).state().confirmedState()).isEqualTo("UP");
+            assertThat(monitors.get(slow.id()).state().currentObservation()).isTrue();
+            assertThat(monitors.get(slow.id()).state().lastObservedAt()).isEqualTo(clock.instant());
+            assertThat(monitors.get(slow.id()).configuration()).isEqualTo(edited.configuration());
         } finally { releaseSlow.countDown(); }
     }
 
@@ -229,7 +231,10 @@ class SchedulerRuntimeIT {
             assertThat(scheduler.inFlight()).isEqualTo(1);
             releaseSlow.countDown();
             assertThat(scheduler.awaitIdle(Duration.ofSeconds(2))).isTrue();
-            assertThat(monitors.get(slow.id())).isEqualTo(renamed);
+            var expectedState = new Monitor.State("ACTIVE", "UP", 0, 0, null, null, clock.instant(), true,
+                    null, 1, 1, renamed.state().nextCheckAt());
+            assertThat(monitors.get(slow.id())).isEqualTo(new Monitor(slow.id(), renamed.configuration(),
+                    expectedState, renamed.createdAt(), clock.instant()));
             assertThat(outcome(slow.id())).isEqualTo("SUCCESS");
             assertThat(count(slow.id())).isEqualTo(1);
         } finally { releaseSlow.countDown(); }
@@ -280,7 +285,12 @@ class SchedulerRuntimeIT {
             scheduler.tick();
             assertThat(scheduler.inFlight()).isZero();
             assertThat(store.pending()).isEmpty();
-            assertThat(monitors.get(monitor.id())).isEqualTo(before);
+            var applied = monitors.get(monitor.id());
+            assertThat(applied.state().confirmedState()).isEqualTo("UP");
+            assertThat(applied.state().failureCount()).isZero();
+            assertThat(applied.configuration()).isEqualTo(before.configuration());
+            assertThat(applied.state().nextCheckAt()).isEqualTo(before.state().nextCheckAt());
+            assertThat(applied.state().lastObservedAt()).isEqualTo(saved.finishedAt());
             assertThat(context.getBean(CheckRepository.class).find(saved.executionId())).contains(saved);
             assertThat(count(monitor.id())).isEqualTo(1);
             assertThat(healthyHits.get()).isEqualTo(1);
