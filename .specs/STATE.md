@@ -68,13 +68,21 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-14
 - **Status**: active
 
+### AD-009
+- **Decision**: MON-07 aplica o resultado bruto vencedor sob lock de monitor e deduplica por result_applications.execution_id. Estado, contadores, incidente, transi??o e inten??o congelada confirmam juntos. ScheduleStore aplica antes de remover reserva; recupera??o reaplica resultado existente ou CANCELLED. V5 marca resultados conclu?dos anteriores como HISTORY_ONLY, sem incidentes retroativos.
+- **Reason**: Preservar evid?ncia, impedir transi??es parciais e permitir retry ap?s crash/rollback sem outro HTTP. Pausa e processamento s?o serializados; ?ndice parcial ?nico garante um incidente aberto por monitor.
+- **Trade-off**: Inten??es PENDING j? existem, mas SMTP/retries ficam em MON-08. Marcadores distinguem hist?rico de aplica??o; reten??o MON-11 deve preservar refer?ncias. In?cio l?gico decide lacuna; resultado anterior ao ?ltimo in?cio aplicado da gera??o corrente fica somente hist?rico.
+- **Scope**: MON-07 a MON-11; PROD-05/06/11 a PROD-20/28/29/30; MON-07-AC01 a MON-07-AC08.
+- **Date**: 2026-10-14
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: MON-06; `.specs/features/mon-06-agendamento/`.
-- **Phase / Task**: Execute concluído; T1–T4 e Verifier independente PASS 8/8.
-- **Completed**: V4, reserva durável/recuperação, coordenador limitado, polling Spring, pausa/edição/shutdown e 37 novos testes. Autor/Verifier: 301 testes (124 unitários/177 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke Docker aprovados. Cinco mutações mortas, zero sobreviventes. Commits T1 52826be, T2 c9deb64, T3 e47a640, T4 a09f257.
-- **In-progress**: Nenhuma implementação pendente da MON-06. Relatório independente em `.specs/features/mon-06-agendamento/validation.md`; validate_state sem erros.
-- **Next step**: MON-07 aplica resultados ao estado/incidente/intenção atomicamente conforme AD-002 e comparação de versão/geração sob lock AD-006/008. Reservas fornecem início lógico/snapshot; resultado persistido continua imutável.
-- **Blockers**: Nenhum local. Daemon Docker disponível via execução autorizada fora do sandbox. CI remota e push não executados.
-- **Uncommitted files**: Nenhum após commit de fechamento; relatório, backlog e snapshot incluídos nele. Código Java/testes inalterados após e47a640.
-- **Branch**: main; baseline 1e0ba8e. Banco do operador preservado; testes e smoke usam PostgreSQLs descartáveis próprios. Logs locais `.validation/mon06-*.log`.
+- **Feature**: MON-07; `.specs/features/mon-07-incidentes/`.
+- **Phase / Task**: Execute; T1?T5 conclu?das; Verifier independente pendente.
+- **Completed**: M?quina de estados, V5, ?ndice ?nico/FKs, processador at?mico, marcador idempotente, inten??es dur?veis e integra??o de reservas/administra??o. 356 testes Docker (138 unit?rios/218 IT), 55 novos, zero falhas/erros/skips/Checkstyle. Commits T1 491d478, T2 5e61f87, T3 1a2e8da, T4 808e7c6.
+- **In-progress**: Build runtime/smoke aprovados e documenta??o conclu?da; falta relat?rio independente/sensor.
+- **Next step**: Delegar Verifier com sensor em c?pia isolada; somente ap?s PASS atualizar backlog e fechamento.
+- **Blockers**: Nenhum local; Docker requer execu??o autorizada fora do sandbox.
+- **Uncommitted files**: Documenta??o T5/STATE/README neste commit; nenhum c?digo Java pendente.
+- **Branch**: main; baseline 2179a4b. Banco do operador preservado; PostgreSQLs de teste descart?veis. Logs `.validation/mon07-*.log`.

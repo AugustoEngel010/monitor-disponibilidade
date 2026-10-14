@@ -79,3 +79,20 @@ Premissas: conclusão aplica antes de remover reserva; reconciliação nunca des
 Mapeamento reverso: os doze métodos, quinze casos parametrizados, correspondem às doze linhas acima. Cada assertion verifica resultado/estado exigido pelo AC/borda; nenhum teste mock ou fora da spec. Contextos Spring realmente encerrados/reabertos, PostgreSQL persistido durante o cenário. Relógio controlável, sem sleeps de regras temporais. Adequação PASS, sem SPEC_DEVIATION.
 
 Gate final T4: `docker compose run --build --rm tests`, exit 0, 356 testes (138 unitários/218 IT), zero falhas/erros/skips/Checkstyle. Logs `.validation/mon07-t4.log` (duas expectativas pré-MON-07 detectadas) e `.validation/mon07-t4-final.log` (PASS). Quinze casos novos; total da feature até aqui: 55. Nenhum teste anterior removido/desabilitado.
+
+## T5: operação e rastreabilidade
+
+Arquivos: docs/incidents.md, docs/http-checks.md, docs/scheduling.md, README, STATE e SDD. Código/testes inalterados desde 808e7c6. O gate completo final T4 permanece válido: 356 casos recontados diretamente dos XMLs Surefire/Failsafe, zero falhas/erros/skips; Checkstyle sem erros. Build `docker compose build app`: exit 0, log `.validation/mon07-build.log`. Smoke `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild`: exit 0, 23 PASSs, projeto descartável `mon02-smoke-9940b127c059`, versões exatamente 1,2,3,4,5, histórico idêntico após restart/down-up, sentinela 4242 e runtime UID 10001 sem Maven/javac/socket. Logs `.validation/mon07-smoke.log` e `.validation/mon02-smoke-9940b127c059.log`. Cleanup removeu somente recursos próprios do smoke.
+
+| MON-07 AC | Evidência de resultado | Validação do autor |
+| --- | --- | --- |
+| AC01 | IncidentStateMachineTest:31/34/37; IncidentProcessorIT:84/88/92/93 | PASS |
+| AC02 | IncidentStateMachineTest:61/63; IncidentProcessorIT:143/146 | PASS |
+| AC03 | IncidentSchemaIT:71/92/94; IncidentProcessorIT:249/250/251 | PASS |
+| AC04 | IncidentStateMachineTest:78/83/87; IncidentProcessorIT:160/166/167 | PASS |
+| AC05 | IncidentProcessorIT:205/210/222/232; IncidentLifecycleIT:206/207 | PASS |
+| AC06 | IncidentStateMachineTest:103/112/155/160; IncidentProcessorIT:178/185/190 | PASS |
+| AC07 | IncidentLifecycleIT:137/139/152/167/175/253/259/281/287 | PASS |
+| AC08 | IncidentProcessorIT:96/97/118/119/125/268/290/310; IncidentLifecycleIT:303/311 | PASS |
+
+As tabelas T1–T4 dão os caminhos completos e as assertions exatas; cada cenário tem origem definida e mapeamento reverso. Documentação confrontada com V5, fluxo transacional e resultados executados; sem teste que apenas procure frases. Spec --strict/tasks: zero erros/avisos. AD-009 é acrescentada sem substituir AD-001 a AD-008. CI remota/push não executados. Verificação independente e sensor ainda pendentes neste commit.

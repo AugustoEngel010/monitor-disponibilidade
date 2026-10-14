@@ -18,7 +18,7 @@ O recebimento dos cabeçalhos termina a medição. O socket e o cliente são fec
 | CANCELLED | Não | null | Attempt cancelled |
 | DESTINATION_BLOCKED | Não | null | Destination blocked by policy |
 
-Falha no banco é propagada ao chamador e não vira falha do destino. A persistência pode ser repetida com `CheckRepository.save(result)`. Reinício durante uma tentativa e aplicação ao estado/incidente pertencem a MON-06/07.
+Falha no banco é propagada ao chamador e não vira falha do destino. A persistência pode ser repetida com `CheckRepository.save(result)`. Reservas MON-06 e o [processador MON-07](incidents.md) coordenam reinício e aplicação ao estado/incidente.
 
 ## Destinos e demonstração
 
@@ -42,7 +42,7 @@ DNS nativo pode terminar depois da interrupção do worker. O chamador encerra a
 
 V3 cria `monitor.check_results`: execution_id UUID PK, monitor_id FK, configuration_version, execution_generation, started_at, finished_at, duration_nanos, outcome, http_status e error_message. Índice por monitor/término/UUID. Não existem colunas de corpo, headers ou URL. Mensagens vêm do enum e são verificadas por CHECK SQL, sem texto bruto de exceções.
 
-`INSERT ... ON CONFLICT (execution_id) DO NOTHING` mantém o primeiro registro; a leitura retorna esse vencedor, inclusive sob concorrência. Reutilização do UUID para outro monitor/versão/geração é rejeitada. Repetir `executeAndRecord` pode enviar outro GET, mas mantém um resultado. Não há garantia de envio HTTP único. O serviço registra snapshots antigos e deixa sua elegibilidade de aplicação para MON-06/07; não altera estado, contadores, incidente ou agenda.
+`INSERT ... ON CONFLICT DO NOTHING` mantém o primeiro registro; a leitura retorna esse vencedor, inclusive sob concorrência nos índices únicos de execução e snapshot. Reutilização do UUID para outro monitor/versão/geração é rejeitada. Repetir `executeAndRecord` pode enviar outro GET, mas mantém um resultado. Não há garantia de envio HTTP único. O serviço registra snapshots antigos; ScheduleStore integra a aplicação MON-07 sob lock e comparação de versão/geração. O registro bruto isolado não altera estado, contadores, incidente ou agenda.
 
 ## Validação por Docker
 

@@ -24,11 +24,11 @@ Cada monitor lento ocupa somente uma vaga e respeita seu timeout total MON-05. S
 
 Pausa invalida a geração, remove o próximo horário e impede novas reservas. Na rodada seguinte, o agendador solicita interrupção da tentativa iniciada. Se o HTTP já concluiu, seu resultado real permanece no histórico; se a interrupção vence, permanece CANCELLED. Ambos preservam estado confirmado e incidente. A conclusão não sobrescreve o agendamento estabelecido por pausa, retomada ou edição.
 
-Retomada torna o monitor elegível imediatamente, mas aguarda o término da tentativa anterior. Mudança de política invalida versão/geração e também cancela a tentativa antiga; a próxima utiliza a nova configuração. Nome e destinatário preservam a geração e não cancelam HTTP. A aplicação de resultados ao estado/incidente será realizada pela MON-07, sempre comparando versão/geração sob o lock administrativo conforme AD-002/006/008.
+Retomada torna o monitor elegível imediatamente, mas aguarda o término da tentativa anterior. Mudança de política invalida versão/geração e também cancela a tentativa antiga; a próxima utiliza a nova configuração. Nome e destinatário preservam a geração e não cancelam HTTP. A conclusão aplica resultados pelo [processador MON-07](incidents.md), comparando versão/geração sob o lock administrativo conforme AD-002/006/008/009.
 
 ## Reinício e falhas de gravação
 
-Pare a instância anterior antes de iniciar outra. A primeira rodada reconcilia reservas sem worker local. Se já existe resultado para o UUID, ele vence e a reserva é removida. Sem resultado, registra CANCELLED não externo, com snapshot original e duração 0 indicando medição desconhecida, e zera sequências/horários provisórios da geração corrente. Não muda configuração, observação, estado confirmado, incidente ou próximo horário.
+Pare a instância anterior antes de iniciar outra. A primeira rodada reconcilia reservas sem worker local. Se já existe resultado para o UUID, ele vence e é aplicado antes de remover a reserva. Sem resultado, registra CANCELLED não externo, com snapshot original e duração 0 indicando medição desconhecida. Na geração corrente, esse cancelamento zera sequências/horários provisórios, inclusive início de recuperação do incidente, sem alterar configuração, observação, saúde confirmada, identidade do incidente ou próximo horário. Resultado de versão/geração antiga fica somente no histórico.
 
 Um monitor vencido executa somente uma nova tentativa; o próximo horário usa o início atual + intervalo. Não existe replay das verificações perdidas. Monitores ainda não vencidos aguardam seu horário; pausados permanecem pausados. Recuperação repetida não duplica resultados.
 
@@ -38,7 +38,7 @@ Shutdown interrompe polling e workers antes de fechar o datasource e aguarda at�
 
 A API administrativa já expõe `evidence`, `recentObservation`, `confirmedState`, `lifecycle`, `lastObservedAt` e `nextCheckAt`. A observação corrente é FRESH se sua idade está entre 0 e `2 × intervalo + timeout`, inclusive. Acima desse limite ou no futuro, é STALE e `recentObservation=false`. Ausência de observação corrente é NEVER_OBSERVED. Pausa e retomada invalidam a observação corrente sem apagar o timestamp histórico. Nenhuma lacuna de execução cria SUCCESS ou falha externa.
 
-MON-06 executa e preserva evidência; sucesso/falha ainda não altera estado confirmado ou cria incidentes. Esse processamento pertence à MON-07. A demonstração de incidentes nesta suíte usa referências administrativas persistidas como fixture.
+MON-06 executa e preserva evidência; a integração MON-07 aplica resultados e registra estado, incidente, transição e intenção atomicamente antes de liberar a reserva. Falha transacional mantém a reserva recuperável; resultado bruto previamente salvo não exige novo HTTP. Os testes de ciclo de vida agora usam incidentes reais.
 
 ## Verificação
 

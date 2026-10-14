@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven: testes derivados dos ACs, gates antes de conclusão e um commit atômico por task com status/rastreabilidade. Cinco tasks inline; Verifier independente obrigatório após a última. Pedido autoriza execução local e ferramentas Docker/PowerShell/Python.
 
-**Status:** In Progress. **Design:** [design.md](design.md).
+**Status:** Done; Verifier independente pendente. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -86,7 +86,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T4
 **Requirement**: INC-01 a INC-08
 **Done when**:
-- [ ] Build/smoke passam; docs/README/STATE/evidence registram comandos, contagens e assertions; após commit Verifier independente executa sensor e escreve validation.md.
+- [x] Gate Full final T4: 356 testes, zero falhas/erros/skips/Checkstyle. Build runtime e smoke (23 PASSs, V1–V5, restart/down-up) passaram; docs/README/STATE/evidence atualizados. Verifier independente executará após este commit.
 **Tests**: integration
 **Gate**: build
 **Commit**: docs(mon-07): document incident processing and evidence

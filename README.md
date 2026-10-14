@@ -1,6 +1,6 @@
 # Monitor de disponibilidade
 
-Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores e MON-05 executa e registra uma tentativa HTTP por contrato Java interno. Agendamento, painel, processamento de incidentes e notificações seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
+Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores, MON-05 executa HTTP, MON-06 agenda verificações e MON-07 confirma estados e mantém incidentes. Painel, consultas e envio de notificações seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
 
 Build, testes e execução usam contêineres. O host precisa de Docker com daemon Linux e Docker Compose; não precisa de Maven Wrapper, Maven ou JDK. São suportados Docker Desktop com Linux containers e Docker Engine Linux com `host-gateway` (20.10+), Compose v2+ e BuildKit. A validação local foi realizada no Docker Desktop Windows; a execução remota da CI não foi observada.
 
@@ -102,7 +102,7 @@ Para executar testes e verificações de qualidade:
 docker compose run --build --rm tests
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 301 casos: 124 unitários e 177 integrações, incluindo os 264 anteriores e 37 de reserva, concorrência e runtime da MON-06. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
+Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 356 casos: 138 unitários e 218 integrações, incluindo os 301 anteriores e 55 da MON-07 para estados, unicidade, concorrência, idempotência, rollback e reinício. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
 Os resultados são copiados para o host mesmo se a suíte falhar:
 
@@ -142,7 +142,7 @@ Limites dos módulos:
 | Administração (`br.com.monitor.administration`) | Configuração, ciclo de vida, API e persistência dos monitores | Modelo puro, JDBC e transações; implementado em MON-04 |
 | Infraestrutura (`src/main/resources`) | Configuração JDBC, prontidão e migrações | Ambiente, PostgreSQL, Flyway; implementada em MON-02 |
 | Monitoramento (`br.com.monitor.monitoring`) | Agendamento persistente, concorrência limitada, execução HTTP segura e resultados idempotentes | Monitor/configuração, Apache HttpClient, JDBC; MON-05/06 implementadas |
-| Incidentes (futuro `br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados publicados por monitoramento, sem executar HTTP; MON-07 |
+| Incidentes (`br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados duráveis, lock de monitor, JDBC e intenção atômica; MON-07 implementada, sem executar HTTP |
 | Notificações (futuro `br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Contratos de transição e adaptador SMTP; MON-08 |
 | Consultas (futuro `br.com.monitor.reporting`) | Histórico, indicadores e painel | Leitura dos contratos dos módulos, sem alterar estado do executor; MON-09/MON-10 |
 
@@ -156,10 +156,12 @@ A [spec MON-04](.specs/features/mon-04-ciclo-monitores/spec.md), [tasks](.specs/
 
 A [validação independente MON-04](.specs/features/mon-04-ciclo-monitores/validation.md) concluiu PASS nos sete critérios: 160 testes, zero falhas/erros/skips, qualidade, build e smoke Docker aprovados; seis mutações detectadas e nenhuma sobrevivente. A validação é local; CI remota não executada.
 
-O [contrato HTTP MON-05](docs/http-checks.md) documenta GET, timeout total até cabeçalhos, classificações, proteção de rede/TLS e persistência por UUID. `MONITOR_DEMO_ORIGIN` é opcional e vazia por padrão; permite somente a origem interna explicitamente configurada, sem liberar a sub-rede. V3 cria `monitor.check_results`; resultados guardam versão/geração e não alteram estado ou incidentes. [Spec](.specs/features/mon-05-verificacao-http/spec.md), [tasks](.specs/features/mon-05-verificacao-http/tasks.md) e [evidências](.specs/features/mon-05-verificacao-http/evidence.md) mantêm MON-05-AC01 a MON-05-AC08.
+O [contrato HTTP MON-05](docs/http-checks.md) documenta GET, timeout total até cabeçalhos, classificações, proteção de rede/TLS e persistência por UUID. `MONITOR_DEMO_ORIGIN` é opcional e vazia por padrão; permite somente a origem interna explicitamente configurada, sem liberar a sub-rede. V3 cria `monitor.check_results`; o registro bruto guarda versão/geração e sua aplicação ao estado ocorre no processador MON-07. [Spec](.specs/features/mon-05-verificacao-http/spec.md), [tasks](.specs/features/mon-05-verificacao-http/tasks.md) e [evidências](.specs/features/mon-05-verificacao-http/evidence.md) mantêm MON-05-AC01 a MON-05-AC08.
 
 A [validação independente MON-05](.specs/features/mon-05-verificacao-http/validation.md) concluiu PASS 8/8: 264 testes (110 unitários/154 integrações), zero falhas/erros/skips, qualidade, runtime e smoke Docker aprovados; seis regressões injetadas detectadas e nenhuma sobrevivente. Validação local; CI remota não executada.
 
-O [agendamento MON-06](docs/scheduling.md) inicia automaticamente após startup, com `MONITOR_CHECK_CONCURRENCY=4` (1..16) e `MONITOR_SCHEDULER_POLL_MS=250` (positivo). V4 persiste uma reserva por monitor; excesso permanece vencido no banco, sem fila de workers. Pausa/edição solicitam cancelamento; restart reconcilia tentativas interrompidas sem replay e preserva o próximo horário. [Spec](.specs/features/mon-06-agendamento/spec.md), [tasks](.specs/features/mon-06-agendamento/tasks.md) e [evidências](.specs/features/mon-06-agendamento/evidence.md) mantêm MON-06-AC01 a MON-06-AC08. Aplicação das observações a estado e incidentes permanece MON-07.
+O [agendamento MON-06](docs/scheduling.md) inicia automaticamente após startup, com `MONITOR_CHECK_CONCURRENCY=4` (1..16) e `MONITOR_SCHEDULER_POLL_MS=250` (positivo). V4 persiste uma reserva por monitor; excesso permanece vencido no banco, sem fila de workers. Pausa/edição solicitam cancelamento; restart reconcilia tentativas interrompidas sem replay e preserva o próximo horário. [Spec](.specs/features/mon-06-agendamento/spec.md), [tasks](.specs/features/mon-06-agendamento/tasks.md) e [evidências](.specs/features/mon-06-agendamento/evidence.md) mantêm MON-06-AC01 a MON-06-AC08. A conclusão e a reconciliação integram o processador MON-07 antes de liberar a reserva.
 
 A [validação independente MON-06](.specs/features/mon-06-agendamento/validation.md) concluiu PASS 8/8: 301 testes (124 unitários/177 integrações), zero falhas/erros/skips/Checkstyle, runtime e smoke Docker aprovados; cinco regressões injetadas detectadas e nenhuma sobrevivente. Verificação local de instância única; CI remota não executada.
+
+O [processamento de incidentes MON-07](docs/incidents.md) confirma queda/recuperação conforme os limites configurados, mantém um incidente aberto por monitor com índice único e registra separadamente observação e confirmação. V5 persiste incidentes, aplicações, transições e intenções congeladas. Reprocessamento é idempotente; pausa, resultados não externos e lacunas interrompem confirmações sem fabricar saúde. [Spec](.specs/features/mon-07-incidentes/spec.md), [tasks](.specs/features/mon-07-incidentes/tasks.md) e [evidências](.specs/features/mon-07-incidentes/evidence.md) mantêm os oito ACs. A suíte local passou com 356 testes e zero falhas/erros/skips/Checkstyle. SMTP continua na MON-08.

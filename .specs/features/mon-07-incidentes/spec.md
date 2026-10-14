@@ -96,14 +96,14 @@ Reinício sem reserva interrompida mantém estado/contadores e próximo agendame
 
 | Requirement ID | Origem | Task | Teste previsto | Status |
 | --- | --- | --- | --- | --- |
-| INC-01 | MON-07-AC01 | T1,T3,T4 | IncidentStateMachineTest, IncidentProcessorIT | Implementing |
-| INC-02 | MON-07-AC02 | T1,T3 | IncidentStateMachineTest, IncidentProcessorIT | Implementing |
-| INC-03 | MON-07-AC03 | T1,T2,T3 | IncidentSchemaIT, IncidentProcessorIT | Implementing |
-| INC-04 | MON-07-AC04 | T1,T3,T4 | IncidentStateMachineTest, IncidentProcessorIT | Implementing |
-| INC-05 | MON-07-AC05 | T3,T4 | IncidentProcessorIT, IncidentLifecycleIT | Implementing |
-| INC-06 | MON-07-AC06 | T1,T3,T4 | IncidentStateMachineTest, IncidentLifecycleIT | Implementing |
-| INC-07 | MON-07-AC07 | T4 | IncidentLifecycleIT | Implementing |
-| INC-08 | MON-07-AC08 | T2,T3,T4 | IncidentSchemaIT, IncidentProcessorIT, IncidentLifecycleIT | Implementing |
+| INC-01 | MON-07-AC01 | T1,T3,T4 | IncidentStateMachineTest, IncidentProcessorIT | Verified |
+| INC-02 | MON-07-AC02 | T1,T3 | IncidentStateMachineTest, IncidentProcessorIT | Verified |
+| INC-03 | MON-07-AC03 | T1,T2,T3 | IncidentSchemaIT, IncidentProcessorIT | Verified |
+| INC-04 | MON-07-AC04 | T1,T3,T4 | IncidentStateMachineTest, IncidentProcessorIT | Verified |
+| INC-05 | MON-07-AC05 | T3,T4 | IncidentProcessorIT, IncidentLifecycleIT | Verified |
+| INC-06 | MON-07-AC06 | T1,T3,T4 | IncidentStateMachineTest, IncidentLifecycleIT | Verified |
+| INC-07 | MON-07-AC07 | T4 | IncidentLifecycleIT | Verified |
+| INC-08 | MON-07-AC08 | T2,T3,T4 | IncidentSchemaIT, IncidentProcessorIT, IncidentLifecycleIT | Verified |
 
 ## Success Criteria
 
