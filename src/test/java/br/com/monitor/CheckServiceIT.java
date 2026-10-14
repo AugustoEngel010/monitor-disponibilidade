@@ -65,7 +65,7 @@ class CheckServiceIT {
 
     @BeforeEach
     void clear() {
-        jdbc.execute("TRUNCATE monitor.check_results, monitor.monitors");
+        jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors");
         hits.set(0);
         status.set(200);
     }

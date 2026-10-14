@@ -45,7 +45,7 @@ class CheckRepositoryIT {
 
     @BeforeEach
     void clear() {
-        jdbc.execute("TRUNCATE monitor.check_results, monitor.monitors");
+        jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors");
         var monitor = HttpCheckExecutorIT.monitor("https://example.org", 200);
         monitorId = monitor.id();
         new MonitorRepository(new NamedParameterJdbcTemplate(jdbc)).insert(monitor);
@@ -173,7 +173,7 @@ class CheckRepositoryIT {
             var monitors = new MonitorRepository(new NamedParameterJdbcTemplate(beforeSql));
             monitors.insert(monitor);
             var before = beforeSql.queryForList("SELECT * FROM public.flyway_schema_history ORDER BY installed_rank");
-            var current = Flyway.configure().dataSource(source).defaultSchema("public").load();
+            var current = Flyway.configure().dataSource(source).defaultSchema("public").target("3").load();
             assertThat(current.migrate().migrationsExecuted).isEqualTo(1);
             assertThat(current.migrate().migrationsExecuted).isZero();
             assertThat(beforeSql.queryForList("SELECT * FROM public.flyway_schema_history WHERE version IN ('1','2')"

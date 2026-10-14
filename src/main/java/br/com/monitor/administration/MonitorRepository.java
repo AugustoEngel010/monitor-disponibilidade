@@ -47,6 +47,23 @@ public class MonitorRepository {
         return jdbc.queryForObject("SELECT count(*) FROM monitor.monitors", new MapSqlParameterSource(), Long.class);
     }
 
+    public List<Monitor> due(Instant now) {
+        return jdbc.query("SELECT m.* FROM monitor.monitors m WHERE lifecycle='ACTIVE' AND next_check_at<=:now"
+                + " AND NOT EXISTS (SELECT 1 FROM monitor.check_attempts a WHERE a.monitor_id=m.id)"
+                + " ORDER BY next_check_at, id LIMIT 1 FOR UPDATE OF m SKIP LOCKED",
+                new MapSqlParameterSource("now", Timestamp.from(now)), this::map);
+    }
+
+    public void schedule(UUID id, Instant next) {
+        jdbc.update("UPDATE monitor.monitors SET next_check_at=:next WHERE id=:id",
+                new MapSqlParameterSource("id", id).addValue("next", Timestamp.from(next)));
+    }
+
+    public void clearSequences(UUID id) {
+        jdbc.update("UPDATE monitor.monitors SET failure_count=0, recovery_count=0, first_failure_at=NULL,"
+                + " recovery_started_at=NULL WHERE id=:id", new MapSqlParameterSource("id", id));
+    }
+
     public List<Monitor> list(int page, int size) {
         return jdbc.query("SELECT * FROM monitor.monitors ORDER BY created_at ASC, id ASC LIMIT :size OFFSET :offset",
                 new MapSqlParameterSource("size", size).addValue("offset", (long) page * size), this::map);
