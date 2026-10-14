@@ -49,7 +49,7 @@ class MonitorRepositoryIT {
     @BeforeEach
     void clear() {
         jdbc.execute("TRUNCATE monitor.check_attempts, monitor.history_fixture, monitor.check_results,"
-                + " monitor.monitors");
+                + " monitor.monitors CASCADE");
     }
 
     @AfterAll
@@ -59,11 +59,12 @@ class MonitorRepositoryIT {
     void migrationUpgradesV1AndIsNeverReapplied() {
         var history = jdbc.queryForList("SELECT version, checksum, installed_on FROM public.flyway_schema_history"
                 + " ORDER BY installed_rank");
-        assertThat(history).hasSize(4);
+        assertThat(history).hasSize(5);
         assertThat(history.get(0).get("version")).isEqualTo("1");
         assertThat(history.get(1).get("version")).isEqualTo("2");
         assertThat(history.get(2).get("version")).isEqualTo("3");
         assertThat(history.get(3).get("version")).isEqualTo("4");
+        assertThat(history.get(4).get("version")).isEqualTo("5");
         var flyway = Flyway.configure().dataSource(db.getJdbcUrl(), db.getUsername(), db.getPassword())
                 .defaultSchema("public").load();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
@@ -99,7 +100,9 @@ class MonitorRepositoryIT {
         var monitor = new Monitor(UUID.randomUUID(), config, new Monitor.State("ACTIVE", "DOWN", 0, 1,
                 instant.minusSeconds(120), instant.minusSeconds(5), instant.minusSeconds(5), true,
                 UUID.randomUUID(), 3, 5, instant.plusSeconds(55)), instant.minusSeconds(200), instant);
-        repository.insert(monitor);
+        repository.insert(Monitor.create(monitor.id(), config, monitor.createdAt()));
+        IncidentFixtures.open(jdbc, monitor.id(), monitor.state().openIncidentId(), 3);
+        repository.save(monitor);
         assertThat(service.get(monitor.id())).isEqualTo(monitor);
         context.close();
         context = open();
@@ -108,13 +111,14 @@ class MonitorRepositoryIT {
         service = context.getBean(MonitorService.class);
         assertThat(service.get(monitor.id())).isEqualTo(monitor);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM public.flyway_schema_history", Integer.class))
-                .isEqualTo(4);
+                .isEqualTo(5);
     }
 
     @Test
     void rejectedMixedEditIsAtomicAndLifecyclePreservesHistory() {
         var monitor = service.create(config);
         var incident = UUID.randomUUID();
+        IncidentFixtures.open(jdbc, monitor.id(), incident, 1);
         jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=?, recovery_count=1,"
                 + " recovery_started_at=now(), last_observed_at=now(), current_observation=true WHERE id=?",
                 incident, monitor.id());

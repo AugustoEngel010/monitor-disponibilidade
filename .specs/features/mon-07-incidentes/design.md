@@ -44,3 +44,5 @@ Falha JDBC propaga e rollback remove todos os efeitos da aplicação. Resultado 
 ## Tech Decisions
 
 Sem nova biblioteca ou arquitetura. Intenção mínima congelada atende AD-002 sem implementar envio. AD-009 registrará contrato de aplicações/transições duráveis e retomada para MON-08/09/11.
+
+O índice composto de evidência introduz outra restrição única sobre check_results. CheckRepository usa ON CONFLICT DO NOTHING sem alvo para preservar o primeiro registro sob concorrência em ambos os índices; a validação posterior continua rejeitando UUID de outro snapshot. A documentação oficial de [INSERT PostgreSQL](https://www.postgresql.org/docs/current/sql-insert.html) confirma o tratamento de todos os índices/restrições únicos utilizáveis quando o alvo é omitido. O teste concorrente existente reproduziu a necessidade da alteração.

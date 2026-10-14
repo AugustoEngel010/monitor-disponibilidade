@@ -63,7 +63,7 @@ class MonitorApiIT {
     @BeforeEach
     void clear() {
         jdbc.execute("TRUNCATE monitor.check_attempts, monitor.api_history_fixture, monitor.check_results,"
-                + " monitor.monitors");
+                + " monitor.monitors CASCADE");
     }
 
     @AfterAll
@@ -258,6 +258,7 @@ class MonitorApiIT {
         var id = create().path("id").asText();
         var path = ROOT + "/" + id;
         var incident = UUID.randomUUID();
+        IncidentFixtures.open(jdbc, UUID.fromString(id), incident, 1);
         jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=?, recovery_count=1,"
                 + " recovery_started_at=now(), last_observed_at=now(), current_observation=true WHERE id=?::uuid",
                 incident, id);
@@ -291,6 +292,7 @@ class MonitorApiIT {
         var id = original.path("id").asText();
         var path = ROOT + "/" + id;
         var incident = "DOWN".equals(state) ? UUID.randomUUID() : null;
+        IncidentFixtures.open(jdbc, UUID.fromString(id), incident, 1);
         jdbc.update("UPDATE monitor.monitors SET confirmed_state=?, open_incident_id=?, recovery_count=1,"
                 + " recovery_started_at=now(), last_observed_at=now(), current_observation=true WHERE id=?::uuid",
                 state, incident, id);
@@ -428,9 +430,11 @@ class MonitorApiIT {
         var paused = create().path("id").asText();
         jdbc.update("UPDATE monitor.monitors SET confirmed_state='UP', last_observed_at=now(),"
                 + " current_observation=true WHERE id=?::uuid", fresh);
+        var staleIncident = UUID.randomUUID();
+        IncidentFixtures.open(jdbc, UUID.fromString(stale), staleIncident, 1);
         jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=?,"
                 + " last_observed_at=now()-interval '126 seconds', current_observation=true WHERE id=?::uuid",
-                UUID.randomUUID(), stale);
+                staleIncident, stale);
         assertThat(send("POST", ROOT + "/" + paused + "/pause", null).statusCode()).isEqualTo(200);
         var response = send("GET", ROOT, null);
         assertThat(response.statusCode()).isEqualTo(200);

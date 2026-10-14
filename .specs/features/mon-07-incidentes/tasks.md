@@ -53,7 +53,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T1
 **Requirement**: INC-03/05/08
 **Done when**:
-- [ ] IncidentSchemaIT prova unicidade concorrente, referências, upgrade V4 e imutabilidade do histórico; Full passa sem diminuir os 301 casos anteriores.
+- [x] IncidentSchemaIT prova unicidade concorrente, referências, upgrade V4 e imutabilidade do histórico; Full passou: 321 testes (138 unitários/183 IT), zero falhas/erros/skips/Checkstyle. Seis novos casos de esquema.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-07): persist incident and transition history

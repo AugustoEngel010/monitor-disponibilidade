@@ -30,7 +30,7 @@ public class CheckRepository {
                 + " execution_generation, started_at, finished_at, duration_nanos, outcome, http_status, error_message)"
                 + " VALUES (:execution_id, :monitor_id, :configuration_version, :execution_generation, :started_at,"
                 + " :finished_at, :duration_nanos, :outcome, :http_status, :error_message)"
-                + " ON CONFLICT (execution_id) DO NOTHING", parameters);
+                + " ON CONFLICT DO NOTHING", parameters);
         var saved = find(result.executionId()).orElseThrow();
         if (!saved.monitorId().equals(result.monitorId())
                 || saved.configurationVersion() != result.configurationVersion()

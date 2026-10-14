@@ -52,7 +52,7 @@ class ScheduleStoreIT {
     }
 
     @BeforeEach
-    void clear() { jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors"); }
+    void clear() { jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors CASCADE"); }
 
     @AfterAll
     void stop() { db.stop(); }
@@ -110,6 +110,7 @@ class ScheduleStoreIT {
     void interruptionRecoveryPreservesStateHistoryAndScheduleAndIsIdempotent() {
         var monitor = create(UUID.randomUUID(), now.minusSeconds(60));
         var incident = UUID.randomUUID();
+        IncidentFixtures.open(jdbc, monitor.id(), incident, 1);
         jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=?, recovery_count=1,"
                 + " recovery_started_at=?, last_observed_at=?, current_observation=true WHERE id=?",
                 incident, java.sql.Timestamp.from(now.minusSeconds(10)), java.sql.Timestamp.from(now.minusSeconds(10)),

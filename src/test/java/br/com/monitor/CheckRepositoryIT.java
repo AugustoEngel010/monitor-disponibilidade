@@ -45,7 +45,7 @@ class CheckRepositoryIT {
 
     @BeforeEach
     void clear() {
-        jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors");
+        jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors CASCADE");
         var monitor = HttpCheckExecutorIT.monitor("https://example.org", 200);
         monitorId = monitor.id();
         new MonitorRepository(new NamedParameterJdbcTemplate(jdbc)).insert(monitor);

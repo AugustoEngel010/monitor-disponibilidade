@@ -90,7 +90,7 @@ class SchedulerRuntimeIT {
     @BeforeEach
     void clear() {
         if (context.containsBean("schedulerRuntime")) { context.close(); open(false); }
-        jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors");
+        jdbc.execute("TRUNCATE monitor.check_attempts, monitor.check_results, monitor.monitors CASCADE");
         clock.reset();
         healthyHits.set(0); slowHits.set(0);
         slowEntered = new CountDownLatch(1); releaseSlow = new CountDownLatch(1);
@@ -166,6 +166,7 @@ class SchedulerRuntimeIT {
     void pauseDuringRealHttpCancelsWithoutRecoveringIncidentAndResumeRunsOnce() throws Exception {
         var slow = create("/slow", 5);
         var incident = UUID.randomUUID();
+        IncidentFixtures.open(jdbc, slow.id(), incident, 1);
         jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=? WHERE id=?",
                 incident, slow.id());
         try (var scheduler = scheduler(1)) {
@@ -238,6 +239,7 @@ class SchedulerRuntimeIT {
     void interruptedReservationSurvivesContextRestartThenOverdueRunsWithoutReplay() throws Exception {
         var monitor = create("/healthy", 1);
         var incident = UUID.randomUUID();
+        IncidentFixtures.open(jdbc, monitor.id(), incident, 1);
         jdbc.update("UPDATE monitor.monitors SET confirmed_state='DOWN', open_incident_id=?, recovery_count=1,"
                 + " recovery_started_at=?, last_observed_at=?, current_observation=true WHERE id=?", incident,
                 java.sql.Timestamp.from(clock.instant()), java.sql.Timestamp.from(clock.instant()), monitor.id());
@@ -380,7 +382,7 @@ class SchedulerRuntimeIT {
                     42, Outcome.SUCCESS, 200);
             new CheckRepository(named).save(result);
             var history = sql.queryForList("SELECT * FROM public.flyway_schema_history ORDER BY installed_rank");
-            var flyway = Flyway.configure().dataSource(source).load();
+            var flyway = Flyway.configure().dataSource(source).target("4").load();
             assertThat(flyway.migrate().migrationsExecuted).isEqualTo(1);
             assertThat(flyway.migrate().migrationsExecuted).isZero();
             assertThat(sql.queryForList("SELECT * FROM public.flyway_schema_history WHERE version IN ('1','2','3')"
