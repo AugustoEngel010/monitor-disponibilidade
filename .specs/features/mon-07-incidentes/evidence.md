@@ -33,3 +33,26 @@ Premissas: V1–V4 imutáveis; histórico anterior não é reprocessado retroati
 Mapeamento reverso: seis métodos de IncidentSchemaIT correspondem às seis linhas acima. Fixtures anteriores agora criam incidente real; TRUNCATE CASCADE opera exclusivamente nos PostgreSQLs descartáveis da própria classe. Migrações do smoke e assertions de banco completo passam a exigir exatamente V1–V5; o teste específico de upgrade V3→V4 permanece fixado em target=4. Nenhuma assertion de domínio anterior foi reduzida. Adequação: cada método tem AC/borda, SQL real e valores definidos pela spec; guidelines de Checkstyle/AssertJ existentes preservadas.
 
 Gate final T2: `docker compose run --build --rm tests`, exit 0, 321 testes (138 unitários/183 IT), zero falhas/erros/skips/Checkstyle. Os 301 casos anteriores foram preservados, com 20 novos na feature até aqui. Sem desvio de spec.
+
+## T3: aplicação transacional
+
+Premissas: primeiro registro bruto vence, lock de monitor precede deduplicação, marcador confirma junto do estado. Arquivos: IncidentProcessor, IncidentProcessorIT e SDD. Testes derivados dos ACs antes do processador. Quatro linhas longas detectadas pelo Checkstyle foram quebradas sem alterar assertions. Nenhuma mudança nos testes anteriores.
+
+| Critério / resultado definido | file:line + assertion | Coberto |
+| --- | --- | --- |
+| INC-01/03/04/08: sequência e quatro tempos exatos | `src/test/java/br/com/monitor/IncidentProcessorIT.java:84` contador=1; :88=2; :92 DOWN; :93=3; :96/97 tempos base/120; :118/119 recuperação 180/240; :121 duração=180; :125 payload intenção exato; :386 payload transição exato | Sim |
+| INC-02: sucesso interrompe, sem recuperação inicial | `src/test/java/br/com/monitor/IncidentProcessorIT.java:143` `failureCount()).isZero()`; :146/147/148 incidentes/transições/intenções=0 | Sim |
+| INC-04: falha reinicia início provisório | `src/test/java/br/com/monitor/IncidentProcessorIT.java:160` contador=0; :161 início null; :166/167 sequência final 300/360 | Sim |
+| INC-06: três resultados não externos | `src/test/java/br/com/monitor/IncidentProcessorIT.java:178` observação=60; :185 DOWN; :186 contador=0; :189 mesmo incidente; :190 início null | Sim |
+| INC-05: replay/payload divergente preserva todos os campos | `src/test/java/br/com/monitor/IncidentProcessorIT.java:204` process=false; :205 e :210 `snapshot()).isEqualTo(before)` sobre seis tabelas | Sim |
+| INC-05: quatro callers do mesmo resultado | `src/test/java/br/com/monitor/IncidentProcessorIT.java:222` `containsExactlyInAnyOrder(true,false,false,false)`; :225 contador=3; :226/227/228 counts=1 | Sim |
+| INC-03: falhas distintas concorrentes | `src/test/java/br/com/monitor/IncidentProcessorIT.java:246/247` dois process=true; :250/251/252 counts=1 | Sim |
+| INC-08: rollback de cada escrita na abertura | `src/test/java/br/com/monitor/IncidentProcessorIT.java:265` DataAccessException; :268 snapshot integral igual; :269 marcador ausente; :270 resultado original; :273 confirmação=120 após retry | Sim |
+| INC-08: rollback de cada escrita no encerramento | `src/test/java/br/com/monitor/IncidentProcessorIT.java:290` snapshot integral igual; :291 mesmo incidente; :292 encerramento null; :294/295 instantes 180/240 após retry | Sim |
+| INC-08: leitor separado e rollback externo | `src/test/java/br/com/monitor/IncidentProcessorIT.java:310` leitor vê `before`; :314 snapshot igual depois de rollback; :316 DOWN após reaplicar | Sim |
+| INC-06/07: resultado antigo só histórico | `src/test/java/br/com/monitor/IncidentProcessorIT.java:325/331` monitor igual; :326 HISTORY_ONLY; :333 incidentes=0 | Sim |
+| INC-06/07/08: início lógico e processador reconstruído | `src/test/java/br/com/monitor/IncidentProcessorIT.java:345` process=true; :346 DOWN; :347 primeira falha=base; :348 confirmação=190 apesar de início lógico=185 (L exato) | Sim |
+
+Mapeamento reverso: os doze métodos de IncidentProcessorIT, 20 casos incluindo parametrizações, correspondem na ordem às doze linhas acima. Cada um verifica AC/borda, sem teste especulativo ou chamada mock como evidência. Snapshots incluem contadores, instantes e payloads completos em seis tabelas. Adequação PASS; padrões Testcontainers/AssertJ/Checkstyle respeitados; sem SPEC_DEVIATION.
+
+Gate T3: `docker compose run --build --rm tests`, exit 0, 341 testes (138 unitários/203 IT), zero falhas/erros/skips/Checkstyle. Log `.validation/mon07-t3.log`. Resultado bruto sobrevive aos oito cenários de rollback e pode ser reaplicado sem novo HTTP.

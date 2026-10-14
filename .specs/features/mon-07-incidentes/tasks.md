@@ -64,7 +64,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T2
 **Requirement**: INC-01 a INC-08
 **Done when**:
-- [ ] IncidentProcessorIT prova sequências, replay concorrente, payload vencedor, timestamps e rollback em incidente/transição/intenção/marcador; Full passa sem skips.
+- [x] IncidentProcessorIT prova sequências, replay concorrente, payload vencedor, timestamps e rollback em incidente/transição/intenção/marcador; Full passou: 341 testes (138 unitários/203 IT), 20 novos, zero falhas/erros/skips/Checkstyle.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-07): apply check results atomically
