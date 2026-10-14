@@ -96,3 +96,17 @@ Arquivos: docs/incidents.md, docs/http-checks.md, docs/scheduling.md, README, ST
 | AC08 | IncidentProcessorIT:96/97/118/119/125/268/290/310; IncidentLifecycleIT:303/311 | PASS |
 
 As tabelas T1–T4 dão os caminhos completos e as assertions exatas; cada cenário tem origem definida e mapeamento reverso. Documentação confrontada com V5, fluxo transacional e resultados executados; sem teste que apenas procure frases. Spec --strict/tasks: zero erros/avisos. AD-009 é acrescentada sem substituir AD-001 a AD-008. CI remota/push não executados. Verificação independente e sensor ainda pendentes neste commit.
+
+## Fechamento independente
+
+[validation.md](validation.md): PASS 8/8 no range `2179a4b..197551d`. Full independente: 356 testes (138 unitários/218 IT), zero falhas/erros/skips/Checkstyle. Baseline independente: 301 (124/177), delta +55. Runtime e smoke independentes aprovados, 23 PASSs. Nove mutações comportamentais mortas por assertions; zero sobreviventes. Scratch restaurado e comparado byte a byte, depois removido; árvore real preservada. Evidências independentes em `.validation/verifier-mon07/`.
+
+| Task | Commit atômico |
+| --- | --- |
+| T1: decisão pura | 491d478 |
+| T2: persistência | 5e61f87 |
+| T3: aplicação atômica | 1a2e8da |
+| T4: ciclo de vida/reservas | 808e7c6 |
+| T5: operação/evidências | 197551d |
+
+Fechamento atualiza somente documentação, relatório, backlog e handoff. Código/testes inalterados desde 808e7c6. Gates `validate_spec.py --strict`, `validate_tasks.py` e `validate_state.py mon-07-incidentes` retornam zero. Sem gaps, fix tasks ou sinal para nova lesson. Nenhum push/deploy, alteração do banco do operador ou execução remota de CI.

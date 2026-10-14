@@ -69,9 +69,9 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Status**: active
 
 ### AD-009
-- **Decision**: MON-07 aplica o resultado bruto vencedor sob lock de monitor e deduplica por result_applications.execution_id. Estado, contadores, incidente, transi??o e inten??o congelada confirmam juntos. ScheduleStore aplica antes de remover reserva; recupera??o reaplica resultado existente ou CANCELLED. V5 marca resultados conclu?dos anteriores como HISTORY_ONLY, sem incidentes retroativos.
-- **Reason**: Preservar evid?ncia, impedir transi??es parciais e permitir retry ap?s crash/rollback sem outro HTTP. Pausa e processamento s?o serializados; ?ndice parcial ?nico garante um incidente aberto por monitor.
-- **Trade-off**: Inten??es PENDING j? existem, mas SMTP/retries ficam em MON-08. Marcadores distinguem hist?rico de aplica??o; reten??o MON-11 deve preservar refer?ncias. In?cio l?gico decide lacuna; resultado anterior ao ?ltimo in?cio aplicado da gera??o corrente fica somente hist?rico.
+- **Decision**: MON-07 aplica o resultado bruto vencedor sob lock de monitor e deduplica por result_applications.execution_id. Estado, contadores, incidente, transição e intenção congelada confirmam juntos. ScheduleStore aplica antes de remover reserva; recuperação reaplica resultado existente ou CANCELLED. V5 marca resultados concluídos anteriores como HISTORY_ONLY, sem incidentes retroativos.
+- **Reason**: Preservar evidência, impedir transições parciais e permitir retry após crash/rollback sem outro HTTP. Pausa e processamento são serializados; índice parcial único garante um incidente aberto por monitor.
+- **Trade-off**: Intenções PENDING já existem, mas SMTP/retries ficam em MON-08. Marcadores distinguem histórico de aplicação; retenção MON-11 deve preservar referências. Início lógico decide lacuna; resultado anterior ao último início aplicado da geração corrente fica somente histórico.
 - **Scope**: MON-07 a MON-11; PROD-05/06/11 a PROD-20/28/29/30; MON-07-AC01 a MON-07-AC08.
 - **Date**: 2026-10-14
 - **Status**: active
@@ -79,10 +79,10 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 ## Handoff
 
 - **Feature**: MON-07; `.specs/features/mon-07-incidentes/`.
-- **Phase / Task**: Execute; T1?T5 conclu?das; Verifier independente pendente.
-- **Completed**: M?quina de estados, V5, ?ndice ?nico/FKs, processador at?mico, marcador idempotente, inten??es dur?veis e integra??o de reservas/administra??o. 356 testes Docker (138 unit?rios/218 IT), 55 novos, zero falhas/erros/skips/Checkstyle. Commits T1 491d478, T2 5e61f87, T3 1a2e8da, T4 808e7c6.
-- **In-progress**: Build runtime/smoke aprovados e documenta??o conclu?da; falta relat?rio independente/sensor.
-- **Next step**: Delegar Verifier com sensor em c?pia isolada; somente ap?s PASS atualizar backlog e fechamento.
-- **Blockers**: Nenhum local; Docker requer execu??o autorizada fora do sandbox.
-- **Uncommitted files**: Documenta??o T5/STATE/README neste commit; nenhum c?digo Java pendente.
-- **Branch**: main; baseline 2179a4b. Banco do operador preservado; PostgreSQLs de teste descart?veis. Logs `.validation/mon07-*.log`.
+- **Phase / Task**: Execute concluído; T1–T5 e Verifier independente PASS 8/8.
+- **Completed**: Máquina de estados, V5, unicidade/FKs, aplicação atômica/idempotente, intenções duráveis, ciclo de vida e retomada. Autor/Verifier: 356 testes Docker (138 unitários/218 IT), 55 novos, zero falhas/erros/skips/Checkstyle. Runtime e smoke aprovados; nove mutações mortas e zero sobreviventes. Commits T1 491d478, T2 5e61f87, T3 1a2e8da, T4 808e7c6, T5 197551d.
+- **In-progress**: Nenhuma implementação pendente. Relatório independente em `.specs/features/mon-07-incidentes/validation.md`; validate_state sem erros.
+- **Next step**: MON-08 implementa entrega SMTP/retry sobre intenções PENDING já congeladas; MON-09 consulta incidentes/transições/resultados. Preservar AD-002/009 e referências duráveis em retenção MON-11.
+- **Blockers**: Nenhum local. Docker disponível via execução autorizada fora do sandbox. CI remota/push/deploy não executados.
+- **Uncommitted files**: Nenhum após o commit de fechamento; nenhum código/teste pendente.
+- **Branch**: main; baseline 2179a4b. Banco do operador preservado; PostgreSQLs/smoke descartáveis próprios. Logs `.validation/mon07-*.log`; evidências independentes `.validation/verifier-mon07/`.

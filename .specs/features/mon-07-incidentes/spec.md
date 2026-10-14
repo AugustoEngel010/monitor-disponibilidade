@@ -1,6 +1,6 @@
 # MON-07: identificar queda e recuperação e manter incidentes
 
-**Data:** 2026-10-14. **Status:** Implementing. Execução local autorizada pelo pedido.
+**Data:** 2026-10-14. **Status:** Verified; [Verifier independente](validation.md) PASS 8/8, 356 testes e nove mutações mortas. Execução local autorizada pelo pedido.
 **Origem:** MON-07-AC01 a MON-07-AC08; PROD-05/06/07/08/09/11 a PROD-20/28/29; AD-001 a AD-008.
 
 ## Problem Statement

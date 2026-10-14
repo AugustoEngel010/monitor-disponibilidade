@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02, MON-03, MON-04 e MON-05 implementadas e validadas localmente em 2026-10-13. MON-01 permanece proposta documental; demais entregas planejadas. CI remota não observada.
+**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-01 permanece proposta documental; MON-08 a MON-12 planejadas. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -178,18 +178,18 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-07-AC01: com limite de 3 falhas, as duas primeiras iniciam a confirmação; a terceira abre um incidente e confirma a indisponibilidade.
-- [ ] MON-07-AC02: um sucesso antes de atingir o limite interrompe a sequência de falhas e não abre um incidente.
-- [ ] MON-07-AC03: novas falhas durante um incidente aberto não criam outro incidente para o mesmo monitor. Essa unicidade também é garantida na persistência.
-- [ ] MON-07-AC04: com limite de 2 sucessos, o primeiro inicia a confirmação da recuperação; o segundo encerra o incidente. Uma falha entre eles reinicia a confirmação.
-- [ ] MON-07-AC05: reprocessar o mesmo resultado não incrementa contadores nem produz uma segunda transição.
-- [ ] MON-07-AC06: resultados internos, bloqueados ou cancelados e intervalos sem dados seguem o contrato especificado, sem produzir uma falsa queda ou recuperação.
-- [ ] MON-07-AC07: contadores e incidentes persistem conforme a política de reinício. Pausa e retomada preservam o histórico e aplicam as regras de MON-01.
-- [ ] MON-07-AC08: os horários de observação e confirmação são registrados separadamente. A criação ou o encerramento do incidente é atômico com a alteração de estado e o registro da transição.
+- [x] MON-07-AC01: com limite de 3 falhas, as duas primeiras iniciam a confirmação; a terceira abre um incidente e confirma a indisponibilidade.
+- [x] MON-07-AC02: um sucesso antes de atingir o limite interrompe a sequência de falhas e não abre um incidente.
+- [x] MON-07-AC03: novas falhas durante um incidente aberto não criam outro incidente para o mesmo monitor. Essa unicidade também é garantida na persistência.
+- [x] MON-07-AC04: com limite de 2 sucessos, o primeiro inicia a confirmação da recuperação; o segundo encerra o incidente. Uma falha entre eles reinicia a confirmação.
+- [x] MON-07-AC05: reprocessar o mesmo resultado não incrementa contadores nem produz uma segunda transição.
+- [x] MON-07-AC06: resultados internos, bloqueados ou cancelados e intervalos sem dados seguem o contrato especificado, sem produzir uma falsa queda ou recuperação.
+- [x] MON-07-AC07: contadores e incidentes persistem conforme a política de reinício. Pausa e retomada preservam o histórico e aplicam as regras de MON-01.
+- [x] MON-07-AC08: os horários de observação e confirmação são registrados separadamente. A criação ou o encerramento do incidente é atômico com a alteração de estado e o registro da transição.
 
 **Testes:** unitários para todas as sequências descritas; integração de unicidade, reprocessamento, transação e retomada de estado persistido.
 
-**Conclusão:** cada transição tem evidência no histórico, com um único incidente aberto por monitor.
+**Conclusão:** validada localmente em 2026-10-14: limites consecutivos, V5 com unicidade PostgreSQL, aplicação idempotente/transacional e histórico consistente, incluindo pausa/retomada e restart. 356 testes (138 unitários/218 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke aprovados. Verifier independente PASS 8/8, nove mutações mortas e nenhuma sobrevivente; [relatório](../features/mon-07-incidentes/validation.md). SMTP e consultas ficam em MON-08/09; CI remota não executada.
 
 ### MON-08 — Enviar notificações com histórico e novas tentativas
 
