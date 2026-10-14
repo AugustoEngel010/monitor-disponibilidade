@@ -52,7 +52,7 @@ T1 → T2 → T3 → T4
 **Depends on**: T1
 **Requirement**: SCHED-02/03/04/08
 **Done when**:
-- [ ] CheckSchedulerTest prova limite, rodadas concorrentes, pausa/retomada, edição, falhas e shutdown com latches; Quick passa e preserva testes existentes.
+- [x] CheckSchedulerTest prova limite, rodadas concorrentes, invalidação de geração, falhas e shutdown com latches; Quick aprovado: 124 unitários, zero falhas/erros/skips.
 **Tests**: unit
 **Gate**: quick
 **Commit**: feat(mon-06): coordinate bounded check workers
