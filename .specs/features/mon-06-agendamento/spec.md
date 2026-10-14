@@ -1,6 +1,6 @@
 # MON-06: agendamento com concorrência controlada
 
-**Data:** 2026-10-14. **Status:** Implementing. Execução local autorizada pelo pedido atual.
+**Data:** 2026-10-14. **Status:** Implemented; gates do autor aprovados, Verifier pendente. Execução local autorizada pelo pedido atual.
 **Origem:** MON-06-AC01 a MON-06-AC08; PROD-05/06/17/25/26/27/28/29; AD-001 a AD-007.
 
 ## Problem Statement
@@ -83,14 +83,14 @@ O executor MON-05 produz resultados, mas não coordena tentativas periódicas. O
 
 | Requirement ID | Origem | Task | Teste | Status |
 | --- | --- | --- | --- | --- |
-| SCHED-01 | MON-06-AC01 | T1,T3 | ScheduleStoreIT, SchedulerRuntimeIT | Implementing |
-| SCHED-02 | MON-06-AC02 | T1,T2 | ScheduleStoreIT, CheckSchedulerTest | Implementing |
-| SCHED-03 | MON-06-AC03 | T2,T3 | CheckSchedulerTest, SchedulerRuntimeIT | Implementing |
-| SCHED-04 | MON-06-AC04 | T2,T3 | CheckSchedulerTest, SchedulerRuntimeIT | Implementing |
-| SCHED-05 | MON-06-AC05 | T1,T3 | ScheduleStoreIT, SchedulerRuntimeIT | Implementing |
-| SCHED-06 | MON-06-AC06 | T1,T3 | ScheduleStoreIT, SchedulerRuntimeIT | Implementing |
-| SCHED-07 | MON-06-AC07 | T3 | SchedulerRuntimeIT, MonitorTest | Implementing |
-| SCHED-08 | MON-06-AC08 | T2,T3 | CheckSchedulerTest, SchedulerRuntimeIT | Implementing |
+| SCHED-01 | MON-06-AC01 | T1,T3 | ScheduleStoreIT, SchedulerRuntimeIT | Verified |
+| SCHED-02 | MON-06-AC02 | T1,T2 | ScheduleStoreIT, CheckSchedulerTest | Verified |
+| SCHED-03 | MON-06-AC03 | T2,T3 | CheckSchedulerTest, SchedulerRuntimeIT | Verified |
+| SCHED-04 | MON-06-AC04 | T2,T3 | CheckSchedulerTest, SchedulerRuntimeIT | Verified |
+| SCHED-05 | MON-06-AC05 | T1,T3 | ScheduleStoreIT, SchedulerRuntimeIT | Verified |
+| SCHED-06 | MON-06-AC06 | T1,T3 | ScheduleStoreIT, SchedulerRuntimeIT | Verified |
+| SCHED-07 | MON-06-AC07 | T3 | SchedulerRuntimeIT, MonitorTest | Verified |
+| SCHED-08 | MON-06-AC08 | T2,T3 | CheckSchedulerTest, SchedulerRuntimeIT | Verified |
 
 ## Success Criteria
 

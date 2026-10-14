@@ -121,7 +121,7 @@ try {
     Assert-AdministrativeAccess -Password $initialAdminPassword -ExpectedStatus 401 -Session $previousSession
     Assert-AdministrativeAccess -Password $rotatedAdminPassword -ExpectedStatus 200
     Add-Content -Path $log -Value 'PASS MON-03-AC02 password rotation rejects previous credential and cookie' -Encoding UTF8
-    Assert-Equal (Query 'SELECT count(*) FROM flyway_schema_history WHERE success') '3' 'MON-02-AC02 migration count'
+    Assert-Equal (Query 'SELECT count(*) FROM flyway_schema_history WHERE success') '4' 'MON-02-AC02 migration count'
     Assert-Equal (Query "SELECT string_agg(version, ',' ORDER BY installed_rank) FROM flyway_schema_history") '1,2,3,4' 'MON-02-AC02 migration versions'
     $history = Query 'SELECT row_to_json(h) FROM flyway_schema_history h ORDER BY installed_rank'
     Query 'CREATE TABLE monitor.mon02_sentinel (id integer PRIMARY KEY, value integer NOT NULL); INSERT INTO monitor.mon02_sentinel VALUES (1, 4242)' | Out-Host

@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven, testes por AC antes da implementação, gate antes de marcar completo e commit atômico por task. Pedido já autoriza ferramentas Docker/PowerShell/Python e execução. Quatro tasks inline; Verifier independente obrigatório no fechamento.
 
-**Status:** In Progress. **Design:** [design.md](design.md).
+**Status:** Done; gates do autor aprovados, Verifier independente pendente. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -74,7 +74,7 @@ T1 → T2 → T3 → T4
 **Depends on**: T3
 **Requirement**: SCHED-01 a SCHED-08
 **Done when**:
-- [ ] README/env/decisões/evidence atualizados; Build aprovado com contagem real; Verifier independente após commit.
+- [x] README/env/decisões/evidence atualizados; Full com 301 testes, runtime build e smoke Docker aprovados; Verifier independente após commit.
 **Tests**: integration
 **Gate**: build
 **Commit**: docs(mon-06): document scheduling and acceptance evidence

@@ -70,11 +70,11 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 
 ## Handoff
 
-- **Feature**: MON-05; `.specs/features/mon-05-verificacao-http/`.
-- **Phase / Task**: Execute concluído; T1 a T5 e Verifier independente PASS 8/8.
-- **Completed**: Política de rede, executor GET com timeout/cleanup/TLS, V3 e registro idempotente, serviço Spring, configuração demo e documentação. Gates autor/Verifier: 264 testes (110 unitários/154 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke aprovados. Seis mutações mortas, nenhuma sobrevivente. Commits T1 b16132b, T2 d2ca099, T3 0a5aba7, T4 8b4d0eb, T5 d65d791.
-- **In-progress**: Nenhuma implementação pendente da MON-05. Relatório independente em `.specs/features/mon-05-verificacao-http/validation.md`.
-- **Next step**: MON-06 coordenará agendamento/cancelamento e comparação de versão/geração sob o mesmo lock administrativo; MON-07 aplicará resultado ao estado/incidente/intenção atomicamente conforme AD-002.
-- **Blockers**: Nenhum local. CI remota não executada, push não realizado. Execução é contrato Java interno; não há scheduler/endpoint HTTP novo.
-- **Uncommitted files**: Nenhum após o commit de fechamento; relatório e estados incluídos nele. Nenhuma alteração de código após d65d791.
-- **Branch**: main; baseline c5ad290, implementação validada d65d791. Banco de desenvolvimento preservado; projetos Docker descartáveis próprios removidos. Fontes restauradas e evidências locais em `.validation/`.
+- **Feature**: MON-06; `.specs/features/mon-06-agendamento/`.
+- **Phase / Task**: T1–T4 concluídas; gates do autor aprovados; Verifier independente em seguida.
+- **Completed**: V4, reserva durável/recuperação, coordenador limitado, polling Spring, pausa/edição/shutdown e 37 novos testes. Full: 301 testes (124 unitários/177 IT), zero falhas/erros/skips/Checkstyle; runtime Docker aprovado. Commits T1 52826be, T2 c9deb64, T3 e47a640.
+- **In-progress**: Relatório independente pendente; smoke PASS e runtime aprovados. Não declarar feature concluída antes de validation.md PASS.
+- **Next step**: Executar Verifier com sensor. Após PASS, MON-07 aplica resultados ao estado/incidente/intenção atomicamente conforme AD-002 e versão/geração AD-006/008.
+- **Blockers**: Nenhum local. Daemon Docker disponível via execução autorizada fora do sandbox. CI remota e push não executados.
+- **Uncommitted files**: Documentação/env/README, expectativa V4 do smoke e snapshot de fechamento.
+- **Branch**: main; baseline 1e0ba8e. Banco do operador preservado; testes e smoke usam PostgreSQLs descartáveis próprios. Logs locais `.validation/mon06-*.log`.

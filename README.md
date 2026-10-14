@@ -102,7 +102,7 @@ Para executar testes e verificações de qualidade:
 docker compose run --build --rm tests
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 160 casos: 46 unitários e 114 integrações, incluindo os 48 casos anteriores, 39 validações de configuração, seis regras de ciclo/frescor, oito persistências PostgreSQL e 59 contratos HTTP de monitores. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
+Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 301 casos: 124 unitários e 177 integrações, incluindo os 264 anteriores e 37 de reserva, concorrência e runtime da MON-06. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
 Os resultados são copiados para o host mesmo se a suíte falhar:
 
@@ -141,7 +141,7 @@ Limites dos módulos:
 | Segurança (`br.com.monitor.security`) | Operador Basic, fronteira global, token CSRF e health público mínimo | Spring Security/Actuator; implementado em MON-03 |
 | Administração (`br.com.monitor.administration`) | Configuração, ciclo de vida, API e persistência dos monitores | Modelo puro, JDBC e transações; implementado em MON-04 |
 | Infraestrutura (`src/main/resources`) | Configuração JDBC, prontidão e migrações | Ambiente, PostgreSQL, Flyway; implementada em MON-02 |
-| Monitoramento (`br.com.monitor.monitoring`) | Execução HTTP limitada, política de destinos e resultados idempotentes | Monitor/configuração, Apache HttpClient, JDBC; MON-05 implementada, agendamento em MON-06 |
+| Monitoramento (`br.com.monitor.monitoring`) | Agendamento persistente, concorrência limitada, execução HTTP segura e resultados idempotentes | Monitor/configuração, Apache HttpClient, JDBC; MON-05/06 implementadas |
 | Incidentes (futuro `br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados publicados por monitoramento, sem executar HTTP; MON-07 |
 | Notificações (futuro `br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Contratos de transição e adaptador SMTP; MON-08 |
 | Consultas (futuro `br.com.monitor.reporting`) | Histórico, indicadores e painel | Leitura dos contratos dos módulos, sem alterar estado do executor; MON-09/MON-10 |
@@ -159,3 +159,5 @@ A [validação independente MON-04](.specs/features/mon-04-ciclo-monitores/valid
 O [contrato HTTP MON-05](docs/http-checks.md) documenta GET, timeout total até cabeçalhos, classificações, proteção de rede/TLS e persistência por UUID. `MONITOR_DEMO_ORIGIN` é opcional e vazia por padrão; permite somente a origem interna explicitamente configurada, sem liberar a sub-rede. V3 cria `monitor.check_results`; resultados guardam versão/geração e não alteram estado ou incidentes. [Spec](.specs/features/mon-05-verificacao-http/spec.md), [tasks](.specs/features/mon-05-verificacao-http/tasks.md) e [evidências](.specs/features/mon-05-verificacao-http/evidence.md) mantêm MON-05-AC01 a MON-05-AC08.
 
 A [validação independente MON-05](.specs/features/mon-05-verificacao-http/validation.md) concluiu PASS 8/8: 264 testes (110 unitários/154 integrações), zero falhas/erros/skips, qualidade, runtime e smoke Docker aprovados; seis regressões injetadas detectadas e nenhuma sobrevivente. Validação local; CI remota não executada.
+
+O [agendamento MON-06](docs/scheduling.md) inicia automaticamente após startup, com `MONITOR_CHECK_CONCURRENCY=4` (1..16) e `MONITOR_SCHEDULER_POLL_MS=250` (positivo). V4 persiste uma reserva por monitor; excesso permanece vencido no banco, sem fila de workers. Pausa/edição solicitam cancelamento; restart reconcilia tentativas interrompidas sem replay e preserva o próximo horário. [Spec](.specs/features/mon-06-agendamento/spec.md), [tasks](.specs/features/mon-06-agendamento/tasks.md) e [evidências](.specs/features/mon-06-agendamento/evidence.md) mantêm MON-06-AC01 a MON-06-AC08. Aplicação das observações a estado e incidentes permanece MON-07.
