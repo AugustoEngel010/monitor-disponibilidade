@@ -86,10 +86,10 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 ## Handoff
 
 - **Feature**: MON-08; `.specs/features/mon-08-notificacoes/`.
-- **Phase / Task**: T1–T6 concluídas; revalidação independente a seguir.
-- **Completed**: V6, SMTP assíncrono, histórico/retries finitos, incerteza/reinício, ordem por incidente e Mailpit Compose. Verifier inicial: seis ACs PASS e um gap de precisão; seis mutações mortas. T6 corrigiu duração decimal sem alterar assertions existentes. Gate final autor: 387 testes (144 unitários/243 IT), zero falhas/erros/skips/Checkstyle; runtime/smoke aprovados (37 PASSs).
-- **In-progress**: Revalidação independente de MAIL-06/T6 e relatório PASS final.
-- **Next step**: Reexecutar Verifier após commit T6; validate_state e fechamento documental.
-- **Blockers**: Nenhum. Docker disponível por execução autorizada fora do sandbox.
-- **Uncommitted files**: Correção T6 e evidências/lessons do Verifier inicial a incluir no commit da task.
-- **Branch**: main; baseline 52cb94e; T1 bf13777, T2 4d15c1e, T3 575e07c, T4 0c16d03, T5 0d2efdc. Banco do operador preservado; testes e smoke descartáveis. Logs `.validation/mon08-*.log`.
+- **Phase / Task**: Execute concluído; T1–T6 e Verifier independente PASS 7/7.
+- **Completed**: V6 aditiva, reserva/histórico transacionais, SMTP assíncrono com timeouts, cinco tentativas e backoff 30/60/120/240 s, incerteza/reinício, ordem por incidente, duração decimal exata e Mailpit Compose. Gates autor/Verifier: 387 testes (144 unitários/243 IT), 31 novos, zero falhas/erros/skips/Checkstyle. Runtime e smoke Docker aprovados; sete mutações mortas, zero sobreviventes. Primeiro gap fracionário corrigido em T6; lesson L-001 candidate registrada pela skill.
+- **In-progress**: Nenhuma implementação pendente. Relatório independente `validation.md` PASS; validate_state sem erros.
+- **Next step**: MON-09 para APIs de histórico/resumo, incluindo notificações; preservar AD-002/009/010 e referências duráveis para retenção MON-11. Uma instância; processo anterior deve estar totalmente parado antes de reconciliar.
+- **Blockers**: Nenhum local. Docker disponível via execução autorizada fora do sandbox. CI remota não executada.
+- **Uncommitted files**: Nenhum após commit de fechamento documental.
+- **Branch**: main; baseline 52cb94e; T1 bf13777, T2 4d15c1e, T3 575e07c, T4 0c16d03, T5 0d2efdc, T6 f2194e2. Banco do operador preservado; PostgreSQL/SMTP/smoke descartáveis removidos. Logs `.validation/mon08-*.log`.

@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven, testes derivados da spec, gate antes de cada commit e status no mesmo commit. Cinco tasks iniciais e T6 de correção inline, com Verifier independente automático ao terminar. Ferramentas já escolhidas pelo pedido: Docker, PowerShell, Python e skill. Nenhum AGENTS.md encontrado.
 
-**Status:** Done; T6 corrigiu precisão fracionária, aguardando revalidação independente. **Design:** [design.md](design.md).
+**Status:** Done; Verifier independente PASS 7/7, 387 testes e sete mutações mortas. [Relatório](validation.md). **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 

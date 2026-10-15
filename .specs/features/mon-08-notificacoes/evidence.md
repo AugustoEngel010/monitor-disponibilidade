@@ -110,3 +110,8 @@ Reverse mapping: cada assertion do teste novo valida aceitação, captura ou con
 
 Gate T6: docker compose run --build --rm tests, exit 0, BUILD SUCCESS, 387 testes (144 unitários/243 IT), zero falhas/erros/skips/Checkstyle; docker compose build app, exit 0; smoke Compose, exit 0 e 37 PASSs (.validation/mon02-smoke-b1830bfcfb1a.log). Logs .validation/mon08-t6.log, .validation/mon08-t6-build.log e .validation/mon08-t6-smoke.log. validate_spec/tasks: zero erros/avisos. Sem assertion anterior alterada.
 
+
+## Fechamento independente
+
+Verifier PASS 7/7 após T6; gate independente com 387 testes (144 unitários/243 IT), zero falhas/erros/skips/Checkstyle, runtime e smoke aprovados. Sensor total 7/7 mutações mortas: seis iniciais sobre código pertinente inalterado e reintrodução de truncamento sobre f2194e2, morta pelo novo SmtpDurationIT. Isolamento de scratch e porcelain confirmados. Evidências exatas, comandos/logs e assertions por AC em [validation.md](validation.md). Primeira revisão encontrou um gap de precisão, corrigido por T6; nenhuma lacuna restante. validate_state aprovado. Sem alteração em V1–V5 ou remoção/desabilitação de testes. CI remota não executada.
+

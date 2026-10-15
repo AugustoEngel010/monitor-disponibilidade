@@ -1,14 +1,14 @@
-# Validation MON-08: FAIL
+# Validation MON-08: PASS
 
 **Data:** 2026-10-15. **Verifier:** subagente independente; autor diferente do verificador.
 **Spec:** `.specs/features/mon-08-notificacoes/spec.md`.
-**Diff range:** `52cb94e..0d2efdc`.
+**Diff range:** `52cb94e..f2194e2` (revalidação após T6).
 
-Seis dos sete ACs atendem ao resultado da spec. AC06 perde a parte fracionária da duração: diferença de 180.9 segundos produz texto de 180 segundos. Gate, runtime, smoke e seis mutações passaram na verificação independente. A feature requer a correção de precisão antes do fechamento.
+Os sete ACs atendem ao resultado da spec. T6 preserva 180.9 segundos e mantém o caso inteiro em 180 segundos. Gate independente com 387 testes, runtime e smoke passaram. Sete mutações foram mortas, incluindo a reintrodução do truncamento, detectada pelo novo teste SMTP.
 
 ## Tasks e integridade
 
-T1–T5 constam concluídas em tasks.md e possuem commits no range. Nenhum código ou teste real foi alterado pelo Verifier. V1–V5 permanecem intactas. As alterações nos testes anteriores atualizam o total de migrações para seis ou mantêm o teste específico de upgrade V4→V5 limitado à versão 5; não removem assertions. Baseline anterior registrado em `52cb94e:.specs/STATE.md`: 356 testes. Gate atual: 386, delta +30.
+T1–T6 constam concluídas em tasks.md e possuem commits no range. Nenhum código ou teste real foi alterado pelo Verifier. V1–V5 permanecem intactas. As alterações nos testes anteriores atualizam o total de migrações para seis ou mantêm o teste específico de upgrade V4→V5 limitado à versão 5; não removem assertions. Baseline anterior registrado em `52cb94e:.specs/STATE.md`: 356 testes. Gate atual: 387, delta +31. O diff `0d2efdc..f2194e2` altera apenas o cálculo da duração no código e acrescenta SmtpDurationIT; nenhum teste anterior é alterado.
 
 ## Aceitação derivada da spec
 
@@ -19,16 +19,16 @@ T1–T5 constam concluídas em tasks.md e possuem commits no range. Nenhum códi
 | MON-08-AC03 / MAIL-03 | Uma intenção por transição/destinatário, inclusive replay concorrente e UNIQUE PostgreSQL | `src/test/java/br/com/monitor/IncidentProcessorIT.java:214`–`:231`: replay concorrente, `count(notification_intents).isEqualTo(1)`; `src/test/java/br/com/monitor/NotificationSchemaIT.java:59`: insert duplicado deve lançar `DataAccessException`; `src/test/java/br/com/monitor/NotificationStoreIT.java:98`: `deliveries.hasSize(1)` em quatro claims concorrentes | PASS |
 | MON-08-AC04 / MAIL-04 | Máximo cinco, espera término +30/60/120/240, não antecipar, quinta falha EXHAUSTED | `src/test/java/br/com/monitor/NotificationStoreIT.java:60`: `claim(due.minusMillis(1)).isEmpty()`; `:61`: igualdade reserva; `:74`–`:81`: próximo horário exato e EXHAUSTED/sem próxima data no quinto; `:84`–`:86`: sem sexta tentativa e cinco históricos | PASS; mutações de fronteira, espera e limite mortas |
 | MON-08-AC05 / MAIL-05 | Histórico numerado UTC, estados/erros fixos e identidade estável em retries/restart | `src/test/java/br/com/monitor/NotificationStoreIT.java:63`–`:72`: número, Message-ID, início/fim exatos, FAILED/SMTP_FAILURE; `:149`–`:165`: UNCERTAIN/RESTART_UNCERTAIN, término na reconciliação e identidade preservada; `:177`: SMTP_UNCERTAIN; `src/test/java/br/com/monitor/NotificationRuntimeIT.java:111`–`:125`: restart real, espera de 30s, duas mensagens com mesmo Message-ID e attempt_count=2; `src/test/java/br/com/monitor/SmtpDeliveryIT.java:128`: timeout pós-DATA retorna UNCERTAIN | PASS |
-| MON-08-AC06 / MAIL-06 | Destinatário/snapshot, tipos, incidente, quatro tempos pertinentes e duração igual à diferença em segundos | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:59`–`:76`: Mailpit verifica Message-ID, To/From/Subject, nome, URL, tipo, incidente, timestamps e `contains("Duração estimada: 180 segundos")`; `src/test/java/br/com/monitor/NotificationStoreIT.java:192`–`:217`: snapshot anterior preservado após edição. Falta assertion fracionária; `src/main/java/br/com/monitor/notification/SmtpDelivery.java:84` usa `getSeconds()` | FAIL para frações; demais campos PASS |
+| MON-08-AC06 / MAIL-06 | Destinatário/snapshot, tipos, incidente, quatro tempos pertinentes e duração igual à diferença em segundos | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:59`–`:76`: Mailpit verifica Message-ID, To/From/Subject, nome, URL, tipo, incidente, timestamps e `contains("Duração estimada: 180 segundos")`; `src/test/java/br/com/monitor/NotificationStoreIT.java:192`–`:217`: snapshot anterior preservado após edição. `src/test/java/br/com/monitor/SmtpDurationIT.java:42`: corpo real capturado deve conter `Primeira falha: 2026-10-15T12:00:00.100Z`, `Início da recuperação: 2026-10-15T12:03:01Z` e `Duração estimada: 180.9 segundos` | PASS; caso inteiro e fracionário executados e mutação de truncamento morta |
 | MON-08-AC07 / MAIL-07 | Recuperação aguarda todas as quedas não terminais do incidente; ACCEPTED/EXHAUSTED liberam; outros incidentes seguem | `src/test/java/br/com/monitor/NotificationStoreIT.java:185`–`:218`: dois parâmetros ACCEPTED/EXHAUSTED, `claim(BASE).isEmpty()` durante SENDING, outro incidente reservado, espera também em PENDING, recuperação liberada do mesmo incidente com novo destinatário | PASS; mutação da regra de causalidade morta |
 
 ## Gate independente
 
 | Comando | Resultado | Log local |
 | --- | --- | --- |
-| `docker compose run --build --rm tests` | Exit 0; 144 unitários +242 IT =386; zero falhas, erros e skips; Checkstyle e BUILD SUCCESS | `.validation/mon08-verifier-gate.log` |
-| `docker compose build app` | Exit 0; imagem runtime construída | `.validation/mon08-verifier-build.log` |
-| `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild` | Exit 0; PASS Compose lifecycle, incluindo queda/recuperação SMTP após pending/restart | `.validation/mon08-verifier-smoke.log`, `.validation/mon02-smoke-f8e2e320c39b.log` |
+| `docker compose run --build --rm tests` | Exit 0; 144 unitários +243 IT =387; zero falhas, erros e skips; Checkstyle e BUILD SUCCESS | `.validation/mon08-verifier-t6-gate.log` |
+| `docker compose build app` | Exit 0; imagem runtime construída | `.validation/mon08-verifier-t6-build.log` |
+| `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild` | Exit 0; PASS Compose lifecycle, incluindo queda/recuperação SMTP após pending/restart | `.validation/mon08-verifier-t6-smoke.log`, `.validation/mon02-smoke-994734b930a4.log` |
 
 ## Discrimination sensor
 
@@ -45,7 +45,15 @@ Comando em cada cópia: `docker run --rm --mount type=bind,source=<scratch>,targ
 | smtp-accepted: retorno positivo vira FAILED | `src/main/java/br/com/monitor/notification/SmtpDelivery.java:49` | Exit 1; 1 failure, 0 errors | Morta por `SmtpDeliveryIT.mailpitCapturesBothTransitionsWithFrozenPayloadDurationAndStableMessageId` |
 | message-id: usa `<wrong@monitor.local>` | `src/main/java/br/com/monitor/notification/SmtpDelivery.java:44` | Exit 1; 1 failure, 0 errors | Morta pela assertion do Message-ID capturado no Mailpit |
 
-**Sensor:** 6 injetadas, 6 mortas, 0 sobreviventes. Logs `.validation/mon08-mutant-<nome>.log` e `.validation/mon08-sensor-results.log`.
+As seis execuções acima pertencem ao range inicial `52cb94e..0d2efdc`. O diff da T6 confirma que os pontos mutados e seus testes permanecem inalterados; suas evidências continuam aplicáveis. O único novo comportamento, precisão fracionária, recebeu sensor adicional no HEAD `f2194e2`.
+
+| Mutação adicional | Fonte | Resultado exato | Diagnóstico |
+| --- | --- | --- | --- |
+| fractional-truncation: remove `.add(BigDecimal.valueOf(duration.getNano(), 9))` e volta a usar apenas segundos inteiros | `src/main/java/br/com/monitor/notification/SmtpDelivery.java:83` | Exit 1; seis IT, um failure, zero errors/skips; cinco SmtpDeliveryIT passaram e SmtpDurationIT falhou | Morta: corpo contém 180 segundos, assertion exige 180.9 |
+
+Execução adicional na cópia `%TEMP%/mon08-verifier-t6`, extraída por archive de `f2194e2`; mesmo comando Docker acima, com `-Dit.test=SmtpDurationIT,SmtpDeliveryIT`. O gate completo passou antes da mutação. Cópia removida, baseline salvo vazio e porcelain final vazio idênticos antes da edição deste relatório. Logs `.validation/mon08-verifier-t6-mutant.log`, `.validation/mon08-verifier-t6-sensor-results.log` e `.validation/mon08-verifier-t6-isolation.log`.
+
+**Sensor:** 7 injetadas, 7 mortas, 0 sobreviventes. Logs anteriores `.validation/mon08-mutant-<nome>.log` e `.validation/mon08-sensor-results.log` preservados.
 
 ## Edge cases e qualidade
 
@@ -58,12 +66,14 @@ Comando em cada cópia: `docker run --rm --mount type=bind,source=<scratch>,targ
 - Não houve UAT interativo: comportamento de backend coberto por PostgreSQL, SMTP real e smoke Compose.
 - Guidelines avaliadas: README.md, pom.xml, config/checkstyle.xml e coding-principles.md da skill. Nenhum teste em escopo foi identificado sem vínculo com os ACs, limites/configuração ou edge cases declarados.
 
-## Gap e fix task
+## Gap corrigido e revalidação
 
-1. **Minor, AC06:** frações de segundo são descartadas no payload. Reprodução independente chamou `SmtpDelivery.body` por reflection sobre classes da cópia: firstFailureAt `2026-10-15T12:00:00.100Z`, recoveryStartedAt `2026-10-15T12:03:01Z`; diferença `PT3M0.9S`; saída `Duração estimada: 180 segundos`. A spec exige a diferença em segundos e não define truncamento. Log `.validation/mon08-duration-probe.log`; fonte `src/main/java/br/com/monitor/notification/SmtpDelivery.java:84`; teste atual inteiro `src/test/java/br/com/monitor/SmtpDeliveryIT.java:71` não discrimina o caso.
+O primeiro relatório identificou um gap Minor em AC06: frações eram descartadas. A reprodução usou firstFailureAt `2026-10-15T12:00:00.100Z` e recoveryStartedAt `2026-10-15T12:03:01Z`; diferença `PT3M0.9S`, saída anterior 180 segundos. Log histórico `.validation/mon08-duration-probe.log`.
 
-**Fix T6:** preservar a diferença exata em segundos decimais na apresentação, preservando a forma inteira quando não há fração; adicionar caso Mailpit fracionário dedicado sem alterar assertions existentes. Verificar exatamente 180.9 para a reprodução acima, conteúdo congelado e gate Docker completo. Reexecutar Verifier após o commit.
+**T6, commit f2194e2:** cálculo com segundos mais nanos em BigDecimal e apresentação decimal sem zeros finais desnecessários. `SmtpDurationIT.java:42` prova exatamente 180.9 no Mailpit; o caso inteiro anterior continua 180. A mutação que remove os nanos falha somente no novo teste, comprovando que o gap foi fechado. Não há gaps pendentes.
 
-MAIL-01/02/03/04/05/07 estão verificados neste relatório. MAIL-06 requer correção. A spec permanece sem alteração pelo Verifier para o autor registrar a traceabilidade ao fechar o ciclo.
+MAIL-01 a MAIL-07 estão verificados. A spec permanece sem alteração pelo Verifier para o autor registrar a traceabilidade ao fechar o ciclo.
 
-`python .codex/skills/tlc-spec-driven/scripts/validate_state.py mon-08-notificacoes` rejeitou corretamente o fechamento: `validation.md verdict is FAIL`, um erro. Lesson `L-001` registrada via script com sinal `ac_gap`, fonte `SmtpDelivery.java:84`, status candidate e recorrência 1. Nenhum commit ou push realizado.
+A primeira validação rejeitou corretamente o fechamento e registrou a lesson L-001 via script com sinal ac_gap, fonte SmtpDelivery.java:84, status candidate e recorrência 1. A revalidação limpa não registra nova lesson. Nenhum código/teste real, commit ou push realizado pelo Verifier.
+
+Gate de fechamento executado após atualizar o relatório: `python .codex/skills/tlc-spec-driven/scripts/validate_state.py mon-08-notificacoes`, exit 0, `0 error(s) across [mon-08-notificacoes]`.

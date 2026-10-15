@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada em 2026-10-15, com verificação independente em andamento. MON-01 permanece proposta documental; MON-09 a MON-12 planejadas. CI remota não observada.
+**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada e validada em 2026-10-15. MON-01 permanece proposta documental; MON-09 a MON-12 planejadas. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -209,7 +209,7 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Testes:** integração com SMTP de testes para queda e recuperação; SMTP indisponível, retomada, limite de tentativas, reprocessamento e reinício com entrega pendente.
 
-**Conclusão:** implementação local e smoke Docker aprovados: histórico, retries e retomada com SMTP local. Gate T4: 386 testes aprovados; validação independente em andamento. Evidências em `.specs/features/mon-08-notificacoes/`. ACCEPTED significa aceitação SMTP, não caixa postal.
+**Conclusão:** implementação local e smoke Docker aprovados: histórico, retries e retomada com SMTP local. Gate final: 387 testes (144 unitários/243 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke aprovados; Verifier independente PASS 7/7 e sete mutações mortas. Evidências em `.specs/features/mon-08-notificacoes/`. ACCEPTED significa aceitação SMTP, não caixa postal.
 
 ### MON-09 — Consultar histórico, incidentes e resumo do monitor
 

@@ -1,6 +1,6 @@
 # MON-08: notificações duráveis
 
-**Data:** 2026-10-15. **Status:** Implementing. Execução local autorizada pelo pedido.
+**Data:** 2026-10-15. **Status:** Verified. Verifier independente PASS 7/7, 387 testes e sete mutações mortas; [relatório](validation.md). Execução local autorizada pelo pedido.
 **Origem:** MON-08-AC01 a MON-08-AC07; PROD-20/30/31/32/33; AD-001/002/004/009.
 
 ## Problem Statement
@@ -89,13 +89,13 @@ Cada tentativa usa o snapshot congelado na intenção. UTC em todos os horários
 
 | Requirement ID | Origem | Tasks | Testes | Status |
 | --- | --- | --- | --- | --- |
-| MAIL-01 | MON-08-AC01 | T1,T2 | IncidentProcessorIT, NotificationStoreIT | Implementing |
-| MAIL-02 | MON-08-AC02 | T1,T2,T4 | IncidentProcessorIT, NotificationStoreIT, NotificationRuntimeIT | Implementing |
-| MAIL-03 | MON-08-AC03 | T1,T2 | NotificationSchemaIT, IncidentProcessorIT | Implementing |
-| MAIL-04 | MON-08-AC04 | T2,T3 | NotificationStoreIT, SmtpDeliveryIT | Implementing |
-| MAIL-05 | MON-08-AC05 | T1,T2,T3,T4 | NotificationStoreIT, SmtpDeliveryIT, NotificationRuntimeIT | Implementing |
-| MAIL-06 | MON-08-AC06 | T3,T6 | SmtpDeliveryIT, SmtpDurationIT | Implementing |
-| MAIL-07 | MON-08-AC07 | T2,T4 | NotificationStoreIT, NotificationRuntimeIT | Implementing |
+| MAIL-01 | MON-08-AC01 | T1,T2 | IncidentProcessorIT, NotificationStoreIT | Verified |
+| MAIL-02 | MON-08-AC02 | T1,T2,T4 | IncidentProcessorIT, NotificationStoreIT, NotificationRuntimeIT | Verified |
+| MAIL-03 | MON-08-AC03 | T1,T2 | NotificationSchemaIT, IncidentProcessorIT | Verified |
+| MAIL-04 | MON-08-AC04 | T2,T3 | NotificationStoreIT, SmtpDeliveryIT | Verified |
+| MAIL-05 | MON-08-AC05 | T1,T2,T3,T4 | NotificationStoreIT, SmtpDeliveryIT, NotificationRuntimeIT | Verified |
+| MAIL-06 | MON-08-AC06 | T3,T6 | SmtpDeliveryIT, SmtpDurationIT | Verified |
+| MAIL-07 | MON-08-AC07 | T2,T4 | NotificationStoreIT, NotificationRuntimeIT | Verified |
 
 ## Success Criteria
 
