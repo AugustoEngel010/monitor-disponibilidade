@@ -1,5 +1,6 @@
 package br.com.monitor.notification;
 
+import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.time.Duration;
@@ -78,10 +79,13 @@ public class SmtpDelivery {
                 + "\nPrimeira falha: " + delivery.firstFailureAt()
                 + "\nQueda confirmada: " + delivery.downConfirmedAt() + "\n";
         if (delivery.type().equals("RECOVERY")) {
+            var duration = Duration.between(delivery.firstFailureAt(), delivery.recoveryStartedAt());
+            String seconds = BigDecimal.valueOf(duration.getSeconds()).add(BigDecimal.valueOf(duration.getNano(), 9))
+                    .stripTrailingZeros().toPlainString();
             text += "Início da recuperação: " + delivery.recoveryStartedAt()
                     + "\nRecuperação confirmada: " + delivery.recoveredAt()
                     + "\nDuração estimada: "
-                    + Duration.between(delivery.firstFailureAt(), delivery.recoveryStartedAt()).getSeconds()
+                    + seconds
                     + " segundos (inclui pausas e lacunas; não prova indisponibilidade contínua).\n";
         }
         return text;

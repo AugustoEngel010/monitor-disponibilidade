@@ -2,9 +2,9 @@
 
 ## Execution Protocol
 
-Aplicar tlc-spec-driven, testes derivados da spec, gate antes de cada commit e status no mesmo commit. Cinco tasks inline e Verifier independente automático ao terminar. Ferramentas já escolhidas pelo pedido: Docker, PowerShell, Python e skill. Nenhum AGENTS.md encontrado.
+Aplicar tlc-spec-driven, testes derivados da spec, gate antes de cada commit e status no mesmo commit. Cinco tasks iniciais e T6 de correção inline, com Verifier independente automático ao terminar. Ferramentas já escolhidas pelo pedido: Docker, PowerShell, Python e skill. Nenhum AGENTS.md encontrado.
 
-**Status:** Done; aguardando Verifier independente. **Design:** [design.md](design.md).
+**Status:** Done; T6 corrigiu precisão fracionária, aguardando revalidação independente. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -14,7 +14,7 @@ Guidelines: README.md, pom.xml, config/checkstyle.xml e CI. Amostras: IncidentPr
 | --- | --- | --- | --- | --- |
 | Schema | integration | Upgrade, UNIQUE, FKs, estados e tentativas | src/test/java/br/com/monitor/NotificationSchemaIT.java | Full |
 | Store | integration | ACs, rollback, concorrência, ordem e fronteiras temporais | src/test/java/br/com/monitor/NotificationStoreIT.java | Full |
-| SMTP | integration | Payload capturado, indisponibilidade, rejeição e timeout | src/test/java/br/com/monitor/SmtpDeliveryIT.java | Full |
+| SMTP | integration | Payload capturado, indisponibilidade, rejeição e timeout | src/test/java/br/com/monitor/Smtp*IT.java | Full |
 | Runtime | integration | Contexto real, restart, isolamento e conclusão recuperável | src/test/java/br/com/monitor/NotificationRuntimeIT.java | Full |
 | Operação/docs | integration | Runtime build e smoke Compose | docs/notifications.md | Build |
 
@@ -24,14 +24,14 @@ Guidelines: README.md, pom.xml, config/checkstyle.xml e CI. Amostras: IncidentPr
 | --- | --- | --- |
 | Quick | Unit | docker compose run --build --rm tests mvn --batch-mode --no-transfer-progress test |
 | Full | T1 a T4 | docker compose run --build --rm tests |
-| Build | T5 | Full; docker compose build app; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild |
+| Build | T5,T6 | Full; docker compose build app; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild |
 
 ## Execution Plan
 
 ### Phase 1: Entrega
 
 ```text
-T1 → T2 → T3 → T4 → T5
+T1 → T2 → T3 → T4 → T5 → T6
 ```
 
 ## Task Breakdown
@@ -100,6 +100,7 @@ T1 → T2 → T3 → T4 → T5
 | T3 | T2 | T2 → T3 | Match |
 | T4 | T3 | T3 → T4 | Match |
 | T5 | T4 | T4 → T5 | Match |
+| T6 | T5 | T5 → T6 | Match |
 
 ## Test Co-location Validation
 
@@ -110,3 +111,17 @@ T1 → T2 → T3 → T4 → T5
 | T3 | SMTP | integration | integration | Match |
 | T4 | Runtime | integration | integration | Match |
 | T5 | Docs/operation | integration | integration | Match |
+| T6 | SMTP | integration | integration | Match |
+
+## Fix task do Verifier
+
+### T6: Preservar precisão da duração no e-mail
+**What**: Representar a diferença temporal exata em segundos decimais, com teste SMTP fracionário.
+**Where**: `src/main/java/br/com/monitor/notification/SmtpDelivery.java`
+**Depends on**: T5
+**Requirement**: MAIL-06; MON-08-AC06
+**Done when**:
+- [x] SmtpDurationIT captura 180.9 segundos; casos inteiros preservados. Full: 387 testes (144 unitários/243 IT), zero falhas/erros/skips/Checkstyle. Build runtime e smoke Compose: exit 0; 37 PASSs no smoke.
+**Tests**: integration
+**Gate**: build
+**Commit**: fix(mon-08): preserve fractional incident duration

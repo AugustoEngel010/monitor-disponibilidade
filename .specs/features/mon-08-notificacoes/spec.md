@@ -30,6 +30,7 @@ As intenções da MON-07 sobrevivem ao reinício, mas não são enviadas. O oper
 | Timeout | Qualquer falha SMTP com aceitação potencialmente desconhecida é UNCERTAIN; rejeição/autenticação conhecida é FAILED | Evitar alegação falsa de não entrega | Default técnico |
 | SMTP | Spring Mail/Angus; conexão/leitura/escrita finitas 5000/3000/5000 ms; TLS e autenticação por ambiente | Seguir stack e evitar defaults infinitos | Default técnico |
 | Processamento | Um worker SMTP próprio e polling 250 ms; sem fila em memória; intent desabilitável por ambiente | Isola verificações e limita recursos | Default técnico |
+| Precisão de duração | Segundos decimais exatos com ponto, sem zeros finais desnecessários ou truncamento de frações | Preservar a diferença temporal definida por MON-01; exemplo 180.9 segundos | Correção do Verifier |
 
 **Open questions:** none; decisões pertinentes da MON-01 adotadas; escolhas técnicas explícitas.
 
@@ -68,6 +69,7 @@ Cada tentativa usa o snapshot congelado na intenção. UTC em todos os horários
 - Edição posterior não altera conteúdo nem destinatário; nenhum envio dentro de transação; worker SMTP lento não impede verificações.
 - Upgrade V5 preserva intenções e checksums, seis migrações numa base vazia.
 - Resposta de commit da reserva perdida: reconciliar SENDING sem referência local como incerta antes de reservar outra vez; consumir a tentativa e aplicar a mesma espera.
+- Primeira falha 12:00:00.100Z e início de recuperação 12:03:01Z geram duração de 180.9 segundos; o caso inteiro continua 180 segundos.
 
 ## Dimensões implícitas
 
@@ -92,7 +94,7 @@ Cada tentativa usa o snapshot congelado na intenção. UTC em todos os horários
 | MAIL-03 | MON-08-AC03 | T1,T2 | NotificationSchemaIT, IncidentProcessorIT | Implementing |
 | MAIL-04 | MON-08-AC04 | T2,T3 | NotificationStoreIT, SmtpDeliveryIT | Implementing |
 | MAIL-05 | MON-08-AC05 | T1,T2,T3,T4 | NotificationStoreIT, SmtpDeliveryIT, NotificationRuntimeIT | Implementing |
-| MAIL-06 | MON-08-AC06 | T3 | SmtpDeliveryIT | Implementing |
+| MAIL-06 | MON-08-AC06 | T3,T6 | SmtpDeliveryIT, SmtpDurationIT | Implementing |
 | MAIL-07 | MON-08-AC07 | T2,T4 | NotificationStoreIT, NotificationRuntimeIT | Implementing |
 
 ## Success Criteria

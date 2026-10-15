@@ -102,7 +102,7 @@ Para executar testes e verificações de qualidade:
 docker compose run --build --rm tests
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 386 casos: 144 unitários e 242 integrações, incluindo os 356 anteriores e 30 da MON-08 para entrega, retries, unicidade, rollback, ordem e reinício. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
+Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 387 casos: 144 unitários e 243 integrações, incluindo os 356 anteriores e 31 da MON-08 para entrega, retries, unicidade, rollback, ordem e reinício. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
 Os resultados são copiados para o host mesmo se a suíte falhar:
 

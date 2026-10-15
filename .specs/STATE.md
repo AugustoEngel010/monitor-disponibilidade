@@ -86,10 +86,10 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 ## Handoff
 
 - **Feature**: MON-08; `.specs/features/mon-08-notificacoes/`.
-- **Phase / Task**: T1–T4 concluídas; T5 em gate final e verificação independente a seguir.
-- **Completed**: V6 aditiva, reserva/histórico transacionais, SMTP fora de transação, retries 30/60/120/240 s até cinco tentativas, incerteza/reinício, ordem por incidente e SMTP Mailpit Compose. Gate T4: 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. Runtime e smoke Compose descartável aprovados.
-- **In-progress**: Gate final de T5; relatório independente ainda pendente.
-- **Next step**: Commit T5 após gate e Verifier independente obrigatório com sensor isolado; atualizar validation.md e fechar rastreabilidade.
-- **Blockers**: Nenhum. Docker iniciado; comandos usam execução autorizada fora do sandbox.
-- **Uncommitted files**: Compose/env/docs/smoke/STATE e status da MON-08.
-- **Branch**: main; baseline 52cb94e; T1 bf13777, T2 4d15c1e, T3 575e07c, T4 0c16d03. Banco do operador preservado; testes usam PostgreSQLs e SMTP próprios. Logs `.validation/mon08-*.log`.
+- **Phase / Task**: T1–T6 concluídas; revalidação independente a seguir.
+- **Completed**: V6, SMTP assíncrono, histórico/retries finitos, incerteza/reinício, ordem por incidente e Mailpit Compose. Verifier inicial: seis ACs PASS e um gap de precisão; seis mutações mortas. T6 corrigiu duração decimal sem alterar assertions existentes. Gate final autor: 387 testes (144 unitários/243 IT), zero falhas/erros/skips/Checkstyle; runtime/smoke aprovados (37 PASSs).
+- **In-progress**: Revalidação independente de MAIL-06/T6 e relatório PASS final.
+- **Next step**: Reexecutar Verifier após commit T6; validate_state e fechamento documental.
+- **Blockers**: Nenhum. Docker disponível por execução autorizada fora do sandbox.
+- **Uncommitted files**: Correção T6 e evidências/lessons do Verifier inicial a incluir no commit da task.
+- **Branch**: main; baseline 52cb94e; T1 bf13777, T2 4d15c1e, T3 575e07c, T4 0c16d03, T5 0d2efdc. Banco do operador preservado; testes e smoke descartáveis. Logs `.validation/mon08-*.log`.

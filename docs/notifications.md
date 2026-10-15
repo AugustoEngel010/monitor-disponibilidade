@@ -33,6 +33,8 @@ O contrato suporta **uma instância**. Pare completamente o processo anterior an
 
 Texto UTF-8 inclui nome, URL, DOWN/RECOVERY, ID do incidente, primeira falha e confirmação da queda. Recuperação inclui início da sequência confirmada de sucessos, confirmação da recuperação e duração estimada em segundos: `recoveryStartedAt − firstFailureAt`. Exemplo: falhas em 0/60/120 s e sucessos em 180/240 s dão **180 segundos**, não 120 ou 240. A estimativa inclui pausas/lacunas e não prova indisponibilidade contínua. Timestamps são UTC e permanecem os da evidência, mesmo numa entrega atrasada.
 
+Frações são preservadas em segundos decimais com ponto, sem truncamento nem zeros finais desnecessários: primeira falha em 12:00:00.100Z e início da recuperação em 12:03:01Z produzem **180.9 segundos**.
+
 ## Ambiente e Docker
 
 `docker compose up --build -d` inicia aplicação, PostgreSQL e Mailpit v1.27.8. A interface capturadora está em [localhost:8025](http://localhost:8025), e o SMTP local em localhost:1025. Somente loopback é publicado. Mailpit captura destinatários fictícios como ops@example.org; nenhum relay externo é configurado. Seu conteúdo é efêmero; histórico e intenções pertencem ao PostgreSQL persistente.

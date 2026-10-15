@@ -95,3 +95,18 @@ Comandos: docker compose build app (exit 0); powershell -NoProfile -ExecutionPol
 
 Gate T5 Full final: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. Log .validation/mon08-final.log. validate_spec e validate_tasks: zero erros/avisos. git diff --check aprovado.
 
+
+## T6: precisão da duração
+
+Verifier independente: seis ACs PASS e gap Minor em AC06, diferença exata 180.9 apresentada como 180. Sua prova e seis mutações mortas foram preservadas no relatório anterior; lesson L-001 registrada pela skill. Premissas: a fórmula de MON-01 permanece a diferença exata; apresentação decimal usa ponto e remove somente zeros finais. Arquivos: SmtpDelivery, novo SmtpDurationIT, spec/tasks/design/evidence/validation, docs/notifications, README, STATE/backlog e artefatos de lessons do Verifier. Sucesso: captura SMTP de 180.9 segundos, preservando o caso inteiro 180 e todos os testes anteriores.
+
+| Critério | Assertion file:line | Resultado da spec | Coberto |
+| --- | --- | --- | --- |
+| MAIL-06 fração | `src/test/java/br/com/monitor/SmtpDurationIT.java:42` `assertThat(body).contains("Primeira falha: 2026-10-15T12:00:00.100Z", "Início da recuperação: 2026-10-15T12:03:01Z", "Duração estimada: 180.9 segundos")` | Diferença exata 180.9, sem truncamento | Sim |
+| MAIL-06 aceitação real | `src/test/java/br/com/monitor/SmtpDurationIT.java:28` `isEqualTo(NotificationStore.Result.ACCEPTED)`; :36 `isEqualTo(1)` | Um e-mail real capturado no Mailpit | Sim |
+| MAIL-06 inteiro preservado | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:71` contém duração 180 segundos | Não introduzir .0 no caso inteiro existente | Sim |
+
+Reverse mapping: cada assertion do teste novo valida aceitação, captura ou conteúdo do mesmo MAIL-06; nenhuma assertion anterior modificada. BigDecimal combina segundos e nanos sem overflow de conversão da duração inteira para nanos; saída decimal simples. Guidelines JUnit/AssertJ/Checkstyle preservadas.
+
+Gate T6: docker compose run --build --rm tests, exit 0, BUILD SUCCESS, 387 testes (144 unitários/243 IT), zero falhas/erros/skips/Checkstyle; docker compose build app, exit 0; smoke Compose, exit 0 e 37 PASSs (.validation/mon02-smoke-b1830bfcfb1a.log). Logs .validation/mon08-t6.log, .validation/mon08-t6-build.log e .validation/mon08-t6-smoke.log. validate_spec/tasks: zero erros/avisos. Sem assertion anterior alterada.
+

@@ -46,3 +46,6 @@ Falha no claim não envia; falha após rede repete conclusão sem reenviar. Rein
 ## Tech Decisions
 
 AD-010 documenta entrega, ordem e incerteza. Fontes oficiais: [Spring Boot mail](https://docs.spring.io/spring-boot/3.5/reference/io/email.html), [Angus SMTP](https://eclipse-ee4j.github.io/angus-mail/docs/api/org.eclipse.angus.mail/org/eclipse/angus/mail/smtp/package-summary.html) e [Mailpit Docker](https://mailpit.axllent.org/docs/install/docker/). Timeouts connectiontimeout/timeout/writetimeout são explícitos porque os defaults podem ser infinitos.
+
+Correção T6: representar duração no corpo como segundos decimais exatos, combinando seconds/nanos com BigDecimal; remover somente zeros finais. O caso 180.9 fica preservado e o caso inteiro continua 180. Decisão local de apresentação, sem alterar horários persistidos ou fórmula de MON-01.
+

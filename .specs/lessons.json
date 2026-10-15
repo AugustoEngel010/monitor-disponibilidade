@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "promote_threshold": 2,
+  "window_days": 45,
+  "quarantine_threshold": 2,
+  "next_id": 2,
+  "lessons": [
+    {
+      "id": "L-001",
+      "key": "ac_gap::preserve fractional seconds when presenting elapsed incident duration and assert a fractional timestamp example",
+      "text": "Preserve fractional seconds when presenting elapsed incident duration and assert a fractional timestamp example.",
+      "signal": "ac_gap",
+      "scope": "notifications",
+      "status": "candidate",
+      "features": [
+        "mon-08-notificacoes"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/main/java/br/com/monitor/notification/SmtpDelivery.java:84 (notifications)"
+      ],
+      "created": "2026-10-15T21:23:00Z",
+      "last_seen": "2026-10-15T21:23:00Z"
+    }
+  ]
+}
