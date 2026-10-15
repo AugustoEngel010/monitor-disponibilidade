@@ -18,3 +18,23 @@ Reverse mapping: cada linha acima é também o mapa assertion→MAIL; manter tod
 
 Gate T1: docker compose run --build --rm tests; BUILD SUCCESS, 357 testes, 138 unitários/219 IT, zero falhas/erros/skips e Checkstyle. Log .validation/mon08-t1.log. Primeira execução detectou contagens V5 remanescentes; contagens atuais atualizadas para V6, sem alterar os cenários históricos.
 
+
+## T2: reserva e conclusão
+
+Premissas: uma instância, cinco tentativas e cadeia por incidente. Arquivos: NotificationStore, NotificationDelivery, NotificationStoreIT e NotificationFixture, além de status/rastreabilidade. Sucesso: estado SQL e conteúdo de histórico nos limites exatos da spec.
+
+| Critério | Assertion file:line | Resultado definido | Coberto |
+| --- | --- | --- | --- |
+| MAIL-04 espera/limite | `src/test/java/br/com/monitor/NotificationStoreIT.java:60` `claim(due.minusMillis(1)).isEmpty()`; :77 `containsEntry("next_attempt_at", Timestamp.from(due))`; :80 `containsEntry("status", "EXHAUSTED")`; :85 `isEqualTo(5)` | Esperas 30/60/120/240; cinco tentativas | Sim |
+| MAIL-05 ID/histórico | `src/test/java/br/com/monitor/NotificationStoreIT.java:62` `id().isEqualTo(id)`; :64 Message-ID exato; :70 início/término/outcome/error com valores exatos | Mesma intenção; horários e erro fixo | Sim |
+| MAIL-03 claim concorrente | `src/test/java/br/com/monitor/NotificationStoreIT.java:98` `deliveries.hasSize(1)`; :103 `row(id).isEqualTo(before)` | Uma reserva, conclusão idempotente | Sim |
+| MAIL-02 atomicidade | `src/test/java/br/com/monitor/NotificationStoreIT.java:116` PENDING/count=0; :130 SENDING/count=1; :134 ACCEPTED/count=1 | Rollbacks nas duas escritas de reserva e conclusão recuperáveis | Sim |
+| MAIL-02/05 reinício | `src/test/java/br/com/monitor/NotificationStoreIT.java:151` UNCERTAIN/RESTART_UNCERTAIN e horários; :157 status/contagem; :164 Message-ID preservado | Órfã consome tentativa; quinta esgota | Sim |
+| MAIL-05 timeout | `src/test/java/br/com/monitor/NotificationStoreIT.java:177` UNCERTAIN/SMTP_UNCERTAIN; :179 antes vazio; :180 mesma intenção na igualdade | Confirmação incerta agenda retry | Sim |
+| MAIL-07 ordem | `src/test/java/br/com/monitor/NotificationStoreIT.java:195` `claim(BASE).isEmpty()`; :198 outro incidente; :214 tipo RECOVERY; :218 terminal exato | Recuperação aguarda queda terminal, outros incidentes avançam | Sim |
+| MAIL-01/06 snapshot | `src/test/java/br/com/monitor/NotificationStoreIT.java:193` ops@example.org e :194 Original monitor; :216 new@example.org e :217 Changed | Snapshot por transição, independente de edição posterior | Sim |
+
+Reverse mapping: cada assertion da tabela pertence aos MAILs indicados; todos os testes do arquivo correspondem a essas oito linhas. Guidelines JUnit/AssertJ/Checkstyle existentes. Sem testes especulativos, removidos ou desabilitados.
+
+Gate T2: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 369 testes (138 unitários/231 IT), zero falhas/erros/skips/Checkstyle. Log .validation/mon08-t2.log.
+

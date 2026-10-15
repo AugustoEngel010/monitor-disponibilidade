@@ -53,7 +53,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T1
 **Requirement**: MAIL-01/02/03/04/05/07
 **Done when**:
-- [ ] NotificationStoreIT prova cinco tentativas, esperas exatas, disputa de claim, reprocessamento e liberação da recuperação; Full passa.
+- [x] NotificationStoreIT: 12 cenários novos; Full: 369 testes (138 unitários/231 IT), zero falhas/erros/skips/Checkstyle, BUILD SUCCESS.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-08): implement recoverable delivery reservations
