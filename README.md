@@ -1,6 +1,6 @@
 # Monitor de disponibilidade
 
-Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores, MON-05 executa HTTP, MON-06 agenda verificações e MON-07 confirma estados e mantém incidentes. Painel, consultas e envio de notificações seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
+Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores, MON-05 executa HTTP, MON-06 agenda verificações, MON-07 mantém incidentes e MON-08 envia notificações duráveis por SMTP com histórico e retries. Painel e consultas seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
 
 Build, testes e execução usam contêineres. O host precisa de Docker com daemon Linux e Docker Compose; não precisa de Maven Wrapper, Maven ou JDK. São suportados Docker Desktop com Linux containers e Docker Engine Linux com `host-gateway` (20.10+), Compose v2+ e BuildKit. A validação local foi realizada no Docker Desktop Windows; a execução remota da CI não foi observada.
 
@@ -102,7 +102,7 @@ Para executar testes e verificações de qualidade:
 docker compose run --build --rm tests
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 356 casos: 138 unitários e 218 integrações, incluindo os 301 anteriores e 55 da MON-07 para estados, unicidade, concorrência, idempotência, rollback e reinício. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
+Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 386 casos: 144 unitários e 242 integrações, incluindo os 356 anteriores e 30 da MON-08 para entrega, retries, unicidade, rollback, ordem e reinício. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
 Os resultados são copiados para o host mesmo se a suíte falhar:
 
@@ -143,7 +143,7 @@ Limites dos módulos:
 | Infraestrutura (`src/main/resources`) | Configuração JDBC, prontidão e migrações | Ambiente, PostgreSQL, Flyway; implementada em MON-02 |
 | Monitoramento (`br.com.monitor.monitoring`) | Agendamento persistente, concorrência limitada, execução HTTP segura e resultados idempotentes | Monitor/configuração, Apache HttpClient, JDBC; MON-05/06 implementadas |
 | Incidentes (`br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados duráveis, lock de monitor, JDBC e intenção atômica; MON-07 implementada, sem executar HTTP |
-| Notificações (futuro `br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Contratos de transição e adaptador SMTP; MON-08 |
+| Notificações (`br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Outbox transacional, worker SMTP, tentativas e retomada; MON-08 implementada |
 | Consultas (futuro `br.com.monitor.reporting`) | Histórico, indicadores e painel | Leitura dos contratos dos módulos, sem alterar estado do executor; MON-09/MON-10 |
 
 Nenhum módulo de produção depende de bibliotecas de teste; `ArchitectureTest` impõe esse limite. Os pacotes futuros serão criados com suas funcionalidades, sem classes vazias nesta base. As [specs da MON-02](.specs/features/mon-02-base-docker/spec.md), [decisão AD-004](.specs/STATE.md) e [tasks](.specs/features/mon-02-base-docker/tasks.md) mantêm a rastreabilidade MON-02-AC01 a MON-02-AC08.
@@ -164,6 +164,8 @@ O [agendamento MON-06](docs/scheduling.md) inicia automaticamente após startup,
 
 A [validação independente MON-06](.specs/features/mon-06-agendamento/validation.md) concluiu PASS 8/8: 301 testes (124 unitários/177 integrações), zero falhas/erros/skips/Checkstyle, runtime e smoke Docker aprovados; cinco regressões injetadas detectadas e nenhuma sobrevivente. Verificação local de instância única; CI remota não executada.
 
-O [processamento de incidentes MON-07](docs/incidents.md) confirma queda/recuperação conforme os limites configurados, mantém um incidente aberto por monitor com índice único e registra separadamente observação e confirmação. V5 persiste incidentes, aplicações, transições e intenções congeladas. Reprocessamento é idempotente; pausa, resultados não externos e lacunas interrompem confirmações sem fabricar saúde. [Spec](.specs/features/mon-07-incidentes/spec.md), [tasks](.specs/features/mon-07-incidentes/tasks.md) e [evidências](.specs/features/mon-07-incidentes/evidence.md) mantêm os oito ACs. A suíte local passou com 356 testes e zero falhas/erros/skips/Checkstyle. SMTP continua na MON-08.
+O [processamento de incidentes MON-07](docs/incidents.md) confirma queda/recuperação conforme os limites configurados, mantém um incidente aberto por monitor com índice único e registra separadamente observação e confirmação. V5 persiste incidentes, aplicações, transições e intenções congeladas. Reprocessamento é idempotente; pausa, resultados não externos e lacunas interrompem confirmações sem fabricar saúde. [Spec](.specs/features/mon-07-incidentes/spec.md), [tasks](.specs/features/mon-07-incidentes/tasks.md) e [evidências](.specs/features/mon-07-incidentes/evidence.md) mantêm os oito ACs. A suíte local passou com 356 testes e zero falhas/erros/skips/Checkstyle. A entrega SMTP é implementada pela MON-08 sobre essas intenções.
 
 A [validação independente MON-07](.specs/features/mon-07-incidentes/validation.md) concluiu PASS 8/8: 356 testes, runtime e smoke aprovados; nove regressões injetadas detectadas por assertions e nenhuma sobrevivente. Baseline independente confirmou os 301 testes anteriores e delta de 55 casos, sem remoções/skips. Validação local; CI remota não executada.
+
+As [notificações MON-08](docs/notifications.md) usam cinco tentativas com espera de 30/60/120/240 segundos. Recuperação aguarda queda aceita ou esgotada. ACCEPTED significa aceitação SMTP; confirmação incerta permite duplicação com o mesmo Message-ID. V6 preserva intenções existentes e registra histórico sanitizado. O Mailpit local captura e-mails fictícios em http://localhost:8025, SMTP localhost:1025; variáveis SMTP e do worker estão em .env.example e na documentação de notificações.

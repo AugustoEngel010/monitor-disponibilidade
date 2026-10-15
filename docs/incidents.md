@@ -45,7 +45,7 @@ A transação confirma marcador de aplicação, estado/contadores, incidente, tr
 
 No reinício, reservas sem resultado recebem CANCELLED e quebram confirmações somente quando elegíveis. Resultado existente vence e é aplicado antes de remover a reserva. Sem reserva interrompida, contadores e incidentes sobrevivem; a próxima tentativa decide se houve lacuna. Próximo agendamento é preservado e não há replay dos intervalos perdidos.
 
-Na atualização de MON-06 para MON-07, resultados de verificações já concluídas recebem marcador HISTORY_ONLY. Não se abrem incidentes retroativos. Resultados ligados a reservas pendentes continuam reconciliáveis. Notificações ficam em PENDING; SMTP, ordem e retries serão implementados em MON-08.
+Na atualização de MON-06 para MON-07, resultados de verificações já concluídas recebem marcador HISTORY_ONLY. Não se abrem incidentes retroativos. Resultados ligados a reservas pendentes continuam reconciliáveis. Intenções nascem PENDING; [MON-08](notifications.md) implementa SMTP, ordem, histórico e retries sobre esse registro durável.
 
 ## Validação em contêineres
 

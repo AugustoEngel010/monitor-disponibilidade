@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-01 permanece proposta documental; MON-08 a MON-12 planejadas. CI remota não observada.
+**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada em 2026-10-15, com verificação independente em andamento. MON-01 permanece proposta documental; MON-09 a MON-12 planejadas. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -199,17 +199,17 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-08-AC01: confirmar uma queda gera uma intenção de notificação; confirmar a recuperação gera outra. Falhas repetidas durante o mesmo incidente não geram novos avisos de queda.
-- [ ] MON-08-AC02: a intenção é persistida junto da transição. Uma falha ou reinício entre o registro e o envio mantém a entrega pendente.
-- [ ] MON-08-AC03: repetir o processamento da mesma transição e destinatário mantém uma única intenção de notificação.
-- [ ] MON-08-AC04: falha no SMTP registra a tentativa e agenda a próxima conforme a política. Ao atingir o limite, a entrega fica marcada como esgotada e consultável.
-- [ ] MON-08-AC05: cada tentativa registra horário, resultado e erro sanitizado. As novas tentativas preservam o identificador da notificação.
-- [ ] MON-08-AC06: o e-mail informa monitor, tipo de transição, horários relevantes e identificador do incidente. O aviso de recuperação informa a duração estimada conforme a regra da spec.
-- [ ] MON-08-AC07: os avisos do mesmo incidente têm uma política explícita de ordem e esgotamento, incluindo o caso em que a recuperação ocorre enquanto o aviso de queda está pendente.
+- [x] MON-08-AC01: confirmar uma queda gera uma intenção de notificação; confirmar a recuperação gera outra. Falhas repetidas durante o mesmo incidente não geram novos avisos de queda.
+- [x] MON-08-AC02: a intenção é persistida junto da transição. Uma falha ou reinício entre o registro e o envio mantém a entrega pendente.
+- [x] MON-08-AC03: repetir o processamento da mesma transição e destinatário mantém uma única intenção de notificação.
+- [x] MON-08-AC04: falha no SMTP registra a tentativa e agenda a próxima conforme a política. Ao atingir o limite, a entrega fica marcada como esgotada e consultável.
+- [x] MON-08-AC05: cada tentativa registra horário, resultado e erro sanitizado. As novas tentativas preservam o identificador da notificação.
+- [x] MON-08-AC06: o e-mail informa monitor, tipo de transição, horários relevantes e identificador do incidente. O aviso de recuperação informa a duração estimada conforme a regra da spec.
+- [x] MON-08-AC07: os avisos do mesmo incidente têm uma política explícita de ordem e esgotamento, incluindo o caso em que a recuperação ocorre enquanto o aviso de queda está pendente.
 
 **Testes:** integração com SMTP de testes para queda e recuperação; SMTP indisponível, retomada, limite de tentativas, reprocessamento e reinício com entrega pendente.
 
-**Conclusão:** as entregas podem ser acompanhadas e retomadas. A evidência de envio refere-se à aceitação pelo SMTP, com a semântica documentada na spec.
+**Conclusão:** implementação local e smoke Docker aprovados: histórico, retries e retomada com SMTP local. Gate T4: 386 testes aprovados; validação independente em andamento. Evidências em `.specs/features/mon-08-notificacoes/`. ACCEPTED significa aceitação SMTP, não caixa postal.
 
 ### MON-09 — Consultar histórico, incidentes e resumo do monitor
 

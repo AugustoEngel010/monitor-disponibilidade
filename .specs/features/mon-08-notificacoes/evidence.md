@@ -75,3 +75,23 @@ Cenário adicional MAIL-02: `src/test/java/br/com/monitor/NotificationRuntimeIT.
 
 Gate T4: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. docker compose build app: exit 0. Logs .validation/mon08-t4.log e .validation/mon08-build.log.
 
+
+## T5: operação
+
+Premissas: Mailpit local sem relay, credenciais efêmeras, projeto Compose exclusivo e nenhum acesso ao banco do operador. Arquivos: compose.yaml, .env.example, scripts/validate-compose.ps1, docs/notifications.md, docs/incidents.md, README, STATE, backlog e artefatos MON-08. Sucesso: gates Docker, ciclo de app/db e captura local dos avisos reais.
+
+| Critério | Assertion file:line | Resultado definido | Coberto |
+| --- | --- | --- | --- |
+| MAIL-01 queda/recuperação | `scripts/validate-compose.ps1:146` `Wait-NotificationQuery ... DOWN`; :154 count2 | Dois avisos, um por transição | Sim |
+| MAIL-02 restart | `scripts/validate-compose.ps1:151` `Assert-Equal ... $intent` | Mesma intenção após restart app | Sim |
+| MAIL-04 falha real | `scripts/validate-compose.ps1:147` count FAILED=1 | SMTP parado registra falha | Sim |
+| MAIL-05 histórico | `scripts/validate-compose.ps1:156` ACCEPTED=2; :157 SMTP_FAILURE=1 | Duas aceitações e uma falha sanitizada | Sim |
+| MAIL-06 SMTP local | `scripts/validate-compose.ps1:160` Mailpit total2; :163 destinatário ops@example.org; :164 nome/incidente no corpo | Mensagens capturadas com payload fictício | Sim |
+| MAIL-07 | `scripts/validate-compose.ps1:155` ACCEPTED=2 | Queda pendente retomada e recuperação entregue | Sim |
+
+Reverse mapping: cada assertion pertence ao MAIL indicado; gates de infraestrutura anteriores preservados. Critérios temporais, unicidade, esgotamento e incerteza têm evidência detalhada T1–T4; smoke complementa a suite no runtime empacotado.
+
+Comandos: docker compose build app (exit 0); powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild (exit 0). Smoke aprovado: .validation/mon02-smoke-d335da5dbcde.log, 12 PASSs de notificação, com falha SMTP, pending atravessando restart, recuperação e duas capturas. Corrigido helper para reler porta efêmera do Mailpit após start; nenhum critério foi alterado. Log geral .validation/mon08-smoke.log. Volumes/projeto descartáveis removidos ao concluir.
+
+Gate T5 Full final: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. Log .validation/mon08-final.log. validate_spec e validate_tasks: zero erros/avisos. git diff --check aprovado.
+

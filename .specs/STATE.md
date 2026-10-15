@@ -76,13 +76,20 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-14
 - **Status**: active
 
+### AD-010
+- **Decision**: MON-08 entrega a outbox V5 por worker SMTP próprio, com reserva/histórico e conclusão em transações curtas distintas. Cinco tentativas por intenção; espera término + 30/60/120/240 s. Recuperação aguarda todas as quedas do incidente ACCEPTED/EXHAUSTED. Message-ID é estável; confirmação incerta consome tentativa e admite duplicação.
+- **Reason**: Preservar trabalho e causalidade sem manter transação/worker HTTP durante SMTP; seguir PROD-20/30/31/32/33.
+- **Trade-off**: ACCEPTED é aceitação SMTP, não caixa postal; SMTP e PostgreSQL não oferecem exactly-once conjunto. Instância anterior deve estar totalmente parada para reconciliar SENDING. Perda da resposta de commit do claim exige nova reconciliação; falha de conclusão no processo repete somente gravação.
+- **Scope**: MON-08 a MON-11; histórico SQL consultável nesta entrega; API de consulta em MON-09 e retenção referencial em MON-11. Mailpit local; configuração SMTP externa com timeouts finitos.
+- **Date**: 2026-10-15
+- **Status**: active
 ## Handoff
 
-- **Feature**: MON-07; `.specs/features/mon-07-incidentes/`.
-- **Phase / Task**: Execute concluído; T1–T5 e Verifier independente PASS 8/8.
-- **Completed**: Máquina de estados, V5, unicidade/FKs, aplicação atômica/idempotente, intenções duráveis, ciclo de vida e retomada. Autor/Verifier: 356 testes Docker (138 unitários/218 IT), 55 novos, zero falhas/erros/skips/Checkstyle. Runtime e smoke aprovados; nove mutações mortas e zero sobreviventes. Commits T1 491d478, T2 5e61f87, T3 1a2e8da, T4 808e7c6, T5 197551d.
-- **In-progress**: Nenhuma implementação pendente. Relatório independente em `.specs/features/mon-07-incidentes/validation.md`; validate_state sem erros.
-- **Next step**: MON-08 implementa entrega SMTP/retry sobre intenções PENDING já congeladas; MON-09 consulta incidentes/transições/resultados. Preservar AD-002/009 e referências duráveis em retenção MON-11.
-- **Blockers**: Nenhum local. Docker disponível via execução autorizada fora do sandbox. CI remota/push/deploy não executados.
-- **Uncommitted files**: Nenhum após o commit de fechamento; nenhum código/teste pendente.
-- **Branch**: main; baseline 2179a4b. Banco do operador preservado; PostgreSQLs/smoke descartáveis próprios. Logs `.validation/mon07-*.log`; evidências independentes `.validation/verifier-mon07/`.
+- **Feature**: MON-08; `.specs/features/mon-08-notificacoes/`.
+- **Phase / Task**: T1–T4 concluídas; T5 em gate final e verificação independente a seguir.
+- **Completed**: V6 aditiva, reserva/histórico transacionais, SMTP fora de transação, retries 30/60/120/240 s até cinco tentativas, incerteza/reinício, ordem por incidente e SMTP Mailpit Compose. Gate T4: 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. Runtime e smoke Compose descartável aprovados.
+- **In-progress**: Gate final de T5; relatório independente ainda pendente.
+- **Next step**: Commit T5 após gate e Verifier independente obrigatório com sensor isolado; atualizar validation.md e fechar rastreabilidade.
+- **Blockers**: Nenhum. Docker iniciado; comandos usam execução autorizada fora do sandbox.
+- **Uncommitted files**: Compose/env/docs/smoke/STATE e status da MON-08.
+- **Branch**: main; baseline 52cb94e; T1 bf13777, T2 4d15c1e, T3 575e07c, T4 0c16d03. Banco do operador preservado; testes usam PostgreSQLs e SMTP próprios. Logs `.validation/mon08-*.log`.

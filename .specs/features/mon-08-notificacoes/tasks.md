@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven, testes derivados da spec, gate antes de cada commit e status no mesmo commit. Cinco tasks inline e Verifier independente automático ao terminar. Ferramentas já escolhidas pelo pedido: Docker, PowerShell, Python e skill. Nenhum AGENTS.md encontrado.
 
-**Status:** In Progress. **Design:** [design.md](design.md).
+**Status:** Done; aguardando Verifier independente. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -86,7 +86,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T4
 **Requirement**: MAIL-01/02/03/04/05/06/07
 **Done when**:
-- [ ] Build e smoke passam, SMTP Compose é inspecionável com destinatários fictícios; README/STATE/backlog/evidence refletem resultados reais.
+- [x] Full final: 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. Runtime build e smoke Compose passaram; Mailpit capturou queda/recuperação fictícias após restart com pending. Docs/README/STATE/backlog/evidence atualizados.
 **Tests**: integration
 **Gate**: build
 **Commit**: docs(mon-08): document notification delivery and evidence
