@@ -188,7 +188,7 @@ class IncidentSchemaIT {
                     pending.executionId(), Timestamp.from(now), Timestamp.from(now.plusSeconds(60)));
             var history = sql.queryForList("SELECT * FROM public.flyway_schema_history ORDER BY installed_rank");
             var results = sql.queryForList("SELECT * FROM monitor.check_results ORDER BY execution_id");
-            var flyway = Flyway.configure().dataSource(source).load();
+            var flyway = Flyway.configure().dataSource(source).target("5").load();
             assertThat(flyway.migrate().migrationsExecuted).isEqualTo(1);
             assertThat(flyway.migrate().migrationsExecuted).isZero();
             assertThat(sql.queryForList("SELECT * FROM public.flyway_schema_history WHERE version IN ('1','2','3','4')"
