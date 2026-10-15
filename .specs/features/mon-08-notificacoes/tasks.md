@@ -64,7 +64,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T2
 **Requirement**: MAIL-02/04/05/06
 **Done when**:
-- [ ] SmtpDeliveryIT captura conteúdo e IDs, prova rejeição/indisponibilidade/timeout e ausência de transação; Full passa.
+- [x] SmtpDeliveryIT: cinco casos reais SMTP; NotificationConfigurationTest: seis casos. Full: 380 testes (144 unitários/236 IT), zero falhas/erros/skips/Checkstyle, BUILD SUCCESS.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-08): send notification emails with bounded smtp

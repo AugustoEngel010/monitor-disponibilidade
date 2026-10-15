@@ -38,3 +38,21 @@ Reverse mapping: cada assertion da tabela pertence aos MAILs indicados; todos os
 
 Gate T2: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 369 testes (138 unitários/231 IT), zero falhas/erros/skips/Checkstyle. Log .validation/mon08-t2.log.
 
+
+## T3: SMTP
+
+Premissas: Spring Mail/Angus com TLS padrão, conteúdo UTF-8 e Message-ID explícito. Arquivos: NotificationConfiguration, SmtpDelivery, application.yml, pom.xml, NotificationConfigurationTest e SmtpDeliveryIT. Sucesso: captura Mailpit, recusa explícita, indisponibilidade e confirmação incerta sem transação.
+
+| Critério | Assertion file:line | Resultado definido | Coberto |
+| --- | --- | --- | --- |
+| MAIL-06 campos | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:63` destinatário; :64 remetente; :65 assunto; :66 nome/URL/tipo/incidente/instantes; :70 recuperação e duração 180 s | Valores congelados e quatro horários distintos | Sim |
+| MAIL-05 ID estável | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:61` `MessageID.isEqualTo(expected.messageId()...)`; :78 `downCount.isEqualTo(2)` | Retry repete ID | Sim |
+| MAIL-04 SMTP indisponível/rejeição | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:85` e :97 `isEqualTo(Result.FAILED)` | Falha conhecida | Sim |
+| MAIL-05 timeout após DATA | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:128` `isEqualTo(Result.UNCERTAIN)`; :130 `isBetween(250L, 2500L)` | Confirmação incerta e leitura finita | Sim |
+| MAIL-02 transação | `src/test/java/br/com/monitor/SmtpDeliveryIT.java:140` `hasMessage("SMTP cannot run inside a transaction")` | Rede proibida dentro da transação | Sim |
+| Timeouts/ambiente | `src/test/java/br/com/monitor/NotificationConfigurationTest.java:21`–:25 valores host/porta/credenciais/TLS/5000/3000/5000; :36 erro fixo; :44 TLS conflitante | Configuração externa finita e falha sanitizada | Sim |
+
+Reverse mapping: todas as assertions correspondem aos critérios acima; manter todas. Sem assertion exclusiva de mock ou escopo extra. Checkstyle/JUnit/AssertJ conforme projeto. Transporte distingue falha antes de conexão SMTP de erro após conexão; fechar QUIT não desfaz aceitação DATA já observada.
+
+Gate T3: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 380 testes (144 unitários/236 IT), zero falhas/erros/skips/Checkstyle. Mailpit v1.27.8 capturou três mensagens fictícias. Log .validation/mon08-t3.log.
+
