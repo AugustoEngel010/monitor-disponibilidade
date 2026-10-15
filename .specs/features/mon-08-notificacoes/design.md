@@ -10,6 +10,8 @@ IncidentProcessor → intenção PENDING (transação existente).
 NotificationRuntime → NotificationStore.claim (transação curta) → SmtpDelivery (sem transação) → NotificationStore.finish (transação curta).
 Runtime reconcilia SENDING uma vez no startup, antes de reservar. Falha de conclusão conserva resultado em memória apenas para repetir gravação; reserva durável continua recuperável após crash.
 
+Se a resposta do commit de claim se perder, a próxima rodada reconcilia novamente antes de reservar: pode existir SENDING confirmado sem referência local. Essa tentativa é conservadoramente incerta e consumida, mesmo se nenhum SMTP começou.
+
 ## Code Reuse Analysis
 
 Reutilizar intenção/snapshot/UNIQUE da V5, TransactionTemplate, Clock UTC, JDBC, eventos ApplicationReadyEvent e padrão de executor dedicado do SchedulerRuntime. FKs mantêm evidências necessárias. Spring Mail entra como único starter novo; Mailpit local usa a mesma imagem nos testes e Compose.

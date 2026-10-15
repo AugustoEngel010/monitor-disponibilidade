@@ -67,6 +67,7 @@ Cada tentativa usa o snapshot congelado na intenção. UTC em todos os horários
 - Recuperação pendente com queda em PENDING/SENDING/EXHAUSTED/ACCEPTED; destinatário editado; outro incidente elegível.
 - Edição posterior não altera conteúdo nem destinatário; nenhum envio dentro de transação; worker SMTP lento não impede verificações.
 - Upgrade V5 preserva intenções e checksums, seis migrações numa base vazia.
+- Resposta de commit da reserva perdida: reconciliar SENDING sem referência local como incerta antes de reservar outra vez; consumir a tentativa e aplicar a mesma espera.
 
 ## Dimensões implícitas
 

@@ -56,3 +56,22 @@ Reverse mapping: todas as assertions correspondem aos critérios acima; manter t
 
 Gate T3: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 380 testes (144 unitários/236 IT), zero falhas/erros/skips/Checkstyle. Mailpit v1.27.8 capturou três mensagens fictícias. Log .validation/mon08-t3.log.
 
+
+## T4: runtime
+
+Premissas: instância anterior parada, polling em executor próprio, testes anteriores com worker desabilitado somente no classpath de teste. Arquivos: NotificationRuntime, application.yml, test application.properties e NotificationRuntimeIT. Sucesso: contexto reinicia com PENDING/SENDING; SMTP lento não bloqueia HTTP/processamento; falha de conclusão não reenvia dentro do mesmo processo.
+
+| Critério | Assertion file:line | Resultado definido | Coberto |
+| --- | --- | --- | --- |
+| MAIL-02 pending/restart | `src/test/java/br/com/monitor/NotificationRuntimeIT.java:90` `count(...ACCEPTED).isEqualTo(2)`; :91 status ACCEPTED/count1; :98 mesmo incidente | Dois avisos pendentes retomados no contexto novo | Sim |
+| MAIL-05 confirmação perdida | `src/test/java/br/com/monitor/NotificationRuntimeIT.java:108` PENDING/count1/next BASE+30; :111 RESTART_UNCERTAIN; :118 total2; :120 mesmo Message-ID | Uma aceitação perdida permite duas cópias, mesma intenção | Sim |
+| MAIL-02 falha de confirmação local | `src/test/java/br/com/monitor/NotificationRuntimeIT.java:136` SENDING/count1; :141 ACCEPTED/count1; :143 Mailpit total1 | Repetir gravação sem repetir rede | Sim |
+| MAIL-02 isolamento | `src/test/java/br/com/monitor/NotificationRuntimeIT.java:179` SUCCESS; :180 process true; :181 UP; :182 SENDING1 enquanto SMTP espera | Verificação HTTP e domínio progridem | Sim |
+| Limite polling | `src/test/java/br/com/monitor/NotificationRuntimeIT.java:221` `hasMessage("Invalid notification polling interval")` | Positivo até 60000 ms | Sim |
+
+Reverse mapping: testes do arquivo correspondem às cinco linhas acima; MAIL-07 tem verificação direta de elegibilidade/ordem na T2, integrada aqui ao envio dos dois avisos. Guidelines JUnit/AssertJ/Checkstyle, nenhuma assertion anterior removida ou enfraquecida.
+
+Cenário adicional MAIL-02: `src/test/java/br/com/monitor/NotificationRuntimeIT.java:205` verifica PENDING/count1/next BASE+30 após resposta de commit perdida; :208 verifica UNCERTAIN/RESTART_UNCERTAIN; :212 ACCEPTED/count2; :214 Mailpit total1. Reconciliação conservadora também ocorre após claim com confirmação JDBC incerta, sem precisar reiniciar o processo. Gate focado: seis runtime IT e seis testes de configuração aprovados, exit 0 (.validation/mon08-runtime-focused.log). Helper DELETE do Mailpit corrigido para aceitar corpo textual, sem alterar nenhuma assertion.
+
+Gate T4: docker compose run --build --rm tests; exit 0, BUILD SUCCESS, 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. docker compose build app: exit 0. Logs .validation/mon08-t4.log e .validation/mon08-build.log.
+

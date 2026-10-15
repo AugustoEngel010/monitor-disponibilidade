@@ -75,7 +75,7 @@ T1 → T2 → T3 → T4 → T5
 **Depends on**: T3
 **Requirement**: MAIL-02/05/07
 **Done when**:
-- [ ] NotificationRuntimeIT prova restart PENDING/SENDING, falha de confirmação local e isolamento do processamento; Full passa.
+- [x] NotificationRuntimeIT: seis cenários; Full: 386 testes (144 unitários/242 IT), zero falhas/erros/skips/Checkstyle. Runtime Docker construído com sucesso.
 **Tests**: integration
 **Gate**: full
 **Commit**: feat(mon-08): run asynchronous notification delivery

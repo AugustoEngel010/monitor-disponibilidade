@@ -1,4 +1,7 @@
 monitor:
+  notifications:
+    enabled: ${MONITOR_NOTIFICATIONS_ENABLED:true}
+    poll-ms: ${MONITOR_NOTIFICATIONS_POLL_MS:250}
   smtp:
     host: ${SMTP_HOST:smtp}
     port: ${SMTP_PORT:1025}
