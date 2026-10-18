@@ -46,7 +46,8 @@ class NotificationSchemaIT {
             processor.process(result.executionId());
             var before = jdbc.queryForMap("SELECT * FROM monitor.notification_intents");
             var history = jdbc.queryForList("SELECT * FROM flyway_schema_history ORDER BY installed_rank");
-            var flyway = Flyway.configure().dataSource(source).load();
+            // Keep this MON-08 upgrade contract scoped to V5 -> V6 as new migrations are added.
+            var flyway = Flyway.configure().dataSource(source).target("6").load();
             assertThat(flyway.migrate().migrationsExecuted).isEqualTo(1);
             assertThat(flyway.migrate().migrationsExecuted).isZero();
             assertThat(jdbc.queryForList("SELECT * FROM flyway_schema_history WHERE version <> '6'"

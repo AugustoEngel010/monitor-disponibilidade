@@ -83,6 +83,14 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Scope**: MON-08 a MON-11; histórico SQL consultável nesta entrega; API de consulta em MON-09 e retenção referencial em MON-11. Mailpit local; configuração SMTP externa com timeouts finitos.
 - **Date**: 2026-10-15
 - **Status**: active
+### AD-011
+- **Decision**: MON-09 consulta em snapshot REPEATABLE_READ, UTC e janelas semiabertas. V7 registra épocas de geração/política/ciclo no mesmo commit administrativo via trigger; cobertura usa somente observações externas APPLIED cortadas pela época. Taxa usa resultados externos brutos e identifica amostragem, separada da duração de incidentes.
+- **Reason**: Reconstruir pausas e mudanças de política sem fabricar observação nem misturar dimensões de estado para MON-10.
+- **Trade-off**: Histórico anterior de geração maior que 1 não permite reconstrução; coverageKnownFrom explicita o instante da migração. Paginação offset é consistente por resposta, sem congelar páginas entre requisições. Retenção MON-11 deve manter épocas e informar seu próprio limite separadamente.
+- **Scope**: MON-09 a MON-11; PROD-34/35/36; MON-09-AC01 a MON-09-AC07.
+- **Date**: 2026-10-18
+- **Status**: active
+
 ## Handoff
 
 - **Feature**: MON-08; `.specs/features/mon-08-notificacoes/`.

@@ -59,13 +59,14 @@ class MonitorRepositoryIT {
     void migrationUpgradesV1AndIsNeverReapplied() {
         var history = jdbc.queryForList("SELECT version, checksum, installed_on FROM public.flyway_schema_history"
                 + " ORDER BY installed_rank");
-        assertThat(history).hasSize(6);
+        assertThat(history).hasSize(7);
         assertThat(history.get(0).get("version")).isEqualTo("1");
         assertThat(history.get(1).get("version")).isEqualTo("2");
         assertThat(history.get(2).get("version")).isEqualTo("3");
         assertThat(history.get(3).get("version")).isEqualTo("4");
         assertThat(history.get(4).get("version")).isEqualTo("5");
         assertThat(history.get(5).get("version")).isEqualTo("6");
+        assertThat(history.get(6).get("version")).isEqualTo("7");
         var flyway = Flyway.configure().dataSource(db.getJdbcUrl(), db.getUsername(), db.getPassword())
                 .defaultSchema("public").load();
         assertThat(flyway.migrate().migrationsExecuted).isZero();
@@ -112,7 +113,7 @@ class MonitorRepositoryIT {
         service = context.getBean(MonitorService.class);
         assertThat(service.get(monitor.id())).isEqualTo(monitor);
         assertThat(jdbc.queryForObject("SELECT count(*) FROM public.flyway_schema_history", Integer.class))
-                .isEqualTo(6);
+                .isEqualTo(7);
     }
 
     @Test

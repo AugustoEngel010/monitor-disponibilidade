@@ -58,7 +58,7 @@ O painel MON-10 precisa consultar evidências e indicadores sem confundir pausa,
 
 ## Edge Cases
 
-- Janela vazia/invertida/futura, timestamp sem fuso ou submicrossegundo, campos desconhecidos ou repetidos: 400 por campo; offset explícito normalizado a UTC.
+- Janela vazia/invertida/futura, timestamp sem fuso ou submicrossegundo, campos desconhecidos ou repetidos: 400 por campo; offset explícito normalizado a UTC. Calendário técnico de 0001-01-02 a 9999-12-30, permitindo aritmética/JDBC limitada.
 - Empates de horários com UUIDs conhecidos, filtros isolam monitores, offset grande sem overflow, nenhum resultado ou página excedente com totais reais.
 - Frescor em L exato é FRESH; L+1µs é STALE; futuro é STALE; contadores antigos não exibem confirmação quando stale; recuperação saturada em UP não significa confirmação.
 - Cobertura C-16: t=0 e t=200, I=60/T=5, [0,300): lacuna [125,200). C-20: observação 0, pausa 30, retomada 40, observação 60: lacuna [30,60).

@@ -23,7 +23,8 @@ Guidelines: README.md, pom.xml, config/checkstyle.xml, CI. Amostras: MonitorApiI
 | Gate Level | When to Use | Command |
 | --- | --- | --- |
 | Quick | T1 | docker compose run --build --rm tests mvn --batch-mode --no-transfer-progress test |
-| Full | T2?T5 | docker compose run --build --rm tests |
+| Full | T2 e fechamento integrais | docker compose run --build --rm tests |
+| Full | T3-T5 consultas | docker compose run --build --rm tests mvn --batch-mode --no-transfer-progress -Dit.test=HistoryQueriesIT,SummaryQueriesIT,QueryApiIT -Dfailsafe.failIfNoSpecifiedTests=false verify |
 | Build | T6 | Full; docker compose build app; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild |
 
 ## Execution Plan
@@ -52,7 +53,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Depends on**: T1
 **Requirement**: READ-05
 **Done when**:
-- [ ] ObservationEpochIT cobre pausa, pol?tica, idempot?ncia, rollback e upgrade; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
+- [x] ObservationEpochIT cobre pausa, pol?tica, idempot?ncia, rollback e upgrade; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
 **Tests**: integration
 **Gate**: full
 
