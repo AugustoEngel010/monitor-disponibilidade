@@ -83,7 +83,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Depends on**: T4
 **Requirement**: READ-01/02/03/08/09
 **Done when**:
-- [ ] QueryApiIT cobre quatro rotas, valida??o, 404 e 401; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
+- [x] QueryApiIT cobre quatro rotas, valida??o, 404 e 401; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
 **Tests**: integration
 **Gate**: full
 

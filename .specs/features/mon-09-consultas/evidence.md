@@ -50,3 +50,16 @@ Gate Full selecionado: BUILD SUCCESS, 164 unitarios + 17 IT (13 novas de resumo 
 | READ-03 estados | SummaryQueriesIT.java:162-222 exige todos os rotulos, frescor L/L+1us e incidente/ultima observacao preservados | Dimensoes independentes | Sim |
 
 Reverse mapping: os 13 casos de SummaryQueriesIT cobrem READ-03 a READ-07, READ-09 inexistente e edge cases listados. Assertions de cada campo do resumo e metricas verificam valores, nao chamadas. Adequacao A-D aprovada. Fixture acrescenta status HTTP nullable via switch para resultados sem status; nenhuma assertion anterior alterada.
+
+## T5
+
+Gate Full selecionado: BUILD SUCCESS, 164 unitarios + 43 IT (26 HTTP novas), zero falhas/erros/skips/Checkstyle. `.validation/mon09-t5.log`. Quatro rotas reais sob Basic, no-store, filtros por recurso e convencao de erros preservados.
+
+| Criterio | Evidencia e assertion | Outcome | Coberto |
+| --- | --- | --- | --- |
+| READ-01/02/03/08 HTTP | QueryApiIT.java:118-160 payload real de check/incidente/notificacao/resumo, pagina excedente e totais | Contratos JSON e IDs relacionados | Sim |
+| READ-09 inexistente/invalido/401 | QueryApiIT.java:80-90 status 404/400/401 e MONITOR_NOT_FOUND | Mesmo erro administrativo | Sim |
+| READ-09 filtros | QueryApiIT.java:108 `response.statusCode()).isEqualTo(400)`; :110 `isEqualTo("VALIDATION_ERROR")` | 21 combinacoes de campos/rotas | Sim |
+| READ-05 vazio | QueryApiIT.java:64-77 SEM_DADOS/null ou items vazio com pagina/totais | Estados vazios explicitos | Sim |
+
+Reverse mapping: todos os 26 casos HTTP pertencem a READ-01/02/03/08/09 e casos vazios de READ-05; testes comprovam saida HTTP e preservacao SQL. Adequacao A-D aprovada. QueryErrors reutiliza o envelope MonitorErrors.Error, sem alterar a chain global Basic/CSRF.
