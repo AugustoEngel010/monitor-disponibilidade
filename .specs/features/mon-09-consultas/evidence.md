@@ -23,3 +23,16 @@ Gate integral Docker: BUILD SUCCESS, 408 testes (164 unitarios/244 IT), zero fal
 | READ-05 rollback/politica | ObservationEpochIT.java:66 `isEqualTo(3)`; :69 `isEqualTo(21)` | Rollback integral e novo L=21 | Sim |
 
 Reverse mapping: todas as assertions de ObservationEpochIT.java:39-71 cobrem READ-05/edge upgrade e transacao. Adequacao A-D aprovada; SQL PostgreSQL real, sem mocks ou testes removidos. Baseline +21 testes preservada.
+
+## T3
+
+Gate Full selecionado: Docker tests mvn verify com -Dit.test=HistoryQueriesIT,SummaryQueriesIT,QueryApiIT e -Dfailsafe.failIfNoSpecifiedTests=false. BUILD SUCCESS: 164 unitarios + 4 IT novas, zero falhas/erros/skips/Checkstyle; `.validation/mon09-t3.log`. PowerShell requer propriedades -D entre aspas simples.
+
+| Criterio | Evidencia e assertion | Outcome | Coberto |
+| --- | --- | --- | --- |
+| READ-01 filtros/empates | HistoryQueriesIT.java:33 `containsExactly(uuid(5), uuid(4), uuid(3), uuid(2), uuid(1))` | Cinco sucessos, DESC sem sobreposicao | Sim |
+| READ-01/09 paginas/404 | HistoryQueriesIT.java:55 `beyond.items()).isEmpty()`; :70 `problem.status()).isEqualTo(404)` | Vazio com totais, 404 | Sim |
+| READ-02 tempos/duracao | HistoryQueriesIT.java:99 `ageSeconds()).isEqualByComparingTo("599.9")`; :111 `estimatedDurationSeconds()).isEqualByComparingTo("180.9")` | Idade aberta e duracao final separadas | Sim |
+| READ-08 notificacoes | HistoryQueriesIT.java:145 `first.items().getFirst().id()).isEqualTo(uuid(11))`; :160 `containsExactly(1, 2)` | Ordem UUID e tentativas numeradas | Sim |
+
+Reverse mapping: HistoryQueriesIT inteiro cobre READ-01/02/08/09 e seus casos vazios/limites; QueryFixture so prepara dados controlados. Payloads tem assertions individuais de IDs/versoes/instantes/classificacao/status/erros. Adequacao A-D aprovada; nenhuma alteracao de teste anterior.

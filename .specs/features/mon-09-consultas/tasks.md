@@ -63,7 +63,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Depends on**: T2
 **Requirement**: READ-01/02/08
 **Done when**:
-- [ ] HistoryQueriesIT cobre filtros, empate, p?ginas vazias e payloads; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
+- [x] HistoryQueriesIT cobre filtros, empate, p?ginas vazias e payloads; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
 **Tests**: integration
 **Gate**: full
 
