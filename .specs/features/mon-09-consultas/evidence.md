@@ -36,3 +36,17 @@ Gate Full selecionado: Docker tests mvn verify com -Dit.test=HistoryQueriesIT,Su
 | READ-08 notificacoes | HistoryQueriesIT.java:145 `first.items().getFirst().id()).isEqualTo(uuid(11))`; :160 `containsExactly(1, 2)` | Ordem UUID e tentativas numeradas | Sim |
 
 Reverse mapping: HistoryQueriesIT inteiro cobre READ-01/02/08/09 e seus casos vazios/limites; QueryFixture so prepara dados controlados. Payloads tem assertions individuais de IDs/versoes/instantes/classificacao/status/erros. Adequacao A-D aprovada; nenhuma alteracao de teste anterior.
+
+## T4
+
+Gate Full selecionado: BUILD SUCCESS, 164 unitarios + 17 IT (13 novas de resumo e 4 de historico), zero falhas/erros/skips/Checkstyle. `.validation/mon09-t4.log`. O primeiro PostgreSQL detectou alias reservado `end`; corrigido para coverage_end sem alterar testes.
+
+| Criterio | Evidencia e assertion | Outcome | Coberto |
+| --- | --- | --- | --- |
+| READ-04/06/07 | SummaryQueriesIT.java:31-37 `metricType` CHECK_SUCCESS_SAMPLING, total13/valid10/success8/latency8, `80.00` e `100.00` | Oito S + duas F, tres excluidos | Sim |
+| READ-05 sem dados | SummaryQueriesIT.java:67-75 NO_DATA, contagens zero, percent/latencia null, lacuna integral | Sem inventar percentual | Sim |
+| READ-05 cobertura | SummaryQueriesIT.java:101-109 `containsExactly(Period(125,200))`, anterior a janela sem amostras e uniao completa | C-16 | Sim |
+| READ-05 pausa/politica | SummaryQueriesIT.java:126-148 lacuna 30-60, 80-90,111-120 e igualdade apos nome | C-20 e mudanca de L | Sim |
+| READ-03 estados | SummaryQueriesIT.java:162-222 exige todos os rotulos, frescor L/L+1us e incidente/ultima observacao preservados | Dimensoes independentes | Sim |
+
+Reverse mapping: os 13 casos de SummaryQueriesIT cobrem READ-03 a READ-07, READ-09 inexistente e edge cases listados. Assertions de cada campo do resumo e metricas verificam valores, nao chamadas. Adequacao A-D aprovada. Fixture acrescenta status HTTP nullable via switch para resultados sem status; nenhuma assertion anterior alterada.

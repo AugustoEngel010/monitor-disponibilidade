@@ -73,10 +73,13 @@ abstract class QueryFixture {
     CheckResult check(Monitor target, int id, long second, CheckResult.Outcome outcome, long nanos, boolean applied) {
         var state = monitors.find(target.id(), false).orElseThrow().state();
         var time = base.plusSeconds(second);
+        Integer httpStatus = switch (outcome) {
+            case SUCCESS -> 200;
+            case HTTP_FAILURE -> 503;
+            default -> null;
+        };
         var result = checks.save(new CheckResult(target.id(), uuid(id), state.configurationVersion(),
-                state.executionGeneration(), time, time, nanos, outcome,
-                outcome == CheckResult.Outcome.SUCCESS ? 200
-                        : outcome == CheckResult.Outcome.HTTP_FAILURE ? 503 : null));
+                state.executionGeneration(), time, time, nanos, outcome, httpStatus));
         if (applied) {
             jdbc.update("INSERT INTO monitor.result_applications VALUES (?,'APPLIED',?)",
                     result.executionId(), Timestamp.from(time));

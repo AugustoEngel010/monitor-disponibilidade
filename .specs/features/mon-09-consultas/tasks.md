@@ -73,7 +73,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Depends on**: T3
 **Requirement**: READ-03/04/05/06/07
 **Done when**:
-- [ ] SummaryQueriesIT cobre rel?gio fixo, m?tricas, estados e cobertura; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
+- [x] SummaryQueriesIT cobre rel?gio fixo, m?tricas, estados e cobertura; gate sem falhas/erros/skips/Checkstyle, baseline de 387 testes preservada.
 **Tests**: integration
 **Gate**: full
 
