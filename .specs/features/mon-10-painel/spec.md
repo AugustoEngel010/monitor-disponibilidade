@@ -1,6 +1,6 @@
 # MON-10: painel administrativo
 
-**Data:** 2026-10-19. **Status:** implementação e gates do autor concluídos; aguardando Verifier independente automático.
+**Data:** 2026-10-19. **Status:** T8 corrigiu gap de teste dos instantes, 48/48 UI PASS; re-verificação independente pendente.
 **Origem:** MON-10-AC01 até MON-10-AC06; AD-001 a AD-011.
 
 ## Problem Statement
@@ -62,6 +62,17 @@ O operador precisa administrar monitores e explicar seu funcionamento no navegad
 - Duração 180.9 s permanece 180,9 s na apresentação pt-BR. ACCEPTED é Aceita pelo SMTP, sem prometer caixa postal.
 - Falha de transporte após escrita informa resultado não confirmado e orienta conferir antes de repetir.
 
+## Oráculo dos instantes de incidente (AC04 / T8)
+
+O cenário fracionário de docs/queries.md fixa quatro valores distintos no histórico CLOSED. Cada campo apresentado deve preservar seu próprio datetime, sem usar o timestamp de outro campo. No currentIncident OPEN sem recuperação observada, os dois últimos campos aparecem como Sem registro, sem elemento time.
+
+| Campo / texto | CLOSED no histórico | OPEN no resumo |
+| --- | --- | --- |
+| firstFailureAt / Primeira falha | 2026-10-18T12:00:00.100Z | 2026-10-18T12:00:00Z |
+| downConfirmedAt / Queda confirmada | 2026-10-18T12:02:00Z | 2026-10-18T12:02:00Z |
+| recoveryStartedAt / Início da recuperação | 2026-10-18T12:03:01Z | null: Sem registro |
+| recoveredAt / Recuperação confirmada | 2026-10-18T12:04:00Z | null: Sem registro |
+
 ## Dimensões implícitas
 
 Validação/bounds: MON-04 continua autoridade, erros ligados a campos. Falha parcial: seções independentes e mensagens, sem reenvio de escrita. Idempotência: GET pode repetir explicitamente, POST nunca automaticamente. Auth: Basic/CSRF global; throttling novo N/A ao operador local. Concorrência: bloqueio de envio e descarte de renderizações antigas. Ciclo/expiração: CSRF expirado requer nova tentativa consciente e nova leitura de token, sem persistir credenciais. Observabilidade: mensagens fixas e evidências de teste, sem expor erros brutos de infraestrutura. Dependências: backend real, falha de consulta não vira queda. Transições: somente backend confirma. Pagamentos N/A, sem cobrança.
@@ -73,7 +84,7 @@ Validação/bounds: MON-04 continua autoridade, erros ligados a campos. Falha pa
 | PANEL-01 | MON-10-AC01 | T2 | list.spec.js | Verified |
 | PANEL-02 | MON-10-AC02 | T3 | form.spec.js | Verified |
 | PANEL-03 | MON-10-AC03 | T4 | lifecycle.spec.js | Verified |
-| PANEL-04 | MON-10-AC04 | T5 | details.spec.js | Verified |
+| PANEL-04 | MON-10-AC04 | T5,T8 | details.spec.js | Verified |
 | PANEL-05 | MON-10-AC05 | T1,T2,T3,T5 | security.spec.js, list.spec.js, form.spec.js, details.spec.js | Verified |
 | PANEL-06 | MON-10-AC06 | T1,T6,T7 | security.spec.js, responsive.spec.js | Verified |
 

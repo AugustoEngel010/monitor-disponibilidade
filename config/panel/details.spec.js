@@ -40,7 +40,7 @@ test('MON-10-AC04/05 exibe métricas e duração fracionária recebidas sem reca
       statistics: {metricType: 'CHECK_SUCCESS_SAMPLING', dataStatus: 'HAS_DATA', totalChecks: 13,
         validSamples: 10, successSamples: 8, latencySamples: 8, successRatePercent: 80, averageResponseTimeMs: 100},
       currentIncident: {id: 'old-open', status: 'OPEN', firstFailureAt: '2026-10-18T12:00:00Z',
-        downConfirmedAt: '2026-10-18T12:02:00Z', ageSeconds: 100.9},
+        downConfirmedAt: '2026-10-18T12:02:00Z', recoveryStartedAt: null, recoveredAt: null, ageSeconds: 100.9},
       noObservationPeriods: [{from: '2026-10-18T12:02:05Z', to: '2026-10-18T12:03:20Z'}]}});
   });
   await page.route(`**/monitors/${monitor.id}/incidents?*`, route => route.fulfill({json: {
@@ -58,6 +58,26 @@ test('MON-10-AC04/05 exibe métricas e duração fracionária recebidas sem reca
   await expect(page.getByTestId('state-label')).toHaveText('Dados antigos');
   await expect(page.getByRole('region', {name: 'Incidente atual'})).toContainText('100,9 s');
   await expect(page.getByRole('region', {name: 'Incidentes', exact: true})).toContainText('180,9 s');
+  const history = page.getByRole('region', {name: 'Incidentes', exact: true});
+  for (const [caption, timestamp] of [
+    ['Primeira falha', '2026-10-18T12:00:00.100Z'],
+    ['Queda confirmada', '2026-10-18T12:02:00Z'],
+    ['Início da recuperação', '2026-10-18T12:03:01Z'],
+    ['Recuperação confirmada', '2026-10-18T12:04:00Z']
+  ]) {
+    await expect(history.locator('p').filter({hasText: caption + ':'}).locator('time'))
+      .toHaveAttribute('datetime', timestamp);
+  }
+  const current = page.getByRole('region', {name: 'Incidente atual'});
+  await expect(current.locator('p').filter({hasText: 'Primeira falha:'}).locator('time'))
+    .toHaveAttribute('datetime', '2026-10-18T12:00:00Z');
+  await expect(current.locator('p').filter({hasText: 'Queda confirmada:'}).locator('time'))
+    .toHaveAttribute('datetime', '2026-10-18T12:02:00Z');
+  for (const caption of ['Início da recuperação', 'Recuperação confirmada']) {
+    const field = current.locator('p').filter({hasText: caption + ':'});
+    await expect(field).toHaveText(caption + ': Sem registro');
+    await expect(field.locator('time')).toHaveCount(0);
+  }
   await expect(page.getByText('Taxa de sucesso por amostragem')).toBeVisible();
   await page.getByText('Períodos sem observação (1)').click();
   await expect(page.locator('time[datetime="2026-10-18T12:02:05Z"]')).toBeVisible();

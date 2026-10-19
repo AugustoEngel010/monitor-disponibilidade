@@ -38,6 +38,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: T9; src/test/java/br/com/monitor/QueryParametersTest.java:21 (query)
 - last seen: 2026-10-19T00:34:23Z
 
+### L-005 - Assert each incident timestamp against its own API field and label using distinct fixture instants.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `panel` · harmful: 0
+- features: mon-10-painel
+- evidence: m6-instants (panel)
+- last seen: 2026-10-19T22:24:34Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 5,
+  "next_id": 6,
   "lessons": [
     {
       "id": "L-001",
@@ -76,6 +76,24 @@
       ],
       "created": "2026-10-19T00:34:23Z",
       "last_seen": "2026-10-19T00:34:23Z"
+    },
+    {
+      "id": "L-005",
+      "key": "surviving_mutant::assert each incident timestamp against its own api field and label using distinct fixture instants",
+      "text": "Assert each incident timestamp against its own API field and label using distinct fixture instants.",
+      "signal": "surviving_mutant",
+      "scope": "panel",
+      "status": "candidate",
+      "features": [
+        "mon-10-painel"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "m6-instants (panel)"
+      ],
+      "created": "2026-10-19T22:24:34Z",
+      "last_seen": "2026-10-19T22:24:34Z"
     }
   ]
 }

@@ -4,7 +4,7 @@
 
 Executar com a skill tlc-spec-driven, gate por task, revisão de adequação, commit atômico e Verifier independente ao concluir. Execução local autorizada pelo pedido; ferramentas de filesystem, Git e Docker. Não publicar.
 
-**Design:** [design.md](design.md). **Status:** Done; gates do autor aprovados, Verifier independente é o próximo passo obrigatório.
+**Design:** [design.md](design.md). **Status:** Done; T8 corrigida, re-verificação independente obrigatória pendente.
 
 ## Test Coverage Matrix
 
@@ -31,7 +31,7 @@ Derivada de pom.xml, config/checkstyle.xml, README e CI; amostras MonitorApiIT, 
 ### Phase 1: Painel
 
 ```text
-T1 → T2 → T3 → T4 → T5 → T6 → T7
+T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8
 ```
 
 ## Task Breakdown
@@ -127,6 +127,19 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Tests**: none, camada documental; executa regressão existente como gate
 **Gate**: Build
 
+### T8: Verificar os valores dos quatro instantes do incidente
+
+**What**: Reforçar o teste de apresentação para comparar cada datetime com o contrato, no histórico e incidente atual.
+**Where**: `config/panel/details.spec.js`
+**Depends on**: T7
+**Requirement**: PANEL-04
+**Support files**: spec/tasks/evidence, validation.md inicial FAIL e lição L-005 produzidos pelo Verifier.
+**Assumptions**: Código original correto; gap comprovado por m6 sobrevivente. Nenhuma assertion existente será removida ou enfraquecida.
+**Done when**:
+- [x] Quatro instantes distintos do CLOSED, dois instantes conhecidos e dois ausentes do OPEN têm assertions de valores; suíte completa passa (48/48) e commit local inclui relatório inicial, aguardando re-verificação independente de m6.
+**Tests**: e2e
+**Gate**: Full, suíte completa em projeto descartável novo
+
 ## Diagram-Definition Cross-Check
 
 | Task | Depends On | Diagram Shows | Status |
@@ -138,6 +151,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 | T5 | T4 | T4 | Match |
 | T6 | T5 | T5 | Match |
 | T7 | T6 | T6 | Match |
+| T8 | T7 | T7 | Match |
 
 ## Test Co-location Validation
 
@@ -150,5 +164,6 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 | T5 | Detalhes | e2e | e2e | OK |
 | T6 | Estilos | e2e | e2e | OK |
 | T7 | Docs | none | none | OK |
+| T8 | Detalhes | e2e | e2e | OK |
 
-Sete entregáveis coesos, uma fase, execução inline. Verifier independente automático após T7 conforme skill.
+Oito entregáveis coesos, uma fase, execução inline. Verifier inicial após T7 encontrou gap de discriminação; re-verificação automática após T8.

@@ -116,3 +116,21 @@ Baseline e final Java: 459, sem remoção ou alteração de testes Java; delta U
 Adequação T7: camada documental/configuração não requer teste novo. Os comandos reais do README/CI foram exercitados pelos gates acima; referências apontam para assertions das T1..T6. Reverse mapping permanece limitado aos seis ACs. A-D PASS; sem desvios de spec. Projetos mon10-panel-final e mon02-smoke-83e9ec7f7eb2 removidos; somente os serviços panel-app/panel-db do projeto de desenvolvimento foram removidos, sem remover rede/volumes ou serviços do operador.
 
 O Verifier independente produzirá validation.md e sensor isolado após este commit; conclusão do backlog depende desse relatório PASS.
+
+## T8: reforço após Verifier inicial
+
+Verifier inicial independente: baseline 48/48, cinco mutantes mortos e um sobrevivente. m6 trocou downConfirmedAt por firstFailureAt sem que os testes detectassem; implementação original correta, cobertura insuficiente do valor dos instantes. Relatório inicial FAIL em validation.md e lição L-005 candidate produzidos pelo Verifier e preservados neste commit. O fechamento depende de re-verificação PASS.
+
+Arquivos de código: somente details.spec.js. O cenário CLOSED de docs/queries.md usa quatro timestamps distintos. O OPEN usa dois conhecidos e recuperação explicitamente null, conforme o DTO real. Todas as assertions anteriores permanecem, com 20 linhas adicionais; nenhum teste removido, pulado ou enfraquecido. Spec registra o oráculo antes do reforço.
+
+| AC / done-when | Assertion file:line | Outcome | Coberto |
+| --- | --- | --- | --- |
+| AC04 quatro instantes CLOSED | config/panel/details.spec.js:69 `.toHaveAttribute('datetime', timestamp)` com pares caption/timestamp em :63..66 | Primeira .100Z, queda 12:02, início recuperação 12:03:01, confirmação recuperação 12:04 | Sim |
+| AC04 instantes OPEN conhecidos | config/panel/details.spec.js:73 datetime=12:00:00Z; :75 datetime=12:02:00Z | Campos distintos preservados no currentIncident | Sim |
+| AC04 instantes OPEN ausentes | config/panel/details.spec.js:78 `toHaveText(caption + ': Sem registro')`; :79 `toHaveCount(0)` para time | Nenhum instante de recuperação inventado | Sim |
+
+Reverse mapping: todas as assertions adicionais derivam de AC04 e do gap m6. Adequação A-D PASS. Referências das tabelas T1–T6 são relativas aos respectivos commits; T8 desloca as linhas posteriores de details.spec.js, e o relatório independente final registrará as posições atuais.
+
+Gates: Full inicial `.validation/mon10-t8-ui.log` 48/48 PASS. Uma repetição reutilizando backend entre runners recebeu DNS_FAILURE em vez do HTTP503 esperado pelo alvo controlado (47/48); mantida a assertion, recriados app/DB próprios como no roteiro README. Full final `.validation/mon10-t8-ui-clean.log`: **48/48 PASS, zero skips, exit 0, 1.5m**, com campos null explícitos. Comandos: build panel-tests; `docker compose -p mon10-panel-t8 --profile panel-tests down`; `docker compose -p mon10-panel-t8 --profile panel-tests run --use-aliases --rm panel-tests`. O build/runtime existente tem produção idêntica, sem mudança de Java, JS de produção, CSS ou contratos desde T7; gates 459 Java/runtime/smoke permanecem aplicáveis.
+
+UAT humano: usuário respondeu **Vou conferir depois** à oferta de revisão mobile. Registrado como adiado pelo usuário, sem afirmar aprovação humana. Verificações automáticas e inspeção visual do autor permanecem documentadas.
