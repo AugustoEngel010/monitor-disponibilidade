@@ -61,3 +61,21 @@ Premissas/arquivos: lifecycle.js, app.js e lifecycle.spec.js/target.js; nenhum e
 | AC02 incidente/política real | config/panel/lifecycle.spec.js:77 409 explícito; :78/79 valores preservados; :81 nome original; :82 intervalo10; :83 incidente não nulo | PUT rejeitado integralmente | Sim |
 
 Reverse mapping: nove testes se dividem em fluxo real, confirmação pendente, seis falhas por rota e conflito real; todos ligados a AC02/03/05. Adequação A-D PASS; sem testes removidos/pulados ou assertions enfraquecidas.
+
+## T5: detalhes
+
+Premissas/arquivos: details.js e details.spec.js; nenhum indicador ou duração de incidente recalculado, histórico independente por recurso, filtros ISO com offset preservado. Build Docker aprovado; oito testes iniciais PASS, ampliados para paginação de cada recurso e resposta atrasada. Runner reconstruído por `docker compose --profile panel-tests build panel-tests`; execução `run --no-deps --use-aliases --rm panel-tests details.spec.js`, exit 0, 11/11 em 34.7s. Backend reutilizado sem mudança de produção entre as execuções. Logs `.validation/mon10-t5-build.log`, `.validation/mon10-t5-ui-final.log`.
+
+| AC / done-when | Assertion file:line | Outcome | Coberto |
+| --- | --- | --- | --- |
+| AC04 fluxo real | config/panel/details.spec.js:14..21 HTTP503/incidente/PENDING/destinatário/count0; :24 UP real; :26..30 Encerrado/quatro instantes/notificação recuperação; :32 duração igual à API | Incidente aberto e recuperação reais | Sim |
+| AC04/05 métricas da API | config/panel/details.spec.js:52 `toHaveText('80%')`; :53 100ms; :54..56 counts10/13/8; :57 Dados antigos; :58 idade100,9; :59 duração180,9 | Amostragem separada, frações preservadas | Sim |
+| AC05 null/zero | config/panel/details.spec.js:76..77 `toHaveText(value === null ? 'Sem dados' : '0%')` / 0ms | Ausência distinta de zero | Sim |
+| AC04 filtros reais/janela | config/panel/details.spec.js:90 vazio CLOSED; :99..100 status/type; :110..111 offset preservado e somente from/to; :112 Sem dados; :113 atual aberto | Sem filtrar incidente atual pela janela | Sim |
+| AC04 paginação checks | config/panel/details.spec.js:125 check-page-1; :132..134 page0/size1/outcomeTIMEOUT | Filtros reiniciam página | Sim |
+| AC04 notificações | config/panel/details.spec.js:149..155 SMTP/destinatário/transitionId/count2/SMTP_UNCERTAIN/horário exato; :156 sem promessa de caixa postal | Snapshot e tentativas | Sim |
+| AC04 paginação incidentes/notificações | config/panel/details.spec.js:171 página1; :172 Próxima disabled; :174 outro histórico página0 | Controles independentes | Sim |
+| AC05/06 falhas e validação | config/panel/details.spec.js:183 401; :184 503; :185 seção saudável vazia; :189..191 erro/input intacto/aria-invalid | Falhas por seção, sem mascarar acesso | Sim |
+| AC05 navegação | config/panel/details.spec.js:209 rascunho preservado; :210 Resumo count0 | Resposta antiga não substitui formulário | Sim |
+
+Reverse mapping: 11 testes correspondem às linhas acima (dois casos null/zero, dois paginadores). Adequação A-D PASS; todos derivados de AC04/05/06 e edges explícitos. Nenhum teste removido/pulado; nenhuma assertion afrouxada.

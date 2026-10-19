@@ -96,7 +96,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Support files**: app.js, details.spec.js.
 **Assumptions**: Período opcional ISO com offset; summary usa somente from/to.
 **Done when**:
-- [ ] Resultados, quatro instantes, duração fracionária, tentativas, indicadores, filtros, páginas, erros e nulos têm assertions em details.spec.js.
+- [x] Resultados, quatro instantes, duração fracionária, tentativas, indicadores, filtros, páginas, erros e nulos têm assertions em details.spec.js (11/11, exit 0).
 **Tests**: e2e
 **Gate**: Full, details.spec.js
 
