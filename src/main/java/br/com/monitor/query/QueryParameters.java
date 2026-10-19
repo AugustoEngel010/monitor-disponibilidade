@@ -31,20 +31,20 @@ public record QueryParameters(Instant from, Instant to, int page, int size,
         int size = number(values.getFirst("size"), "size", 20, 1, 100, errors);
         Instant to = instant(values.getFirst("to"), "to", now, errors);
         Instant from = instant(values.getFirst("from"), "from", to.minusSeconds(86400), errors);
-        if (!from.isBefore(to)) { errors.put("from", "must precede to"); }
-        if (to.isAfter(now)) { errors.put("to", "must not be in the future"); }
+        if (!from.isBefore(to)) { errors.putIfAbsent("from", "must precede to"); }
+        if (to.isAfter(now)) { errors.putIfAbsent("to", "must not be in the future"); }
         String outcome = values.getFirst("outcome");
         if (outcome != null) {
             try { Outcome.valueOf(outcome); }
-            catch (IllegalArgumentException exception) { errors.put("outcome", "must be a check outcome"); }
+            catch (IllegalArgumentException exception) { errors.putIfAbsent("outcome", "must be a check outcome"); }
         }
         String status = values.getFirst("status");
         Set<String> statuses = "incidents".equals(resource) ? Set.of("OPEN", "CLOSED")
                 : Set.of("PENDING", "SENDING", "ACCEPTED", "EXHAUSTED");
-        if (status != null && !statuses.contains(status)) { errors.put("status", "must be a resource status"); }
+        if (status != null && !statuses.contains(status)) { errors.putIfAbsent("status", "must be a resource status"); }
         String type = values.getFirst("type");
         if (type != null && !Set.of("DOWN", "RECOVERY").contains(type)) {
-            errors.put("type", "must be DOWN or RECOVERY");
+            errors.putIfAbsent("type", "must be DOWN or RECOVERY");
         }
         if (!errors.isEmpty()) { throw MonitorProblem.invalid(errors); }
         return new QueryParameters(from, to, page, size, outcome, status, type);
@@ -69,7 +69,7 @@ public record QueryParameters(Instant from, Instant to, int page, int size,
             if (value < min || value > max) { throw new NumberFormatException(); }
             return value;
         } catch (NumberFormatException exception) {
-            errors.put(field, "must be an integer between " + min + " and " + max);
+            errors.putIfAbsent(field, "must be an integer between " + min + " and " + max);
             return fallback;
         }
     }
@@ -85,7 +85,7 @@ public record QueryParameters(Instant from, Instant to, int page, int size,
             }
             return value;
         } catch (DateTimeException exception) {
-            errors.put(field, "must be an ISO-8601 timestamp with offset and at most microsecond precision");
+            errors.putIfAbsent(field, "must be an ISO-8601 timestamp with offset and at most microsecond precision");
             return fallback;
         }
     }

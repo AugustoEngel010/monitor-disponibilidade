@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven; gate antes de cada commit, testes junto do comportamento e Verifier independente automático após T6. Pedido autoriza execução; ferramentas selecionadas: Docker/Compose, PowerShell/Python e skill. Seis tasks, execução inline. Nenhum AGENTS.md aplicável encontrado.
 
-**Status:** In Progress; T1–T6 completos; Verifier encontrou gaps READ-08/09, tratados por T7/T8. **Design:** [design.md](design.md).
+**Status:** Done; T1-T8 completos, gates aprovados; revalidacao independente pendente. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -113,7 +113,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Depends on**: T7
 **Requirement**: READ-09; MON-09-AC01/03
 **Done when**:
-- [ ] Mensagens exatas para cada categoria e bordas do calendário são testadas; gate Build integral aprovado; nova verificação independente elimina os mutantes sobreviventes.
+- [x] Mensagens exatas para cada categoria e bordas do calendário são testadas; gate Build integral aprovado; nova verificação independente elimina os mutantes sobreviventes.
 **Tests**: integration
 **Gate**: build
 

@@ -28,6 +28,8 @@ import static br.com.monitor.monitoring.CheckResult.Outcome;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class QueryApiIT extends QueryFixture {
+    private static final String TIMESTAMP_ERROR =
+            "must be an ISO-8601 timestamp with offset and at most microsecond precision";
     private final HttpClient client = HttpClient.newHttpClient();
     private final ObjectMapper json = new ObjectMapper();
     private final String credentials = "Basic " + Base64.getEncoder().encodeToString(
@@ -94,21 +96,31 @@ class QueryApiIT extends QueryFixture {
     }
 
     @ParameterizedTest
-    @CsvSource({"checks,page=-1,page", "checks,size=101,size", "checks,outcome=BAD,outcome",
-        "checks,page=0&page=1,page", "checks,from=2026-10-18T12:10:00Z,from",
-        "checks,to=2026-10-18T12:10:01Z,to", "checks,from=2026-10-18T12:00:00,from",
-        "checks,unknown=value,unknown", "checks,status=OPEN,status", "incidents,status=PENDING,status",
-        "incidents,size=0,size", "incidents,to=bad,to", "incidents,outcome=SUCCESS,outcome",
-        "notifications,status=OPEN,status", "notifications,type=BAD,type", "notifications,page=1.5,page",
-        "notifications,from=bad,from", "summary,from=bad,from", "summary,page=0,page",
-        "summary,to=2026-10-18T12:10:01Z,to", "summary,to=bad&to=bad,to"})
-    void invalidFiltersReturnConventionalFixedFieldErrors(String resource, String query, String field)
+    @CsvSource({"checks,page=-1,page,must be an integer between 0 and 2147483647",
+        "checks,size=101,size,must be an integer between 1 and 100",
+        "checks,outcome=BAD,outcome,must be a check outcome",
+        "checks,page=0&page=1,page,must occur once",
+        "checks,from=2026-10-18T12:10:00Z,from,must precede to",
+        "checks,to=2026-10-18T12:10:01Z,to,must not be in the future",
+        "checks,from=2026-10-18T12:00:00,from," + TIMESTAMP_ERROR,
+        "checks,unknown=value,unknown,unknown parameter", "checks,status=OPEN,status,unknown parameter",
+        "incidents,status=PENDING,status,must be a resource status",
+        "incidents,size=0,size,must be an integer between 1 and 100", "incidents,to=bad,to," + TIMESTAMP_ERROR,
+        "incidents,outcome=SUCCESS,outcome,unknown parameter",
+        "notifications,status=OPEN,status,must be a resource status",
+        "notifications,type=BAD,type,must be DOWN or RECOVERY",
+        "notifications,page=1.5,page,must be an integer between 0 and 2147483647",
+        "notifications,from=bad,from," + TIMESTAMP_ERROR, "summary,from=bad,from," + TIMESTAMP_ERROR,
+        "summary,page=0,page,unknown parameter", "summary,to=2026-10-18T12:10:01Z,to,must not be in the future",
+        "summary,to=bad&to=bad,to,must occur once",
+        "checks,from=2026-10-18T12:00:00.0000001Z,from," + TIMESTAMP_ERROR})
+    void invalidFiltersReturnConventionalFixedFieldErrors(String resource, String query, String field, String expected)
             throws Exception {
         var response = get(path(monitor.id().toString(), resource) + "?" + query, true);
         assertThat(response.statusCode()).isEqualTo(400);
         var body = tree(response);
         assertThat(body.path("code").asText()).isEqualTo("VALIDATION_ERROR");
-        assertThat(body.path("errors").path(field).asText()).isNotBlank();
+        assertThat(body.path("errors").path(field).asText()).isEqualTo(expected);
         assertThat(body.toString()).doesNotContain(credentials, "value");
     }
 

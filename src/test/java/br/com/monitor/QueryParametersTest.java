@@ -16,6 +16,44 @@ class QueryParametersTest {
     private final Instant now = Instant.parse("2026-10-18T12:00:00Z");
 
     @Test
+    void calendarBoundsAreInclusiveAndOutOfRangeValuesHaveExactErrors() {
+        var lower = parse(Map.of("from", "0001-01-02T00:00:00Z", "to", "0001-01-03T00:00:00Z"), "summary");
+        assertThat(lower.from()).isEqualTo(Instant.parse("0001-01-02T00:00:00Z"));
+        var values = new LinkedMultiValueMap<String, String>();
+        values.add("from", "9999-12-29T00:00:00Z");
+        values.add("to", "9999-12-30T00:00:00Z");
+        var upper = QueryParameters.parse(values, "summary", Instant.parse("9999-12-31T00:00:00Z"));
+        assertThat(upper.to()).isEqualTo(Instant.parse("9999-12-30T00:00:00Z"));
+        assertThatThrownBy(() -> parse(Map.of("from", "0001-01-01T23:59:59Z"), "summary"))
+                .isInstanceOfSatisfying(MonitorProblem.class, p -> assertThat(p.errors()).containsEntry("from",
+                        "must be an ISO-8601 timestamp with offset and at most microsecond precision"));
+        values.set("to", "9999-12-30T00:00:00.000001Z");
+        assertThatThrownBy(() -> QueryParameters.parse(values, "summary", Instant.parse("9999-12-31T00:00:00Z")))
+                .isInstanceOfSatisfying(MonitorProblem.class, p -> assertThat(p.errors()).containsEntry("to",
+                        "must be an ISO-8601 timestamp with offset and at most microsecond precision"));
+    }
+
+    @Test
+    void structuralErrorsHavePriorityOverInvalidValuesWithStableMessages() {
+        var values = new LinkedMultiValueMap<String, String>();
+        values.add("status", "OPEN");
+        assertThatThrownBy(() -> QueryParameters.parse(values, "checks", now))
+                .isInstanceOfSatisfying(MonitorProblem.class, p -> assertThat(p.errors())
+                        .containsEntry("status", "unknown parameter"));
+        values.clear();
+        values.add("to", "bad");
+        values.add("to", "bad");
+        assertThatThrownBy(() -> QueryParameters.parse(values, "checks", now))
+                .isInstanceOfSatisfying(MonitorProblem.class, p -> assertThat(p.errors())
+                        .containsEntry("to", "must occur once"));
+        values.clear();
+        values.add("page", "-1");
+        assertThatThrownBy(() -> QueryParameters.parse(values, "summary", now))
+                .isInstanceOfSatisfying(MonitorProblem.class, p -> assertThat(p.errors())
+                        .containsEntry("page", "unknown parameter"));
+    }
+
+    @Test
     void defaultsAndExplicitOffsetUseSameUtcWindow() {
         var defaults = parse(Map.of(), "checks");
         assertThat(defaults.from()).isEqualTo(now.minusSeconds(86400));

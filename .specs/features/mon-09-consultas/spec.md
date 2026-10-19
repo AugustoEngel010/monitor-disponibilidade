@@ -37,6 +37,24 @@ O painel MON-10 precisa consultar evidências e indicadores sem confundir pausa,
 
 **Open questions:** none; interpretações explicitadas acima.
 
+## Catálogo de validação (READ-09)
+
+Parâmetro desconhecido tem prioridade; em campo conhecido, repetição tem prioridade sobre formato/conteúdo. Depois validar número/timestamp/enum e relações da janela. Erros de relações não substituem erros já identificados no mesmo campo. Nenhuma mensagem contém o valor recebido.
+
+| Condição | Mensagem exata |
+| --- | --- |
+| Parâmetro não permitido no recurso | unknown parameter |
+| Parâmetro conhecido repetido | must occur once |
+| UUID malformado | must be a UUID |
+| page inválido | must be an integer between 0 and 2147483647 |
+| size inválido | must be an integer between 1 and 100 |
+| Timestamp inválido, fora do calendário ou submicrossegundo | must be an ISO-8601 timestamp with offset and at most microsecond precision |
+| from >= to | must precede to |
+| to > agora | must not be in the future |
+| outcome inválido | must be a check outcome |
+| status inválido | must be a resource status |
+| type inválido | must be DOWN or RECOVERY |
+
 ## User Stories
 
 ### P1: Consultar evidências e estado
@@ -83,7 +101,7 @@ Validação: READ-09. Falha parcial: snapshot de leitura e erro de banco propaga
 | READ-06 | MON-09-AC06 | T4,T6 | SummaryQueriesIT, docs/queries.md | Verified |
 | READ-07 | MON-09-AC07 | T4,T6 | SummaryQueriesIT, docs/queries.md | Verified |
 | READ-08 | MON-09-AC01/02 | T3,T5,T7 | HistoryQueriesIT, QueryApiIT | Verified |
-| READ-09 | MON-09-AC01/03 | T1,T5,T8 | QueryParametersTest, QueryApiIT | Needs Fix |
+| READ-09 | MON-09-AC01/03 | T1,T5,T8 | QueryParametersTest, QueryApiIT | Verified |
 
 ## Success Criteria
 

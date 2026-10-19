@@ -86,8 +86,24 @@ Gate Full selecionado apos T7: BUILD SUCCESS, 164 unitarios +47 IT (quatro novos
 
 | Criterio | Evidencia e assertion | Outcome | Coberto |
 | --- | --- | --- | --- |
-| READ-08 identidade | HistoryQueriesIT.java:48 `item.transitionId()).isEqualTo(stored.get("transition_id"))` | Transicao persistida, nao ID da notificacao | Sim |
+| READ-08 identidade | HistoryQueriesIT.java:47 `item.transitionId()).isEqualTo(stored.get("transition_id"))` | Transicao persistida, nao ID da notificacao | Sim |
 | READ-08 tempos | HistoryQueriesIT.java:51 `nextAttemptAt()).isEqualTo(next)`; :52 `completedAt()).isEqualTo(completed)` | PENDING agendado; finais com fim exato; SENDING sem fim | Sim |
 | READ-08 estados/snapshot | HistoryQueriesIT.java:49 `recipient()).isEqualTo("ops@example.org")`; :50 `status()).isEqualTo(status)` | Destinatario original apos edicao; quatro estados | Sim |
 
 Reverse mapping: quatro casos parametrizados novos pertencem a READ-08 e payload de conclusao; restantes preservados. Adequacao A-D aprovada: valores exatos, dados/horarios controlados, sem assertions enfraquecidas. Evidencias das tasks T1-T6 citam as linhas nos respectivos commits; a insercao dos novos casos desloca linhas atuais de HistoryQueriesIT.
+
+## T8: mensagens exatas e gate final corrigido
+
+Catalogo de mensagens e precedencia explicitados na spec e docs antes da implementacao. QueryApiIT exige texto exato em 22 combinacoes (inclui precisao submicrossegundo); QueryParametersTest acrescenta bordas inclusivas do calendario e prioridade de erros estruturais. Nenhuma assertion anterior enfraquecida: isNotBlank foi fortalecida para isEqualTo(expected).
+
+Gate integral Docker: BUILD SUCCESS, 458 testes (166 unitarios/292 IT), zero falhas/erros/skips/Checkstyle. Runtime build exit 0; smoke exit 0, 37 PASSs. Logs `.validation/mon09-t8-tests.log`, `.validation/mon09-t8-build.log`, `.validation/mon09-t8-smoke.log`, `.validation/mon02-smoke-4902462c3b4b.log`. Delta da baseline MON-08: +71 testes.
+
+| Criterio | Evidencia atual e assertion | Outcome da spec | Coberto |
+| --- | --- | --- | --- |
+| READ-09 | src/test/java/br/com/monitor/QueryApiIT.java:123 `assertThat(body.path("errors").path(field).asText()).isEqualTo(expected);` | Mensagens exatas em 22 entradas HTTP | Sim |
+| READ-09 | src/test/java/br/com/monitor/QueryParametersTest.java:21 `assertThat(lower.from()).isEqualTo(Instant.parse("0001-01-02T00:00:00Z"));` | Limite inferior inclusivo | Sim |
+| READ-09 | src/test/java/br/com/monitor/QueryParametersTest.java:26 `assertThat(upper.to()).isEqualTo(Instant.parse("9999-12-30T00:00:00Z"));` | Limite superior inclusivo | Sim |
+| READ-09 | src/test/java/br/com/monitor/QueryParametersTest.java:48 `.containsEntry("to", "must occur once"));` | Repeticao prevalece sobre conteudo | Sim |
+| READ-09 | src/test/java/br/com/monitor/QueryParametersTest.java:53 `.containsEntry("page", "unknown parameter"));` | Desconhecido prevalece sobre conteudo | Sim |
+
+Reverse mapping: dois novos unitarios e um novo caso HTTP de T8 cobrem READ-09/edge calendario. Os quatro novos casos T7 cobrem READ-08. Adequacao A-D aprovada; catalogo vem da spec, sem testar comportamento incidental de biblioteca. O relatorio FAIL anterior permanece no historico Git; nova validacao independente e sensores seguem este commit.

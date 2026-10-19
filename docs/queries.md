@@ -27,6 +27,8 @@ Campo inválido, UUID malformado, filtro desconhecido/repetido ou inteiro fora d
 
 UUID válido inexistente: HTTP 404 com `{"code":"MONITOR_NOT_FOUND","errors":{}}`. Sem Basic válido: 401, challenge Basic, corpo vazio. Falhas de banco são erros de infraestrutura e não viram resultados de monitoramento.
 
+Mensagens fixas: desconhecido `unknown parameter`; repetido `must occur once`; UUID `must be a UUID`; page/size `must be an integer between 0 and 2147483647` / `must be an integer between 1 and 100`; timestamp/calendário/precisão `must be an ISO-8601 timestamp with offset and at most microsecond precision`; ordem `must precede to`; futuro `must not be in the future`; outcome `must be a check outcome`; status `must be a resource status`; type `must be DOWN or RECOVERY`. Desconhecido tem prioridade sobre conteúdo; repetição de campo conhecido tem prioridade sobre formato; relações da janela não substituem erro já identificado no campo.
+
 ## Verificações
 
 `GET /api/admin/monitors/{id}/checks?from=2026-10-18T12:00:00Z&to=2026-10-18T13:00:00Z&outcome=HTTP_FAILURE&size=1`:
