@@ -70,7 +70,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Support files**: app.js, form.spec.js.
 **Assumptions**: Backend valida; erros associados por aria-describedby; preservação no próprio DOM.
 **Done when**:
-- [ ] Cadastro, edição, 400 por campo, conflito, 403 e rede preservam valores; form.spec.js passa.
+- [x] Cadastro, edição, 400 por campo, conflito, 403 e rede preservam valores; form.spec.js passa (8/8, exit 0).
 **Tests**: e2e
 **Gate**: Full, form.spec.js
 

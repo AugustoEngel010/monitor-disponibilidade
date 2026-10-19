@@ -33,3 +33,17 @@ Premissas/arquivos: app.js/dom.js, shell e testes fixtures/list; label exclusiva
 Reverse mapping: os 12 testes correspondem às linhas AC01/05 acima; testes dos sete labels usam a mesma assertion com os sete valores definidos na spec. Adequação A-D PASS; sem testes apagados/pulados/enfraquecidos.
 
 Regressão Java iniciada em T1: `.validation/mon10-java.log`, BUILD SUCCESS, 459 testes (167 unitários/292 integrações), zero falhas/erros/skips, Checkstyle zero. Nenhum fonte Java modificado nesta feature.
+
+## T3: formulário
+
+Premissas/arquivos: form.js e form.spec.js; backend decide validação, inputs persistem no DOM após falha, números enviados como números/null. Full Docker 8/8 em 13.0s, exit 0; `.validation/mon10-t3-build-final.log` e `.validation/mon10-t3-ui-final.log`. Primeira execução encontrou foco dependente da ordem dos erros no JSON; implementação corrigida para ordem visual, sem alterar assertion. Fixture usa intervalo 9 (fora do mínimo 10) para exercer erro nesse campo.
+
+| AC / done-when | Assertion file:line | Outcome | Coberto |
+| --- | --- | --- | --- |
+| AC02 cadastro | config/panel/form.spec.js:22 status cadastrado; :24 `expect(persisted[key]).toBe(value)` para oito campos | POST real persistido com tipos corretos | Sim |
+| AC02 edição | config/panel/form.spec.js:30 `toHaveValue(String(monitor[key]))`; :35..38 nome/destinatário/intervalo/version2 | GET e PUT reais | Sim |
+| AC02 validação/preservação | config/panel/form.spec.js:51 valores intactos; :52 aria-invalid true; :54 erro não vazio; :56 Nome focado | Todos os oito erros associados | Sim |
+| AC02/05 conflitos/403/rede/503 | config/panel/form.spec.js:72 mensagem; :73 todos os valores; :74 uma chamada; :75 botão habilitado | Sem retry automático | Sim |
+| AC02 limite/404 | config/panel/form.spec.js:84 limite100; :86 monitor não encontrado | Erro específico | Sim |
+
+Reverse mapping: oito testes cobrem cadastro, edição, validação, quatro falhas e limite/404; todos ligados a AC02/05. Adequação A-D PASS, nenhuma assertion existente enfraquecida nem teste removido/pulado.
