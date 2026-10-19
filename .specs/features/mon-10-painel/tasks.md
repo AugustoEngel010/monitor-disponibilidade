@@ -57,7 +57,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Support files**: dom.js, list.spec.js, fixtures.js e shell.
 **Assumptions**: Até 20 summaries, erro por cartão; nenhum cálculo de estado no browser.
 **Done when**:
-- [ ] Nome, label, estado, última observação, incidente, páginas, vazio, loading, falhas e texto hostil testados por list.spec.js.
+- [x] Nome, label, estado, última observação, incidente, páginas, vazio, loading, falhas e texto hostil testados por list.spec.js (12/12, exit 0).
 **Tests**: e2e
 **Gate**: Full, list.spec.js
 
