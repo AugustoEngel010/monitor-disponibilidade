@@ -109,7 +109,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Support files**: responsive.spec.js, shell e ajustes de acessibilidade dos componentes.
 **Assumptions**: CSS local sem fonte externa, foco visível e texto além de cor.
 **Done when**:
-- [ ] Fluxos principais em dois viewports sem overflow, screenshots e navegação de teclado; suíte de navegador completa passa.
+- [x] Fluxos principais em dois viewports sem overflow, screenshots e navegação de teclado; suíte de navegador completa passa (48/48, exit 0).
 **Tests**: e2e
 **Gate**: Full, suíte completa
 

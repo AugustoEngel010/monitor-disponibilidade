@@ -53,7 +53,7 @@ function summaryView(summary) {
         el('p', {'data-testid': 'average-latency', className: 'metric-value'}, metric(statistics.averageResponseTimeMs, ' ms')))),
     el('p', {}, `${statistics.totalChecks} verificações · ${statistics.validSamples} amostras externas · `
       + `${statistics.successSamples} sucessos · ${statistics.latencySamples} amostras de latência`),
-    el('p', {className: 'help'}, 'Métrica por amostragem (CHECK_SUCCESS_SAMPLING). Não representa uptime temporal.'),
+    el('p', {className: 'help'}, 'Métrica por amostragem. Não representa uptime temporal.'),
     ...(statistics.dataStatus === 'NO_DATA' ? [notice('Sem amostras externas na janela.')] : []),
     line('Janela UTC [início, fim)', `${summary.window.from} → ${summary.window.to}`),
     line('Cobertura conhecida desde', time(summary.coverageKnownFrom)),

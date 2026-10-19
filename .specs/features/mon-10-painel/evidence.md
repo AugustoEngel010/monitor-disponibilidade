@@ -79,3 +79,20 @@ Premissas/arquivos: details.js e details.spec.js; nenhum indicador ou duração 
 | AC05 navegação | config/panel/details.spec.js:209 rascunho preservado; :210 Resumo count0 | Resposta antiga não substitui formulário | Sim |
 
 Reverse mapping: 11 testes correspondem às linhas acima (dois casos null/zero, dois paginadores). Adequação A-D PASS; todos derivados de AC04/05/06 e edges explícitos. Nenhum teste removido/pulado; nenhuma assertion afrouxada.
+
+## T6: responsividade e validação visual
+
+Premissas/arquivos: panel.css, shell, ajustes de texto/form e responsive.spec.js. Sem fonte/CDN/dependência runtime. Salvar abre o detalhe do UUID confirmado pelo backend. Erros de configuração fixos traduzidos para português; dados de domínio permanecem os recebidos.
+
+Full inicial: 48/48 em 1.4m. Após acabamento textual, Full sobre banco novo no projeto próprio `mon10-panel-final`: `docker compose -p mon10-panel-final --profile panel-tests run --use-aliases --build --rm panel-tests`, exit 0, **48/48 em 1.5m, zero falhas/skips**. Log `.validation/mon10-t6-ui-final.log`. HTML/JUnit em `.validation/panel`; seis screenshots em `.validation/panel/screenshots`.
+
+| AC / done-when | Assertion file:line | Outcome | Coberto |
+| --- | --- | --- | --- |
+| AC06 viewport sem overflow | config/panel/responsive.spec.js:7 `expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport)` chamada :19,34,50 nos dois viewports | Form, lista e detalhe cabem em 1440/390px | Sim |
+| AC06 teclado/foco | config/panel/responsive.spec.js:22 URL focada após Tab; :24 outline diferente de none | Foco visível e labels | Sim |
+| AC06 operar funções | config/panel/responsive.spec.js:33 Pausado; :38 Pausar após retomada; :42 atualizado; :44 nome editado; :48/49 filtros e vazio de incidentes/notificações | Cadastro/edição/ciclo/consulta em ambos | Sim |
+| AC06 execução limpa | config/panel/responsive.spec.js:52 `expect(errors).toEqual([])` | Sem erro JS no fluxo | Sim |
+
+Reverse mapping: dois testes parametrizados correspondem ao AC06; cobrem funções já especificadas, sem criar requisitos novos. Adequação A-D PASS, suíte anterior preservada.
+
+Inspeção visual pelo autor: mobile-form, mobile-details, desktop-list e desktop-details vistos pelo visualizador de imagens; labels, ações, foco, estados textuais e quebra de URLs longas conferidos. Capturas de lista incluem monitor pausado e estado confirmado separado; detalhes incluem taxa/latência, filtros e históricos. Revisão humana interativa foi oferecida em paralelo; não é registrada como executada sem resposta do usuário.

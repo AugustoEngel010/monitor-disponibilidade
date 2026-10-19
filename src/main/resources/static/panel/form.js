@@ -13,6 +13,9 @@ const fields = [
 ];
 
 const translations = {
+  'must contain 1 to 100 characters': 'Informe um nome com 1 a 100 caracteres.',
+  'must be HTTP/HTTPS without credentials, query or fragment': 'Use HTTP/HTTPS sem credenciais, query ou fragmento.',
+  'must be a single email up to 254 characters': 'Informe um único e-mail com até 254 caracteres.',
   'must be less than intervalSeconds': 'Deve ser menor que o intervalo.',
   'must be an integer': 'Informe um número inteiro.',
   'must be a string': 'Informe um texto.'
@@ -54,17 +57,18 @@ export async function form(root, id) {
     submit.disabled = true;
     submit.textContent = 'Salvando…';
     try {
-      await write(id ? `/monitors/${encodeURIComponent(id)}` : '/monitors', id ? 'PUT' : 'POST', body);
+      const saved = await write(id ? `/monitors/${encodeURIComponent(id)}` : '/monitors', id ? 'PUT' : 'POST', body);
       if (!root.isConnected) return;
       feedback(id ? 'Monitor atualizado.' : 'Monitor cadastrado.');
-      location.hash = '#/';
+      location.hash = `#/monitors/${saved.id}`;
     } catch (error) {
       if (!root.isConnected) return;
       messages.replaceChildren(notice(error.message, true));
       for (const [name, message] of Object.entries(error.errors || {})) {
         if (inputs[name]) {
           inputs[name].setAttribute('aria-invalid', 'true');
-          errors[name].textContent = translations[message] || message;
+          errors[name].textContent = translations[message] || message.replace(
+            /^must be between (\d+) and (\d+)$/, 'Informe um valor entre $1 e $2.');
         }
       }
       const first = Object.keys(inputs).find(name => errors[name].textContent);
