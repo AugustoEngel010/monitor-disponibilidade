@@ -94,10 +94,10 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 ## Handoff
 
 - **Feature**: MON-10; `.specs/features/mon-10-painel/`.
-- **Phase / Task**: T1–T8 concluídas pelo autor; re-verificação independente após correção do gap de instantes.
+- **Phase / Task**: Execute concluído; T1–T8 e Verifier independente final PASS nos seis ACs e requisitos.
 - **Completed**: Painel estático servido pelo Spring Boot: lista/summary, formulário MON-04, pausa/retomada confirmadas, detalhes com três históricos filtrados/paginados e indicadores MON-09. Basic/CSRF existentes mantidos. 459 testes Java +48 UI, zero falhas/erros/skips; Checkstyle zero; runtime e smoke 37 PASS. Desktop 1440×900/mobile 390×844 e seis capturas em docs/images/mon10. README e CI atualizados.
-- **In-progress**: Verifier inicial 5/6 ACs, cinco mutantes mortos e m6 sobrevivente. T8 compara os quatro datetime e ausências no OPEN; Full final 48/48 PASS. Relatório inicial e L-005 candidate preservados; backlog aguarda PASS independente.
-- **Next step**: Re-verificar T8 e m6 com Verifier independente, executar validate_state e fechar backlog.
+- **In-progress**: Nenhuma implementação pendente. Verifier inicial identificou m6 sobrevivente; T8 reforçou os quatro datetime e ausências OPEN. Baseline final independente 48/48 e quatro mutações de instantes mortas; com cinco anteriores equivalentes, nove distintas sem sobreviventes. validate_state PASS. Histórico FAIL e L-005 candidate preservados.
+- **Next step**: MON-11: operação, métricas e retenção, preservando épocas/referências e informando limites históricos no contrato consumido pelo painel. Manter AD-001 a AD-011.
 - **Blockers**: Nenhum local. CI remota não executada; usuário adiou UAT humano (Vou conferir depois). Inspeção visual automatizada e pelo autor registrada.
-- **Uncommitted files**: Nenhum após este commit da T8.
-- **Branch**: main; baseline be7fae1; T1 aad2998, T2 a07e271, T3 5e124ed, T4 b53b303, T5 22097c2, T6 5f1ad77. AD-001 a AD-011 preservadas. Bancos/serviços de UI próprios removidos; smoke removeu seu projeto. Logs .validation/mon10-*; relatórios Java em target; UI em .validation/panel.
+- **Uncommitted files**: Nenhum após o commit de fechamento documental.
+- **Branch**: main; baseline be7fae1; T1 aad2998, T2 a07e271, T3 5e124ed, T4 b53b303, T5 22097c2, T6 5f1ad77, T7 16a0b78, T8 68b2018. AD-001 a AD-011 preservadas. Bancos/serviços próprios de UI, smoke e Verifier removidos. Logs .validation/mon10-*; Java em target; UI em .validation/panel; revisão final em .validation/mon10-verifier-t8.

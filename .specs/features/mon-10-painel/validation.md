@@ -1,3 +1,57 @@
+# Validation: MON-10 PASS
+
+**Revisão final independente:** 2026-10-19, `verify_mon10`, autor ≠ verifier. **Commit:** `68b2018a604634b3dbe36e26dc62962c572b8e2f`. **Diff total:** `be7fae1..68b2018`; **correção reavaliada:** `16a0b78..68b2018`.
+
+T8 fecha F1 com assertions de valores próprios para os quatro instantes. Não remove nem enfraquece assertions anteriores. A spec explicita o oráculo já presente em docs/queries.md. Produção, Compose, Dockerfile runtime, Java e testes Java permanecem idênticos ao commit da revisão inicial. Os oito entregáveis estão concluídos, T8 em commit atômico 68b2018.
+
+## Evidência atual por critério
+
+| Critério / requisito | Resultado definido e assertion independente | Resultado |
+| --- | --- | --- |
+| MON-10-AC01 / PANEL-01 | `config/panel/list.spec.js:7` nome exato; `:28` sete labels oficiais traduzidos; `:29` estado DOWN separado, `:30` incidente preservado, `:31` datetime da observação; `:88`–`:89` paginação real | PASS |
+| MON-10-AC02 / PANEL-02 | `config/panel/form.spec.js:24` oito valores/tipos persistidos iguais ao input; `:30` valores carregados; `:35`–`:38` PUT persistido e versão; `:51`–`:54` todos os campos/erros em 400; `:73` valores preservados em 403/409/503/rede, `:74` uma chamada | PASS |
+| MON-10-AC03 / PANEL-03 | `config/panel/lifecycle.spec.js:15` pausa confirmada; `:21`–`:24` ACTIVE/DOWN/mesmo incidente; `:39` envio desabilitado, `:40` nenhuma retomada otimista, `:41` backend ainda ACTIVE, `:44` uma chamada; `:54`–`:67` falhas preservam estado | PASS |
+| MON-10-AC04 / PANEL-04 | `config/panel/details.spec.js:14`–`:32` checks/incidente/notificações reais; `:59`–`:60` 100,9 s e 180,9 s; **`:63`–`:69` caption→datetime exato para os quatro campos CLOSED distintos**; **`:73`/`:75` instantes próprios OPEN; `:78`–`:79` recuperação null como Sem registro sem time**; `:115`–`:124` status/type/from e somente from/to no summary; `:143`–`:153` páginas independentes/outcome/size; `:169`–`:175` ACCEPTED, tentativas, SMTP_UNCERTAIN e limitação de entrega; `:191`–`:194` paginações dos outros recursos | PASS |
+| MON-10-AC05 / PANEL-05 | `config/panel/list.spec.js:40`/`:47` vazios, `:58` loading, `:60`–`:64` erro fixo e nova consulta, `:71`–`:74` falha isolada/texto seguro/sem estado fictício; `config/panel/details.spec.js:53`–`:60` métricas/amostras/antiguidade/duração, `:83`–`:84` lacuna/cobertura, `:96`–`:97` null versus zero, `:203`–`:205` erros independentes, `:229`–`:230` rascunho preservado; `config/panel/security.spec.js:57`–`:58` resultado não confirmado/uma chamada | PASS |
+| MON-10-AC06 / PANEL-06 | `config/panel/security.spec.js:13`–`:16` Basic/corpo vazio/challenge e 200 autorizado; `:23` 403 sem CSRF e `:29`–`:32` escrita real com token/cookie e localStorage vazio; `:44`–`:45` status/mensagem 401/403; `config/panel/form.spec.js:74` sem reenvio; `config/panel/responsive.spec.js:7`, `:22`–`:24`, `:33`–`:52` sem overflow, foco visível e todos os fluxos em 1440×900/390×844 | PASS |
+
+**6/6 ACs e 6/6 requisitos demonstrados.** Edges mantidos: 401/403 vazios; falha individual de summary; seções independentes; navegação descarta resposta atrasada; conflitos 409 específicos; páginas excedentes e limites da resposta; currentIncident fora da janela; texto hostil como texto; duração fracionária; SMTP sem promessa de caixa postal; transporte sem reenvio. Evidência detalhada da revisão inicial abaixo continua válida, com linhas de details posteriores à inserção deslocadas +20 na revisão final. Não há lacuna de precisão da spec nem gap aberto.
+
+## Gates finais
+
+- Baseline UI independente final em projeto `mon10-verifier-t8`, app/DB novos, assets copiados sem alterações e perfil panel-tests. Comando: `docker compose -p mon10-verifier-t8 -f compose.yaml -f .validation/mon10-verifier-t8/override.yaml --profile panel-tests run --use-aliases --build --rm panel-tests`. **48 passed, 0 failed, 0 skipped, exit 0**, 1,5 min. Log `.validation/mon10-verifier-t8/baseline.log`; JUnit preservado em `.validation/mon10-verifier-t8/baseline-junit.xml`.
+- Spec/tasks estruturais reexecutados independentemente: exit 0, zero erros; único aviso T7 Tests:none corresponde à camada documental.
+- Gates Java459/Checkstyle0, runtime e smoke37 reutilizados da revisão inicial após `git diff --exit-code 16a0b78..68b2018 -- src/main compose.yaml Dockerfile pom.xml config/run-tests.sh` retornar 0. Não são apresentados como nova execução do Verifier. Baseline UI independente inicial também era 48/48; T8 mantém 48 testes, acrescenta assertions. Nenhum skip, teste removido ou assertion enfraquecida.
+- Log do autor `.validation/mon10-t8-ui-clean.log`: 48 PASS após app/DB recriados. Repetição anterior `.validation/mon10-t8-ui-final.log` com processo reutilizado apresentou DNS_FAILURE antes do HTTP503 esperado; não foi ocultada nem resolvida afrouxando assertion. A revisão final usa processo e DB novos para a baseline real; sensores focam apresentação controlada sem depender da origem HTTP.
+
+## Sensor final e isolamento
+
+Sensor expandido: cinco mutantes mortos da revisão inicial permanecem equivalentes, pois produção e respectivas assertions discriminantes permanecem idênticas. O sobrevivente inicial m6 foi reexecutado com o teste corrigido; outras três trocas verificam cada campo de instante. Cópia isolada `.validation/mon10-verifier-t8/static` montada readonly, projeto próprio, um runner por vez, sem stash, sem alterar código/testes reais ou banco do operador.
+
+| Mutação | Fonte (somente cópia) | Oráculo após T8 |
+| --- | --- | --- |
+| m6-down | `src/main/resources/static/panel/details.js:12`, downConfirmedAt→firstFailureAt | `config/panel/details.spec.js:69`: esperado 2026-10-18T12:02:00Z, recebido 2026-10-18T12:00:00.100Z |
+| m7-first | `src/main/resources/static/panel/details.js:11`, firstFailureAt→downConfirmedAt | `config/panel/details.spec.js:69`: esperado 2026-10-18T12:00:00.100Z, recebido 2026-10-18T12:02:00Z |
+| m8-start | `src/main/resources/static/panel/details.js:13`, recoveryStartedAt→recoveredAt | `config/panel/details.spec.js:69`: esperado 2026-10-18T12:03:01Z, recebido 2026-10-18T12:04:00Z |
+| m9-recovered | `src/main/resources/static/panel/details.js:14`, recoveredAt→recoveryStartedAt | `config/panel/details.spec.js:69`: esperado 2026-10-18T12:04:00Z, recebido 2026-10-18T12:03:01Z |
+
+Comando por mutante: mesmo projeto/override, `run --use-aliases --no-deps --rm panel-tests details.spec.js --grep exibe`. Só conta como morto se falhar pela comparação do datetime acima. Logs em `.validation/mon10-verifier-t8/m6-down.log` até `m9-recovered.log`.
+
+**F1 resolvido.** A implementação já usava os campos corretos; a correção acrescenta um oráculo que discrimina as quatro associações sem mudar produção. L-005 permanece registrada como candidate, sem nova recorrência ou nova lição para a correção do mesmo sinal.
+
+UAT visual humano **adiado pelo usuário**: “Vou conferir depois”. Isso não representa aprovação humana. CI remota não executada. Mantêm-se as evidências automatizadas e as amostras visuais independentes descritas abaixo.
+
+**Fechamento do sensor:** 4/4 mutações de instantes reexecutadas e mortas, todas por `toHaveAttribute('datetime', timestamp)` em `config/panel/details.spec.js:69`, com os pares esperado/recebido da tabela acima, 1 failed e exit 1 por mutante. Somadas às cinco mutações equivalentes mortas na revisão inicial: **9/9 mutações distintas mortas no código/testes finais, zero sobreviventes** (4 executadas nesta revisão, 5 reutilizadas; m6 inicial sobrevivente foi encerrado pela T8).
+
+**Isolamento:** porcelain antes e depois idênticos e vazios, ambos persistidos em `.validation/mon10-verifier-t8/porcelain-before.txt` e `porcelain-after.txt`, antes de atualizar este relatório. Scratch static removido após conferir caminho absoluto dentro de .validation; app/DB/rede mon10-verifier-t8 removidos. Nenhuma implementação, teste real, commit ou banco do operador alterado. Logs/JUnit/screenshots preservados. A única alteração rastreada desta re-verificação é validation.md.
+
+**Gate de fechamento:** `python .codex/skills/tlc-spec-driven/scripts/validate_state.py mon-10-painel`, **exit 0, zero erros**, executado após gravar o relatório PASS.
+
+## Histórico preservado: revisão inicial de 16a0b78
+
+O relatório seguinte documenta o FAIL inicial e seu sensor sobrevivente. Seu veredito e plano referem-se exclusivamente ao commit inicial; o resultado vigente está no topo deste documento.
+
+
 # MON-10 Validation
 
 **Verdict: FAIL.** A baseline independente passa, mas a suíte não detecta a troca do instante de confirmação da queda pelo da primeira falha. A implementação original usa os campos corretos; o bloqueio é uma lacuna comprovada de discriminação dos testes.

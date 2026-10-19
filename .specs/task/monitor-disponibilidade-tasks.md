@@ -239,12 +239,12 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-10-AC01: a lista mostra nome, estado, última verificação e incidente aberto, distinguindo pausa e ausência de dados recentes.
-- [ ] MON-10-AC02: o operador cadastra e edita um monitor e recebe mensagens de validação ligadas aos campos.
-- [ ] MON-10-AC03: pausar e retomar atualiza a condição do monitor conforme o resultado da operação, sem simular uma recuperação.
-- [ ] MON-10-AC04: a página de detalhes mostra resultados recentes, transições do incidente e estado das notificações, com paginação quando necessária.
-- [ ] MON-10-AC05: o painel apresenta estados vazios, falhas de operação e dados antigos sem os representar como disponibilidade confirmada.
-- [ ] MON-10-AC06: o painel é protegido pela autenticação administrativa e pode ser utilizado em tela pequena sem impedir as ações principais.
+- [x] MON-10-AC01: a lista mostra nome, estado, última verificação e incidente aberto, distinguindo pausa e ausência de dados recentes.
+- [x] MON-10-AC02: o operador cadastra e edita um monitor e recebe mensagens de validação ligadas aos campos.
+- [x] MON-10-AC03: pausar e retomar atualiza a condição do monitor conforme o resultado da operação, sem simular uma recuperação.
+- [x] MON-10-AC04: a página de detalhes mostra resultados recentes, transições do incidente e estado das notificações, com paginação quando necessária.
+- [x] MON-10-AC05: o painel apresenta estados vazios, falhas de operação e dados antigos sem os representar como disponibilidade confirmada.
+- [x] MON-10-AC06: o painel é protegido pela autenticação administrativa e pode ser utilizado em tela pequena sem impedir as ações principais.
 
 **Testes:** fluxos de interface para cadastro, erro de validação, edição, pausa, retomada e consulta de um incidente. Incluir a proteção das páginas administrativas.
 

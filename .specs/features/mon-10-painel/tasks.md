@@ -4,7 +4,7 @@
 
 Executar com a skill tlc-spec-driven, gate por task, revisão de adequação, commit atômico e Verifier independente ao concluir. Execução local autorizada pelo pedido; ferramentas de filesystem, Git e Docker. Não publicar.
 
-**Design:** [design.md](design.md). **Status:** Done; T8 corrigida, re-verificação independente obrigatória pendente.
+**Design:** [design.md](design.md). **Status:** Done; T1–T8 concluídas e Verifier independente final PASS 6/6 ACs e requisitos.
 
 ## Test Coverage Matrix
 
@@ -166,4 +166,4 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8
 | T7 | Docs | none | none | OK |
 | T8 | Detalhes | e2e | e2e | OK |
 
-Oito entregáveis coesos, uma fase, execução inline. Verifier inicial após T7 encontrou gap de discriminação; re-verificação automática após T8.
+Oito entregáveis coesos, uma fase, execução inline. Verifier inicial após T7 encontrou gap de discriminação; T8 corrigiu e a re-verificação independente concluiu PASS. Baseline final independente: 48/48 UI; quatro mutações de instantes reexecutadas e mortas, cinco anteriores reutilizadas por equivalência, nove distintas sem sobreviventes. Histórico completo em validation.md.

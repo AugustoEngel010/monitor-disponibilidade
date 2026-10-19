@@ -1,6 +1,6 @@
 # MON-10: painel administrativo
 
-**Data:** 2026-10-19. **Status:** T8 corrigiu gap de teste dos instantes, 48/48 UI PASS; re-verificação independente pendente.
+**Data:** 2026-10-19. **Status:** Verified; Verifier independente PASS nos seis ACs e requisitos, 459 testes Java e 48 UI, nove mutações distintas detectadas; [relatório](validation.md).
 **Origem:** MON-10-AC01 até MON-10-AC06; AD-001 a AD-011.
 
 ## Problem Statement
