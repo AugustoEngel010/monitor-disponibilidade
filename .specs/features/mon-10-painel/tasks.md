@@ -12,7 +12,7 @@ Derivada de pom.xml, config/checkstyle.xml, README e CI; amostras MonitorApiIT, 
 
 | Code Layer | Required Test Type | Coverage Expectation | Location Pattern | Run Command |
 | --- | --- | --- | --- | --- |
-| Cliente e páginas | e2e | Fluxos de todos os ACs e erros listados, backend real; falhas controladas por interceptação | config/panel/*.spec.js | docker compose --profile panel-tests run --build --rm panel-tests |
+| Cliente e páginas | e2e | Fluxos de todos os ACs e erros listados, backend real; falhas controladas por interceptação | config/panel/*.spec.js | docker compose --profile panel-tests run --use-aliases --build --rm panel-tests |
 | Backend preservado | integration | Manter todos os 459 testes e Checkstyle | src/test/java | docker compose run --build --rm tests |
 | CSS / acessibilidade | e2e | Desktop 1440×900, mobile 390×844, teclado e sem overflow da página | config/panel/responsive.spec.js | docker compose --profile panel-tests run --build --rm panel-tests responsive.spec.js |
 | Documentação | none | Comandos executáveis e rastreabilidade | README.md | Gates estruturais e build |
@@ -22,7 +22,7 @@ Derivada de pom.xml, config/checkstyle.xml, README e CI; amostras MonitorApiIT, 
 | Gate Level | When to Use | Command |
 | --- | --- | --- |
 | Quick | Estrutura | python .codex/skills/tlc-spec-driven/scripts/validate_spec.py mon-10-painel |
-| Full | Cada componente | docker compose --profile panel-tests up -d --build panel-app; docker compose --profile panel-tests run --build --rm panel-tests [arquivo da task] |
+| Full | Cada componente | docker compose --profile panel-tests up -d --build panel-app; docker compose --profile panel-tests run --use-aliases --build --rm panel-tests [arquivo da task] |
 | Build | Fechamento | docker compose run --build --rm tests; docker compose build app; suíte panel-tests completa; scripts/validate-compose.ps1 -NoBuild |
 
 ## Execution Plan
@@ -83,7 +83,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Support files**: app.js, lifecycle.spec.js e servidor HTTP de teste.
 **Assumptions**: Pausa não encerra incidente; indisponibilidade de rede exige conferir resultado.
 **Done when**:
-- [ ] Pausa/retomada reais preservam incidente, botão bloqueia duplicação e falha não simula sucesso; lifecycle.spec.js passa.
+- [x] Pausa/retomada reais preservam incidente, botão bloqueia duplicação e falha não simula sucesso; lifecycle.spec.js passa (9/9, exit 0).
 **Tests**: e2e
 **Gate**: Full, lifecycle.spec.js
 

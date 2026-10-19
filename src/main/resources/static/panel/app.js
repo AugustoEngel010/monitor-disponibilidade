@@ -1,5 +1,6 @@
 import {get} from './api.js';
 import {el, button, notice, state, pager} from './dom.js';
+import {lifecycle} from './lifecycle.js';
 
 const app = document.querySelector('#app');
 let generation = 0;
@@ -22,7 +23,7 @@ async function list(root, page) {
       const status = el('div', {}, notice('Carregando estado…'));
       const actions = el('div', {className: 'actions'},
         el('a', {href: `#/monitors/${monitor.id}`}, 'Detalhes'),
-        el('a', {href: `#/edit/${monitor.id}`}, 'Editar'));
+        el('a', {href: `#/edit/${monitor.id}`}, 'Editar'), lifecycle(monitor, render));
       const card = el('article', {className: 'card', 'data-testid': `monitor-${monitor.id}`},
         el('h2', {}, monitor.name), el('p', {className: 'url'}, monitor.url), status, actions);
       cards.append(card);

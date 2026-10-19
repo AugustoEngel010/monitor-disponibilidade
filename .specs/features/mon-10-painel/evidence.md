@@ -47,3 +47,17 @@ Premissas/arquivos: form.js e form.spec.js; backend decide validação, inputs p
 | AC02 limite/404 | config/panel/form.spec.js:84 limite100; :86 monitor não encontrado | Erro específico | Sim |
 
 Reverse mapping: oito testes cobrem cadastro, edição, validação, quatro falhas e limite/404; todos ligados a AC02/05. Adequação A-D PASS, nenhuma assertion existente enfraquecida nem teste removido/pulado.
+
+## T4: pausa/retomada
+
+Premissas/arquivos: lifecycle.js, app.js e lifecycle.spec.js/target.js; nenhum estado otimista. HTTP 503 controlado produz incidente real pelo scheduler, sem SQL de fixture. Full Docker com `run --use-aliases --build --rm panel-tests lifecycle.spec.js`: exit 0, 9/9 em 23.1s, `.validation/mon10-t4-build.log` e `.validation/mon10-t4-ui.log`. `--use-aliases` permite que o backend acesse somente a origem demo exata do servidor do runner, sem alterar proteção de destino de produção.
+
+| AC / done-when | Assertion file:line | Outcome | Coberto |
+| --- | --- | --- | --- |
+| AC03 pausa/retomada/incidente | config/panel/lifecycle.spec.js:15 Pausado; :17 estado Indisponível; :21 ACTIVE; :22 DOWN; :23 `toBe(current.currentIncident.id)` | Backend preserva o mesmo incidente | Sim |
+| AC03 aguardar confirmação | config/panel/lifecycle.spec.js:39 botão disabled; :40 Retomar count0; :41 ACTIVE antes da resposta; :43 Retomar após resposta; :44 uma chamada | Sem atualização otimista/duplicação | Sim |
+| AC03/05 falhas pausa | config/panel/lifecycle.spec.js:54 mensagem; :55 Pausar; :56 ACTIVE | 403/503/rede não simulam pausa | Sim |
+| AC03/05 falhas retomada | config/panel/lifecycle.spec.js:65 mensagem; :66 Retomar; :67 PAUSED | 403/503/rede não simulam retomada | Sim |
+| AC02 incidente/política real | config/panel/lifecycle.spec.js:77 409 explícito; :78/79 valores preservados; :81 nome original; :82 intervalo10; :83 incidente não nulo | PUT rejeitado integralmente | Sim |
+
+Reverse mapping: nove testes se dividem em fluxo real, confirmação pendente, seis falhas por rota e conflito real; todos ligados a AC02/03/05. Adequação A-D PASS; sem testes removidos/pulados ou assertions enfraquecidas.

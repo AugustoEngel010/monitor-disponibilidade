@@ -72,7 +72,7 @@ Validação/bounds: MON-04 continua autoridade, erros ligados a campos. Falha pa
 | --- | --- | --- | --- | --- |
 | PANEL-01 | MON-10-AC01 | T2 | list.spec.js | Verified |
 | PANEL-02 | MON-10-AC02 | T3 | form.spec.js | Verified |
-| PANEL-03 | MON-10-AC03 | T4 | lifecycle.spec.js | Pending |
+| PANEL-03 | MON-10-AC03 | T4 | lifecycle.spec.js | Verified |
 | PANEL-04 | MON-10-AC04 | T5 | details.spec.js | Pending |
 | PANEL-05 | MON-10-AC05 | T1,T2,T3,T5 | security.spec.js, list.spec.js, form.spec.js, details.spec.js | Pending |
 | PANEL-06 | MON-10-AC06 | T1,T6,T7 | security.spec.js, responsive.spec.js | Pending |
