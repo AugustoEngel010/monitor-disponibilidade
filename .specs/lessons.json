@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 4,
+  "next_id": 5,
   "lessons": [
     {
       "id": "L-001",
@@ -58,6 +58,24 @@
       ],
       "created": "2026-10-19T00:13:49Z",
       "last_seen": "2026-10-19T00:13:49Z"
+    },
+    {
+      "id": "L-004",
+      "key": "spec_precision_gap::specify whether timestamp bounds constrain supplied values or computed defaults and test the earliest default window",
+      "text": "Specify whether timestamp bounds constrain supplied values or computed defaults, and test the earliest default window.",
+      "signal": "spec_precision_gap",
+      "scope": "query",
+      "status": "candidate",
+      "features": [
+        "mon-09-consultas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "T9; src/test/java/br/com/monitor/QueryParametersTest.java:21 (query)"
+      ],
+      "created": "2026-10-19T00:34:23Z",
+      "last_seen": "2026-10-19T00:34:23Z"
     }
   ]
 }

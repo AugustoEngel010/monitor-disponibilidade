@@ -2,9 +2,9 @@
 
 ## Execution Protocol
 
-Aplicar tlc-spec-driven; gate antes de cada commit, testes junto do comportamento e Verifier independente automático após T6. Pedido autoriza execução; ferramentas selecionadas: Docker/Compose, PowerShell/Python e skill. Seis tasks, execução inline. Nenhum AGENTS.md aplicável encontrado.
+Aplicar tlc-spec-driven; gate antes de cada commit, testes junto do comportamento e Verifier independente automático ao concluir. Pedido autoriza execução; ferramentas selecionadas: Docker/Compose, PowerShell/Python e skill. Seis tasks iniciais e três correções da revisão, executadas inline. Nenhum AGENTS.md aplicável encontrado.
 
-**Status:** Done; T1-T9 completos, gates aprovados; revalidacao independente pendente. **Design:** [design.md](design.md).
+**Status:** Done; T1–T9 completos, Verifier PASS 9/9 READ e 7/7 ACs, 459 testes e cinco mutações mortas. **Design:** [design.md](design.md). **Validação:** [validation.md](validation.md).
 
 ## Test Coverage Matrix
 

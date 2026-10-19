@@ -32,6 +32,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: READ-09; src/test/java/br/com/monitor/QueryApiIT.java:111 (query)
 - last seen: 2026-10-19T00:13:49Z
 
+### L-004 - Specify whether timestamp bounds constrain supplied values or computed defaults, and test the earliest default window.
+- signal: `spec_precision_gap` · recurrence: 1 feature(s) · scope: `query` · harmful: 0
+- features: mon-09-consultas
+- evidence: T9; src/test/java/br/com/monitor/QueryParametersTest.java:21 (query)
+- last seen: 2026-10-19T00:34:23Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

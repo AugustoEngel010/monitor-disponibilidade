@@ -93,11 +93,11 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 
 ## Handoff
 
-- **Feature**: MON-08; `.specs/features/mon-08-notificacoes/`.
-- **Phase / Task**: Execute concluído; T1–T6 e Verifier independente PASS 7/7.
-- **Completed**: V6 aditiva, reserva/histórico transacionais, SMTP assíncrono com timeouts, cinco tentativas e backoff 30/60/120/240 s, incerteza/reinício, ordem por incidente, duração decimal exata e Mailpit Compose. Gates autor/Verifier: 387 testes (144 unitários/243 IT), 31 novos, zero falhas/erros/skips/Checkstyle. Runtime e smoke Docker aprovados; sete mutações mortas, zero sobreviventes. Primeiro gap fracionário corrigido em T6; lesson L-001 candidate registrada pela skill.
-- **In-progress**: Nenhuma implementação pendente. Relatório independente `validation.md` PASS; validate_state sem erros.
-- **Next step**: MON-09 para APIs de histórico/resumo, incluindo notificações; preservar AD-002/009/010 e referências duráveis para retenção MON-11. Uma instância; processo anterior deve estar totalmente parado antes de reconciliar.
-- **Blockers**: Nenhum local. Docker disponível via execução autorizada fora do sandbox. CI remota não executada.
+- **Feature**: MON-09; `.specs/features/mon-09-consultas/`.
+- **Phase / Task**: Execute concluído; T1–T9 e Verifier independente PASS 7/7 ACs e 9/9 READ.
+- **Completed**: Quatro GETs administrativos para checks/incidents/notifications/summary; filtros, páginas estáveis, épocas V7, cobertura e métricas por amostragem. UTC, janela semiaberta, taxa 80%, latência dos sucessos, ausência de dados e duração fracionária separados. Gate final: 459 testes (167 unitários/292 IT), +72, zero falhas/erros/skips/Checkstyle; runtime e smoke 37 PASS. Sensor final cinco mortos, zero sobreviventes. Gaps iniciais de payload/mensagens e precisão de defaults corrigidos em T7/T8/T9; lessons L-002/L-003/L-004 candidates.
+- **In-progress**: Nenhuma implementação pendente. Relatório `validation.md` PASS e validate_state aprovado; backlog MON-09-AC01 a AC07 marcado.
+- **Next step**: MON-10 consome os contratos de docs/queries.md; preservar dimensões lifecycle/confirmedState/evidence, rótulos e currentIncident. MON-11 deve informar retenção separadamente de coverageKnownFrom e preservar épocas/referências. AD-001 a AD-011 vigentes.
+- **Blockers**: Nenhum local. Docker requer execução autorizada fora do sandbox. CI remota não executada.
 - **Uncommitted files**: Nenhum após commit de fechamento documental.
-- **Branch**: main; baseline 52cb94e; T1 bf13777, T2 4d15c1e, T3 575e07c, T4 0c16d03, T5 0d2efdc, T6 f2194e2. Banco do operador preservado; PostgreSQL/SMTP/smoke descartáveis removidos. Logs `.validation/mon08-*.log`.
+- **Branch**: main; baseline a2a7df2; T1 4f56518, T2 e5be77a, T3 2e9bfcf, T4 8aa31be, T5 fda1da6, T6 db60528, T7 23a9c1c, T8 32f4eab, T9 32ae68d. Banco do operador preservado; scratch e recursos descartáveis próprios removidos. Logs `.validation/mon09-*.log`, XML final em `.validation/mon09-reverify-final-reports`, sensores `.validation/R*-reports`.

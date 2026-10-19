@@ -157,3 +157,5 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1
 QueryParametersTest: validação. ObservationEpochIT: upgrade/transações. HistoryQueriesIT: filtros/paginação/empates. SummaryQueriesIT: estados/cálculos/cobertura. QueryApiIT: quatro rotas e erros HTTP reais. PostgreSQL Testcontainers descartável; sem Maven/JDK no host.
 
 [Spec](../.specs/features/mon-09-consultas/spec.md), [design](../.specs/features/mon-09-consultas/design.md), [tasks](../.specs/features/mon-09-consultas/tasks.md), [evidências](../.specs/features/mon-09-consultas/evidence.md).
+
+[Validação independente](../.specs/features/mon-09-consultas/validation.md): PASS nos sete critérios de aceite e nove requisitos, 459 testes sem falhas/erros/skips/Checkstyle, runtime e smoke 37 PASS; cinco mutações detectadas. A primeira revisão encontrou gaps de payload/mensagens, corrigidos e revalidados. Evidências locais; CI remota não executada.

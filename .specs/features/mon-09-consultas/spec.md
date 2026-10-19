@@ -1,6 +1,6 @@
 # MON-09: histórico e resumo do monitor
 
-**Data:** 2026-10-18. **Status:** Implementado; gates locais aprovados, Verifier pendente. Execução local autorizada pelo pedido.
+**Data:** 2026-10-18. **Status:** Verified; Verifier independente PASS 7/7 ACs e 9/9 READ, 459 testes e cinco mutações mortas; [relatório](validation.md). Execução local autorizada pelo pedido.
 **Origem:** MON-09-AC01 a MON-09-AC07; PROD-34/35/36; AD-001 a AD-010.
 
 ## Problem Statement

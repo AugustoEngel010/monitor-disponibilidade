@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada e validada em 2026-10-15. MON-01 permanece proposta documental; MON-09 a MON-12 planejadas. CI remota não observada.
+**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada e validada em 2026-10-15; MON-09 em 2026-10-18. MON-01 permanece proposta documental; MON-10 a MON-12 planejadas. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -219,17 +219,17 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-09-AC01: a consulta de verificações aceita filtros e paginação com ordenação estável, incluindo casos com horários iguais.
-- [ ] MON-09-AC02: a consulta de incidentes informa aberto ou encerrado, horários de observação e confirmação e duração estimada.
-- [ ] MON-09-AC03: o resumo distingue monitor pausado, ainda sem observação, com dados antigos, em confirmação, disponível e indisponível, conforme o modelo especificado.
-- [ ] MON-09-AC04: em uma janela com 8 sucessos e 2 falhas externas válidas, a taxa de sucesso das verificações é 80%. Erros internos, bloqueios e cancelamentos não entram nesse denominador.
-- [ ] MON-09-AC05: uma janela sem verificações válidas retorna indicador sem dados, sem inventar um percentual. O contrato informa a quantidade de amostras e os períodos sem observação.
-- [ ] MON-09-AC06: a latência média considera os sucessos com duração válida. Os limites da janela e o fuso utilizado no contrato estão documentados.
-- [ ] MON-09-AC07: a taxa de sucesso das verificações é identificada como métrica por amostragem. A duração dos incidentes permanece um indicador separado.
+- [x] MON-09-AC01: a consulta de verificações aceita filtros e paginação com ordenação estável, incluindo casos com horários iguais.
+- [x] MON-09-AC02: a consulta de incidentes informa aberto ou encerrado, horários de observação e confirmação e duração estimada.
+- [x] MON-09-AC03: o resumo distingue monitor pausado, ainda sem observação, com dados antigos, em confirmação, disponível e indisponível, conforme o modelo especificado.
+- [x] MON-09-AC04: em uma janela com 8 sucessos e 2 falhas externas válidas, a taxa de sucesso das verificações é 80%. Erros internos, bloqueios e cancelamentos não entram nesse denominador.
+- [x] MON-09-AC05: uma janela sem verificações válidas retorna indicador sem dados, sem inventar um percentual. O contrato informa a quantidade de amostras e os períodos sem observação.
+- [x] MON-09-AC06: a latência média considera os sucessos com duração válida. Os limites da janela e o fuso utilizado no contrato estão documentados.
+- [x] MON-09-AC07: a taxa de sucesso das verificações é identificada como métrica por amostragem. A duração dos incidentes permanece um indicador separado.
 
 **Testes:** integração das consultas e filtros; casos com página vazia e identificador inexistente; conjunto de dados controlado para percentuais, latência e períodos sem dados.
 
-**Conclusão:** os indicadores têm definição e exemplo reproduzível, com consultas paginadas e testadas.
+**Conclusão:** consultas administrativas de verificações, incidentes, notificações e resumo implementadas. V7 aditiva preserva fronteiras de observação; UTC, janela semiaberta, amostragem e duração separada documentados. Gate final: 459 testes (167 unitários/292 IT), zero falhas/erros/skips/Checkstyle; runtime e smoke 37 PASS. Verifier independente PASS 7/7 ACs e 9/9 READ, cinco mutações mortas, zero sobreviventes; [relatório](../features/mon-09-consultas/validation.md). Contratos e exemplos em docs/queries.md; CI remota não executada.
 
 ### MON-10 — Construir o painel administrativo
 

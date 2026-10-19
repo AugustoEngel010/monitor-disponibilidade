@@ -119,3 +119,13 @@ Quick Docker: BUILD SUCCESS, 167 unitarios, zero falhas/erros/skips/Checkstyle; 
 | READ-09 default/calendario | src/test/java/br/com/monitor/QueryParametersTest.java:21 `assertThat(window.from()).isEqualTo(Instant.parse("0001-01-01T00:00:00Z"))`; :22 `window.to()` igual a 0001-01-02 | Janela exata de 24h | Sim |
 
 Reverse mapping: unico teste novo corresponde ao edge default/calendario de READ-09. Adequacao A-D aprovada, sem produzir novo comportamento ou alterar testes anteriores. Validadores spec/tasks e git diff --check aprovados. Referencias das tasks anteriores sao relativas aos seus commits; T9 desloca linhas de QueryParametersTest.
+
+## Fechamento independente
+
+PASS: MON-09-AC01 a MON-09-AC07 e READ-01 a READ-09, com evidências atuais por arquivo/linha em [validation.md](validation.md). Gate final único no commit 32ae68d: 459 testes (167 unitários/292 IT), zero falhas/erros/skips/Checkstyle. XMLs finais preservados em `.validation/mon09-reverify-final-reports`; log `.validation/mon09-reverify-final-tests.log`. Runtime e smoke independentes aprovados sobre o mesmo código de produção (diff T8/T9 vazio em fontes e build); smoke 37 PASS.
+
+Revalidação: R4 transitionId, R5 nextAttemptAt, R6 completedAt, R7 mensagem e R1 percentual mortos por assertions, zero erros de infraestrutura e zero sobreviventes. Logs/diffs/XML em `.validation/R*`. Isolamento: porcelain real vazio antes/depois; scratch removida. O relatório preserva o FAIL inicial, os dois sobreviventes originais e as correções. Lessons L-002 a L-004 candidates registradas pelo script da skill.
+
+Validação complementar PostgreSQL 17.6 descartável: `SELECT (timestamptz '0001-01-02T00:00:00Z' - interval '24 hours') = timestamptz '0001-01-01T00:00:00Z', extract(epoch from interval '24 hours')` retornou `t|86400.000000`, exit 0; contêiner próprio removido. Não contado como teste JUnit.
+
+Backlog e handoff atualizados após PASS independente. Comandos finais documentais: validate_spec --strict, validate_tasks, validate_state e git diff --check. CI remota não executada; nenhuma publicação ou alteração no banco do operador.
