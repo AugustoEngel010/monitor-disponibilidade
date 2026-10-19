@@ -107,3 +107,15 @@ Gate integral Docker: BUILD SUCCESS, 458 testes (166 unitarios/292 IT), zero fal
 | READ-09 | src/test/java/br/com/monitor/QueryParametersTest.java:53 `.containsEntry("page", "unknown parameter"));` | Desconhecido prevalece sobre conteudo | Sim |
 
 Reverse mapping: dois novos unitarios e um novo caso HTTP de T8 cobrem READ-09/edge calendario. Os quatro novos casos T7 cobrem READ-08. Adequacao A-D aprovada; catalogo vem da spec, sem testar comportamento incidental de biblioteca. O relatorio FAIL anterior permanece no historico Git; nova validacao independente e sensores seguem este commit.
+
+## T9: precisao do default na borda
+
+A revisao independente identificou ambiguidade entre calendario tecnico e default de 24h. Decisao: limites sao dos timestamps fornecidos; from derivado preserva exatamente to-24h, podendo alcancar 0001-01-01, representavel pelo PostgreSQL. Spec/docs explicitam essa composicao antes do teste.
+
+Quick Docker: BUILD SUCCESS, 167 unitarios, zero falhas/erros/skips/Checkstyle; `.validation/mon09-t9.log`. Sem mudanca em producao desde T8; runtime/smoke aprovados continuam aplicaveis. A suite possui agora 459 casos (167 unitarios/292 IT); revalidacao final independente executa sobre o novo commit antes dos sensores.
+
+| Criterio | Evidencia e assertion | Outcome | Coberto |
+| --- | --- | --- | --- |
+| READ-09 default/calendario | src/test/java/br/com/monitor/QueryParametersTest.java:21 `assertThat(window.from()).isEqualTo(Instant.parse("0001-01-01T00:00:00Z"))`; :22 `window.to()` igual a 0001-01-02 | Janela exata de 24h | Sim |
+
+Reverse mapping: unico teste novo corresponde ao edge default/calendario de READ-09. Adequacao A-D aprovada, sem produzir novo comportamento ou alterar testes anteriores. Validadores spec/tasks e git diff --check aprovados. Referencias das tasks anteriores sao relativas aos seus commits; T9 desloca linhas de QueryParametersTest.

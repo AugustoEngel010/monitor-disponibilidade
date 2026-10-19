@@ -25,7 +25,7 @@ O painel MON-10 precisa consultar evidências e indicadores sem confundir pausa,
 
 | Assumption / decision | Chosen default | Rationale | Confirmed? |
 | --- | --- | --- | --- |
-| Janela | from/to opcionais; to=agora, from=to-24h; UTC, [from,to), from<to<=agora, precisão até microssegundos | MON-01 e PostgreSQL; defaults técnicos explícitos | Pedido/default técnico |
+| Janela | from/to opcionais; to=agora, from=to-24h; UTC, [from,to), from<to<=agora, precisão até microssegundos; calendário técnico limita somente timestamps explícitos | MON-01 preserva a janela padrão de 24h; na borda inferior o início derivado 0001-01-01 continua suportado pelo PostgreSQL | Pedido/default técnico |
 | Paginação | page=0, size=20; page 0..2147483647, size 1..100; horário DESC, UUID DESC | Convenção MON-04 com eventos recentes primeiro | Default técnico |
 | Filtros | checks: outcome; incidents: status OPEN/CLOSED; notifications: status PENDING/SENDING/ACCEPTED/EXHAUSTED e type DOWN/RECOVERY | Semântica específica de cada recurso | Default técnico |
 | Período dos recursos | término de check; confirmação de queda de incidente; confirmação da transição de notificação | Não confundir criação de intenção com tentativas de envio | Default técnico |
@@ -48,7 +48,7 @@ Parâmetro desconhecido tem prioridade; em campo conhecido, repetição tem prio
 | UUID malformado | must be a UUID |
 | page inválido | must be an integer between 0 and 2147483647 |
 | size inválido | must be an integer between 1 and 100 |
-| Timestamp inválido, fora do calendário ou submicrossegundo | must be an ISO-8601 timestamp with offset and at most microsecond precision |
+| Timestamp explícito inválido, fora do calendário ou submicrossegundo | must be an ISO-8601 timestamp with offset and at most microsecond precision |
 | from >= to | must precede to |
 | to > agora | must not be in the future |
 | outcome inválido | must be a check outcome |
@@ -76,7 +76,7 @@ Parâmetro desconhecido tem prioridade; em campo conhecido, repetição tem prio
 
 ## Edge Cases
 
-- Janela vazia/invertida/futura, timestamp sem fuso ou submicrossegundo, campos desconhecidos ou repetidos: 400 por campo; offset explícito normalizado a UTC. Calendário técnico de 0001-01-02 a 9999-12-30, permitindo aritmética/JDBC limitada.
+- Janela vazia/invertida/futura, timestamp sem fuso ou submicrossegundo, campos desconhecidos ou repetidos: 400 por campo; offset explícito normalizado a UTC. Timestamps fornecidos ficam entre 0001-01-02T00:00:00Z e 9999-12-30T00:00:00Z. Defaults preservam to-24h: to explícito 0001-01-02T00:00:00Z, sem from, gera from 0001-01-01T00:00:00Z, suportado pelo PostgreSQL.
 - Empates de horários com UUIDs conhecidos, filtros isolam monitores, offset grande sem overflow, nenhum resultado ou página excedente com totais reais.
 - Frescor em L exato é FRESH; L+1µs é STALE; futuro é STALE; contadores antigos não exibem confirmação quando stale; recuperação saturada em UP não significa confirmação.
 - Cobertura C-16: t=0 e t=200, I=60/T=5, [0,300): lacuna [125,200). C-20: observação 0, pausa 30, retomada 40, observação 60: lacuna [30,60).

@@ -17,7 +17,7 @@ Listas aceitam `page=0` (0..2147483647) e `size=20` (1..100), inteiros estritos.
 
 ## Janela e erros
 
-`from`/`to`: ISO-8601 com offset, como `2026-10-18T09:00:00-03:00`, equivalente a `2026-10-18T12:00:00Z`. Encode `+` como `%2B` em URLs. Janela **[from,to)**: início inclusivo, fim exclusivo, `from < to <= agora`. Default `to=agora`; default `from=to-24h`. Calendário técnico: 0001-01-02T00:00:00Z a 9999-12-30T00:00:00Z. Frações menores que microssegundo são rejeitadas para preservar os limites.
+`from`/`to`: ISO-8601 com offset, como `2026-10-18T09:00:00-03:00`, equivalente a `2026-10-18T12:00:00Z`. Encode `+` como `%2B` em URLs. Janela **[from,to)**: início inclusivo, fim exclusivo, `from < to <= agora`. Default `to=agora`; default `from=to-24h`. Timestamps explicitamente fornecidos devem estar entre 0001-01-02T00:00:00Z e 9999-12-30T00:00:00Z. Defaults preservam a janela de 24h: com to=0001-01-02T00:00:00Z e from omitido, from=0001-01-01T00:00:00Z, ainda representável no PostgreSQL. Frações menores que microssegundo são rejeitadas para preservar os limites.
 
 Campo inválido, UUID malformado, filtro desconhecido/repetido ou inteiro fora do limite retorna 400 por campo, sem ecoar inputs:
 

@@ -16,6 +16,13 @@ class QueryParametersTest {
     private final Instant now = Instant.parse("2026-10-18T12:00:00Z");
 
     @Test
+    void defaultWindowAtEarliestExplicitEndPreservesTwentyFourHours() {
+        var window = parse(Map.of("to", "0001-01-02T00:00:00Z"), "summary");
+        assertThat(window.from()).isEqualTo(Instant.parse("0001-01-01T00:00:00Z"));
+        assertThat(window.to()).isEqualTo(Instant.parse("0001-01-02T00:00:00Z"));
+    }
+
+    @Test
     void calendarBoundsAreInclusiveAndOutOfRangeValuesHaveExactErrors() {
         var lower = parse(Map.of("from", "0001-01-02T00:00:00Z", "to", "0001-01-03T00:00:00Z"), "summary");
         assertThat(lower.from()).isEqualTo(Instant.parse("0001-01-02T00:00:00Z"));

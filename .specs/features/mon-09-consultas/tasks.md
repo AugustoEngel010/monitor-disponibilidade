@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven; gate antes de cada commit, testes junto do comportamento e Verifier independente automático após T6. Pedido autoriza execução; ferramentas selecionadas: Docker/Compose, PowerShell/Python e skill. Seis tasks, execução inline. Nenhum AGENTS.md aplicável encontrado.
 
-**Status:** Done; T1-T8 completos, gates aprovados; revalidacao independente pendente. **Design:** [design.md](design.md).
+**Status:** Done; T1-T9 completos, gates aprovados; revalidacao independente pendente. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -32,7 +32,7 @@ Guidelines: README.md, pom.xml, config/checkstyle.xml, CI. Amostras: MonitorApiI
 ### Phase 1: Consultas
 
 ```text
-T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
+T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8 -> T9
 ```
 
 ## Task Breakdown
@@ -117,6 +117,16 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 **Tests**: integration
 **Gate**: build
 
+### T9: Esclarecer composição do default na borda do calendário
+**What**: Fechar a ambiguidade apontada na revalidação com contrato explícito e teste de from derivado; produção inalterada. Única task restante, executada inline.
+**Where**: `src/test/java/br/com/monitor/QueryParametersTest.java`
+**Depends on**: T8
+**Requirement**: READ-09; edge calendário/default
+**Done when**:
+- [x] to=0001-01-02 com from omitido produz [0001-01-01,0001-01-02), conforme spec/docs; Quick aprovado. Runtime/smoke mantêm o mesmo código de produção de T8; revalidação independente inclui este novo caso.
+**Tests**: unit
+**Gate**: quick
+
 ## Diagram-Definition Cross-Check
 
 | Task | Depends on | Diagram | Result |
@@ -129,6 +139,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 | T6 | T5 | T5 -> T6 | Match |
 | T7 | T6 | T6 -> T7 | Match |
 | T8 | T7 | T7 -> T8 | Match |
+| T9 | T8 | T8 -> T9 | Match |
 
 ## Test Co-location Validation
 
@@ -142,3 +153,4 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 | T6 | docs/queries.md | integration | integration | Match |
 | T7 | Históricos | integration | integration | Match |
 | T8 | Parâmetros/HTTP | integration | integration | Match |
+| T9 | Parâmetros | unit | unit | Match |
