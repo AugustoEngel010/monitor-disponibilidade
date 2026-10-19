@@ -30,10 +30,10 @@ Gate Full selecionado: Docker tests mvn verify com -Dit.test=HistoryQueriesIT,Su
 
 | Criterio | Evidencia e assertion | Outcome | Coberto |
 | --- | --- | --- | --- |
-| READ-01 filtros/empates | HistoryQueriesIT.java:33 `containsExactly(uuid(5), uuid(4), uuid(3), uuid(2), uuid(1))` | Cinco sucessos, DESC sem sobreposicao | Sim |
-| READ-01/09 paginas/404 | HistoryQueriesIT.java:55 `beyond.items()).isEmpty()`; :70 `problem.status()).isEqualTo(404)` | Vazio com totais, 404 | Sim |
-| READ-02 tempos/duracao | HistoryQueriesIT.java:99 `ageSeconds()).isEqualByComparingTo("599.9")`; :111 `estimatedDurationSeconds()).isEqualByComparingTo("180.9")` | Idade aberta e duracao final separadas | Sim |
-| READ-08 notificacoes | HistoryQueriesIT.java:145 `first.items().getFirst().id()).isEqualTo(uuid(11))`; :160 `containsExactly(1, 2)` | Ordem UUID e tentativas numeradas | Sim |
+| READ-01 filtros/empates | HistoryQueriesIT.java:29 `containsExactly(uuid(5), uuid(4), uuid(3), uuid(2), uuid(1))` | Cinco sucessos, DESC sem sobreposicao | Sim |
+| READ-01/09 paginas/404 | HistoryQueriesIT.java:49 `beyond.items()).isEmpty()`; :63 `problem.status()).isEqualTo(404)` | Vazio com totais, 404 | Sim |
+| READ-02 tempos/duracao | HistoryQueriesIT.java:88 `ageSeconds()).isEqualByComparingTo("599.9")`; :99 `estimatedDurationSeconds()).isEqualByComparingTo("180.9")` | Idade aberta e duracao final separadas | Sim |
+| READ-08 notificacoes | HistoryQueriesIT.java:125 `first.items().getFirst().id()).isEqualTo(uuid(11))`; :137 `containsExactly(1, 2)` | Ordem UUID e tentativas numeradas | Sim |
 
 Reverse mapping: HistoryQueriesIT inteiro cobre READ-01/02/08/09 e seus casos vazios/limites; QueryFixture so prepara dados controlados. Payloads tem assertions individuais de IDs/versoes/instantes/classificacao/status/erros. Adequacao A-D aprovada; nenhuma alteracao de teste anterior.
 
@@ -43,7 +43,7 @@ Gate Full selecionado: BUILD SUCCESS, 164 unitarios + 17 IT (13 novas de resumo 
 
 | Criterio | Evidencia e assertion | Outcome | Coberto |
 | --- | --- | --- | --- |
-| READ-04/06/07 | SummaryQueriesIT.java:31-37 `metricType` CHECK_SUCCESS_SAMPLING, total13/valid10/success8/latency8, `80.00` e `100.00` | Oito S + duas F, tres excluidos | Sim |
+| READ-04/06/07 | SummaryQueriesIT.java:33 `metricType()).isEqualTo("CHECK_SUCCESS_SAMPLING")`; :39 `successRatePercent()).isEqualByComparingTo("80.00")`; :40 `averageResponseTimeMs()).isEqualByComparingTo("100.00")` | Oito S + duas F, tres excluidos | Sim |
 | READ-05 sem dados | SummaryQueriesIT.java:67-75 NO_DATA, contagens zero, percent/latencia null, lacuna integral | Sem inventar percentual | Sim |
 | READ-05 cobertura | SummaryQueriesIT.java:101-109 `containsExactly(Period(125,200))`, anterior a janela sem amostras e uniao completa | C-16 | Sim |
 | READ-05 pausa/politica | SummaryQueriesIT.java:126-148 lacuna 30-60, 80-90,111-120 e igualdade apos nome | C-20 e mudanca de L | Sim |
@@ -58,8 +58,22 @@ Gate Full selecionado: BUILD SUCCESS, 164 unitarios + 43 IT (26 HTTP novas), zer
 | Criterio | Evidencia e assertion | Outcome | Coberto |
 | --- | --- | --- | --- |
 | READ-01/02/03/08 HTTP | QueryApiIT.java:118-160 payload real de check/incidente/notificacao/resumo, pagina excedente e totais | Contratos JSON e IDs relacionados | Sim |
-| READ-09 inexistente/invalido/401 | QueryApiIT.java:80-90 status 404/400/401 e MONITOR_NOT_FOUND | Mesmo erro administrativo | Sim |
+| READ-09 inexistente/invalido/401 | QueryApiIT.java:83 `statusCode()).isEqualTo(404)`; :87 `statusCode()).isEqualTo(400)`; :90 `statusCode()).isEqualTo(401)`; :84 `isEqualTo("MONITOR_NOT_FOUND")` | Mesmo erro administrativo | Sim |
 | READ-09 filtros | QueryApiIT.java:108 `response.statusCode()).isEqualTo(400)`; :110 `isEqualTo("VALIDATION_ERROR")` | 21 combinacoes de campos/rotas | Sim |
-| READ-05 vazio | QueryApiIT.java:64-77 SEM_DADOS/null ou items vazio com pagina/totais | Estados vazios explicitos | Sim |
+| READ-05 vazio | QueryApiIT.java:71 `isEqualTo("SEM_DADOS")`; :72 `isNull()).isTrue()`; :76 `items").size()).isZero()`; :80 `totalPages").asInt()).isZero()` | Estados vazios explicitos | Sim |
 
 Reverse mapping: todos os 26 casos HTTP pertencem a READ-01/02/03/08/09 e casos vazios de READ-05; testes comprovam saida HTTP e preservacao SQL. Adequacao A-D aprovada. QueryErrors reutiliza o envelope MonitorErrors.Error, sem alterar a chain global Basic/CSRF.
+
+## T6 e gate final do autor
+
+| Comando | Resultado |
+| --- | --- |
+| docker compose run --build --rm tests | Exit 0, BUILD SUCCESS; 451 testes = 164 unitarios + 287 IT; 0 falhas/erros/skips e 0 Checkstyle |
+| docker compose build app | Exit 0, imagem monitor-disponibilidade:local construida |
+| powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild | Exit 0, 37 PASSs; startup fechado, Basic/CSRF, sete migracoes, SMTP, restart/down-up e runtime UID10001 |
+| validate_spec --strict / validate_tasks | Exit 0, zero erros/avisos |
+| git diff --check | Exit 0 |
+
+Logs: `.validation/mon09-final-tests.log`, `.validation/mon09-runtime-build.log`, `.validation/mon09-smoke.log`, `.validation/mon02-smoke-305b9fe32087.log`. XMLs em target/surefire-reports e target/failsafe-reports; contagens lidas dos XMLs. Baseline 387; delta +64 (20 unitarios, 44 IT). Nenhum teste removido/enfraquecido/ignorado. Gates dirigidos anteriores constam nas tasks; fechamento usa suite integral, sem selecao.
+
+Docs/queries.md define filtros, exemplos das quatro rotas, [from,to), UTC, limites/paginacao, taxas e denominadores, latencia e arredondamento, coberturaKnownFrom, pausas/politicas e ausencia de retencao implementada. README e monitor-api ligam o contrato. Adequacao A-D: todos os criterios ligados aos testes co-localizados anteriores; esta task documental nao adiciona comportamento de producao. Verificacao independente executa apos este commit. CI remota nao executada; banco do operador preservado.

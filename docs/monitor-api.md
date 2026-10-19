@@ -1,5 +1,7 @@
 # API administrativa de monitores
 
+As consultas MON-09 de verificações, incidentes, notificações e resumo estão em [Histórico e resumo](queries.md).
+
 Contrato MON-04. Base `/api/admin/monitors`. Todas as rotas exigem HTTP Basic do operador. Escritas exigem também cookie `JSESSIONID` e `X-CSRF-TOKEN` obtidos em `GET /api/admin/csrf`; o fluxo e a rotação estão no [README](../README.md). Sem Basic válido: 401. Com Basic válido, escrita sem CSRF válido: 403. Essas respostas têm corpo vazio.
 
 | Método / rota | Sucesso | Operação |

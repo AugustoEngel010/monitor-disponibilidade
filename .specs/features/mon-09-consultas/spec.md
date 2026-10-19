@@ -1,6 +1,6 @@
 # MON-09: histórico e resumo do monitor
 
-**Data:** 2026-10-18. **Status:** Implementing. Execução local autorizada pelo pedido.
+**Data:** 2026-10-18. **Status:** Implementado; gates locais aprovados, Verifier pendente. Execução local autorizada pelo pedido.
 **Origem:** MON-09-AC01 a MON-09-AC07; PROD-34/35/36; AD-001 a AD-010.
 
 ## Problem Statement
@@ -75,15 +75,15 @@ Validação: READ-09. Falha parcial: snapshot de leitura e erro de banco propaga
 
 | Requirement ID | Origem | Tasks | Testes | Status |
 | --- | --- | --- | --- | --- |
-| READ-01 | MON-09-AC01 | T1,T3,T5 | QueryParametersTest, HistoryQueriesIT, QueryApiIT | Implementing |
-| READ-02 | MON-09-AC02 | T3,T5 | HistoryQueriesIT, QueryApiIT | Implementing |
-| READ-03 | MON-09-AC03 | T4,T5 | SummaryQueriesIT, QueryApiIT | Implementing |
-| READ-04 | MON-09-AC04 | T4 | SummaryQueriesIT | Implementing |
-| READ-05 | MON-09-AC05 | T2,T4 | ObservationEpochIT, SummaryQueriesIT | Implementing |
-| READ-06 | MON-09-AC06 | T4,T6 | SummaryQueriesIT, docs/queries.md | Implementing |
-| READ-07 | MON-09-AC07 | T4,T6 | SummaryQueriesIT, docs/queries.md | Implementing |
-| READ-08 | MON-09-AC01/02 | T3,T5 | HistoryQueriesIT, QueryApiIT | Implementing |
-| READ-09 | MON-09-AC01/03 | T1,T5 | QueryParametersTest, QueryApiIT | Implementing |
+| READ-01 | MON-09-AC01 | T1,T3,T5 | QueryParametersTest, HistoryQueriesIT, QueryApiIT | Verified |
+| READ-02 | MON-09-AC02 | T3,T5 | HistoryQueriesIT, QueryApiIT | Verified |
+| READ-03 | MON-09-AC03 | T4,T5 | SummaryQueriesIT, QueryApiIT | Verified |
+| READ-04 | MON-09-AC04 | T4 | SummaryQueriesIT | Verified |
+| READ-05 | MON-09-AC05 | T2,T4 | ObservationEpochIT, SummaryQueriesIT | Verified |
+| READ-06 | MON-09-AC06 | T4,T6 | SummaryQueriesIT, docs/queries.md | Verified |
+| READ-07 | MON-09-AC07 | T4,T6 | SummaryQueriesIT, docs/queries.md | Verified |
+| READ-08 | MON-09-AC01/02 | T3,T5 | HistoryQueriesIT, QueryApiIT | Verified |
+| READ-09 | MON-09-AC01/03 | T1,T5 | QueryParametersTest, QueryApiIT | Verified |
 
 ## Success Criteria
 

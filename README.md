@@ -1,6 +1,6 @@
 # Monitor de disponibilidade
 
-Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores, MON-05 executa HTTP, MON-06 agenda verificações, MON-07 mantém incidentes e MON-08 envia notificações duráveis por SMTP com histórico e retries. Painel e consultas seguem no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
+Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores, MON-05 executa HTTP, MON-06 agenda verificações, MON-07 mantém incidentes, MON-08 envia notificações duráveis e MON-09 fornece [históricos paginados e resumo](docs/queries.md), com taxa por amostragem, latência e períodos sem observação. O painel segue na MON-10 do [backlog](.specs/task/monitor-disponibilidade-tasks.md).
 
 Build, testes e execução usam contêineres. O host precisa de Docker com daemon Linux e Docker Compose; não precisa de Maven Wrapper, Maven ou JDK. São suportados Docker Desktop com Linux containers e Docker Engine Linux com `host-gateway` (20.10+), Compose v2+ e BuildKit. A validação local foi realizada no Docker Desktop Windows; a execução remota da CI não foi observada.
 
@@ -102,7 +102,7 @@ Para executar testes e verificações de qualidade:
 docker compose run --build --rm tests
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 387 casos: 144 unitários e 243 integrações, incluindo os 356 anteriores e 31 da MON-08 para entrega, retries, unicidade, rollback, ordem e reinício. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
+Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte tem 451 casos: 164 unitários e 287 integrações, incluindo os 387 anteriores e 64 da MON-09 para validação, épocas de observação, histórico paginado, resumo e contratos HTTP. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
 Os resultados são copiados para o host mesmo se a suíte falhar:
 
@@ -144,7 +144,7 @@ Limites dos módulos:
 | Monitoramento (`br.com.monitor.monitoring`) | Agendamento persistente, concorrência limitada, execução HTTP segura e resultados idempotentes | Monitor/configuração, Apache HttpClient, JDBC; MON-05/06 implementadas |
 | Incidentes (`br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados duráveis, lock de monitor, JDBC e intenção atômica; MON-07 implementada, sem executar HTTP |
 | Notificações (`br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Outbox transacional, worker SMTP, tentativas e retomada; MON-08 implementada |
-| Consultas (futuro `br.com.monitor.reporting`) | Histórico, indicadores e painel | Leitura dos contratos dos módulos, sem alterar estado do executor; MON-09/MON-10 |
+| Consultas (`br.com.monitor.query`) | Histórico paginado e resumo com indicadores | Leitura dos módulos em snapshot, sem alterar estado do executor; dados para MON-10 |
 
 Nenhum módulo de produção depende de bibliotecas de teste; `ArchitectureTest` impõe esse limite. Os pacotes futuros serão criados com suas funcionalidades, sem classes vazias nesta base. As [specs da MON-02](.specs/features/mon-02-base-docker/spec.md), [decisão AD-004](.specs/STATE.md) e [tasks](.specs/features/mon-02-base-docker/tasks.md) mantêm a rastreabilidade MON-02-AC01 a MON-02-AC08.
 
