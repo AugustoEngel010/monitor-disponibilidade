@@ -69,11 +69,11 @@ Premissas/arquivos: details.js e details.spec.js; nenhum indicador ou duração 
 | AC / done-when | Assertion file:line | Outcome | Coberto |
 | --- | --- | --- | --- |
 | AC04 fluxo real | config/panel/details.spec.js:14..21 HTTP503/incidente/PENDING/destinatário/count0; :24 UP real; :26..30 Encerrado/quatro instantes/notificação recuperação; :32 duração igual à API | Incidente aberto e recuperação reais | Sim |
-| AC04/05 métricas da API | config/panel/details.spec.js:52 `toHaveText('80%')`; :53 100ms; :54..56 counts10/13/8; :57 Dados antigos; :58 idade100,9; :59 duração180,9 | Amostragem separada, frações preservadas | Sim |
+| AC04/05 métricas da API | config/panel/details.spec.js:53 `toHaveText('80%')`; :54 100ms; :55..57 counts10/13/8; :58 Dados antigos; :59 idade100,9; :60 duração180,9 | Amostragem separada, frações preservadas | Sim |
 | AC05 null/zero | config/panel/details.spec.js:76..77 `toHaveText(value === null ? 'Sem dados' : '0%')` / 0ms | Ausência distinta de zero | Sim |
-| AC04 filtros reais/janela | config/panel/details.spec.js:90 vazio CLOSED; :99..100 status/type; :110..111 offset preservado e somente from/to; :112 Sem dados; :113 atual aberto | Sem filtrar incidente atual pela janela | Sim |
-| AC04 paginação checks | config/panel/details.spec.js:125 check-page-1; :132..134 page0/size1/outcomeTIMEOUT | Filtros reiniciam página | Sim |
-| AC04 notificações | config/panel/details.spec.js:149..155 SMTP/destinatário/transitionId/count2/SMTP_UNCERTAIN/horário exato; :156 sem promessa de caixa postal | Snapshot e tentativas | Sim |
+| AC04 filtros reais/janela | config/panel/details.spec.js:88 vazio CLOSED; :95..96 status/type; :103..104 offset preservado e somente from/to; :105 Sem dados; :106 atual aberto | Sem filtrar incidente atual pela janela | Sim |
+| AC04 paginação checks | config/panel/details.spec.js:123 check-page-1; :129..131 page0/size1/outcomeTIMEOUT | Filtros reiniciam página | Sim |
+| AC04 notificações | config/panel/details.spec.js:149..154 SMTP/destinatário/transitionId/count2/SMTP_UNCERTAIN/horário exato; :155 sem promessa de caixa postal | Snapshot e tentativas | Sim |
 | AC04 paginação incidentes/notificações | config/panel/details.spec.js:171 página1; :172 Próxima disabled; :174 outro histórico página0 | Controles independentes | Sim |
 | AC05/06 falhas e validação | config/panel/details.spec.js:183 401; :184 503; :185 seção saudável vazia; :189..191 erro/input intacto/aria-invalid | Falhas por seção, sem mascarar acesso | Sim |
 | AC05 navegação | config/panel/details.spec.js:209 rascunho preservado; :210 Resumo count0 | Resposta antiga não substitui formulário | Sim |
@@ -96,3 +96,23 @@ Full inicial: 48/48 em 1.4m. Após acabamento textual, Full sobre banco novo no 
 Reverse mapping: dois testes parametrizados correspondem ao AC06; cobrem funções já especificadas, sem criar requisitos novos. Adequação A-D PASS, suíte anterior preservada.
 
 Inspeção visual pelo autor: mobile-form, mobile-details, desktop-list e desktop-details vistos pelo visualizador de imagens; labels, ações, foco, estados textuais e quebra de URLs longas conferidos. Capturas de lista incluem monitor pausado e estado confirmado separado; detalhes incluem taxa/latência, filtros e históricos. Revisão humana interativa foi oferecida em paralelo; não é registrada como executada sem resposta do usuário.
+
+## T7: documentação e gates finais
+
+Arquivos: README, CI, seis imagens em docs/images/mon10, spec/tasks/evidence e handoff. Premissa: CI remota não observada, sem afirmar UAT humano. README cobre autenticação Basic, CSRF automático, oito campos, ações, filtros/offset/janela, indicadores, dados antigos, falhas e acesso em localhost. Seus links locais foram conferidos: zero ausentes, seis screenshots presentes. CI executa a mesma suíte de navegador em projeto próprio e publica HTML/JUnit/traces/screenshots mesmo em falha.
+
+| Comando executado | Resultado | Evidência local |
+| --- | --- | --- |
+| `docker compose run --build --rm tests` | exit 0, BUILD SUCCESS, 459 testes, 167 unitários/292 IT, zero falhas/erros/skips/Checkstyle; 3:52 min | .validation/mon10-final-java.log; target/surefire-reports; target/failsafe-reports; target/checkstyle-result.xml |
+| `docker compose build app` | exit 0, runtime final com recursos estáticos no JAR, sem Node/navegador | .validation/mon10-final-runtime.log |
+| `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild` | exit 0, 37 PASS, projeto próprio removido | .validation/mon10-final-smoke.log; .validation/mon02-smoke-83e9ec7f7eb2.log |
+| `docker compose -p mon10-panel-final --profile panel-tests run --use-aliases --build --rm panel-tests` | exit 0, 48/48 testes UI, zero skips, banco inicialmente vazio | .validation/mon10-t6-ui-final.log; .validation/panel/junit.xml |
+| `docker compose config --quiet` | exit 0 | Validação local sem imprimir variáveis |
+| `validate_spec.py mon-10-painel --strict` / `validate_tasks.py mon-10-painel` | exit 0; spec sem avisos; aviso de Tests:none da T7 confirmado pela matriz documental/configuração | Scripts da skill |
+| `git diff --check` | exit 0 | Checkout local |
+
+Baseline e final Java: 459, sem remoção ou alteração de testes Java; delta UI +48. `git diff be7fae1 -- src/main/java src/test/java src/main/resources/db Dockerfile pom.xml config/run-tests.sh` é vazio. Segurança, domínio, migrations e estágios Docker preservados. O fluxo novo adiciona somente perfil de testes de navegador.
+
+Adequação T7: camada documental/configuração não requer teste novo. Os comandos reais do README/CI foram exercitados pelos gates acima; referências apontam para assertions das T1..T6. Reverse mapping permanece limitado aos seis ACs. A-D PASS; sem desvios de spec. Projetos mon10-panel-final e mon02-smoke-83e9ec7f7eb2 removidos; somente os serviços panel-app/panel-db do projeto de desenvolvimento foram removidos, sem remover rede/volumes ou serviços do operador.
+
+O Verifier independente produzirá validation.md e sensor isolado após este commit; conclusão do backlog depende desse relatório PASS.

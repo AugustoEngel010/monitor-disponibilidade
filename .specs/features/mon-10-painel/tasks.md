@@ -4,7 +4,7 @@
 
 Executar com a skill tlc-spec-driven, gate por task, revisão de adequação, commit atômico e Verifier independente ao concluir. Execução local autorizada pelo pedido; ferramentas de filesystem, Git e Docker. Não publicar.
 
-**Design:** [design.md](design.md). **Status:** In Progress.
+**Design:** [design.md](design.md). **Status:** Done; gates do autor aprovados, Verifier independente é o próximo passo obrigatório.
 
 ## Test Coverage Matrix
 
@@ -14,8 +14,9 @@ Derivada de pom.xml, config/checkstyle.xml, README e CI; amostras MonitorApiIT, 
 | --- | --- | --- | --- | --- |
 | Cliente e páginas | e2e | Fluxos de todos os ACs e erros listados, backend real; falhas controladas por interceptação | config/panel/*.spec.js | docker compose --profile panel-tests run --use-aliases --build --rm panel-tests |
 | Backend preservado | integration | Manter todos os 459 testes e Checkstyle | src/test/java | docker compose run --build --rm tests |
-| CSS / acessibilidade | e2e | Desktop 1440×900, mobile 390×844, teclado e sem overflow da página | config/panel/responsive.spec.js | docker compose --profile panel-tests run --build --rm panel-tests responsive.spec.js |
+| CSS / acessibilidade | e2e | Desktop 1440×900, mobile 390×844, teclado e sem overflow da página | config/panel/responsive.spec.js | docker compose --profile panel-tests run --use-aliases --build --rm panel-tests responsive.spec.js |
 | Documentação | none | Comandos executáveis e rastreabilidade | README.md | Gates estruturais e build |
+| CI / configuração de execução | none | Comandos do workflow exercitados localmente; artefatos preservados em falha | .github/workflows/ci.yml | Gate Build |
 
 ## Gate Check Commands
 
@@ -122,7 +123,7 @@ T1 → T2 → T3 → T4 → T5 → T6 → T7
 **Support files**: CI, evidence.md, STATE.md, backlog e spec/tasks.
 **Assumptions**: Não declarar CI remota ou UAT humano executado.
 **Done when**:
-- [ ] Suite Java, build/runtime, smoke e UI passam; README informa Basic/CSRF, acesso, filtros e comandos; relatório de evidências contém assertions file:line.
+- [x] Suite Java, build/runtime, smoke e UI passam; README informa Basic/CSRF, acesso, filtros e comandos; relatório de evidências contém assertions file:line (459 Java + 48 UI, smoke 37 PASS).
 **Tests**: none, camada documental; executa regressão existente como gate
 **Gate**: Build
 

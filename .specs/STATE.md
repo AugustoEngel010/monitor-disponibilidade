@@ -93,11 +93,11 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 
 ## Handoff
 
-- **Feature**: MON-09; `.specs/features/mon-09-consultas/`.
-- **Phase / Task**: Execute concluído; T1–T9 e Verifier independente PASS 7/7 ACs e 9/9 READ.
-- **Completed**: Quatro GETs administrativos para checks/incidents/notifications/summary; filtros, páginas estáveis, épocas V7, cobertura e métricas por amostragem. UTC, janela semiaberta, taxa 80%, latência dos sucessos, ausência de dados e duração fracionária separados. Gate final: 459 testes (167 unitários/292 IT), +72, zero falhas/erros/skips/Checkstyle; runtime e smoke 37 PASS. Sensor final cinco mortos, zero sobreviventes. Gaps iniciais de payload/mensagens e precisão de defaults corrigidos em T7/T8/T9; lessons L-002/L-003/L-004 candidates.
-- **In-progress**: Nenhuma implementação pendente. Relatório `validation.md` PASS e validate_state aprovado; backlog MON-09-AC01 a AC07 marcado.
-- **Next step**: MON-10 consome os contratos de docs/queries.md; preservar dimensões lifecycle/confirmedState/evidence, rótulos e currentIncident. MON-11 deve informar retenção separadamente de coverageKnownFrom e preservar épocas/referências. AD-001 a AD-011 vigentes.
-- **Blockers**: Nenhum local. Docker requer execução autorizada fora do sandbox. CI remota não executada.
-- **Uncommitted files**: Nenhum após commit de fechamento documental.
-- **Branch**: main; baseline a2a7df2; T1 4f56518, T2 e5be77a, T3 2e9bfcf, T4 8aa31be, T5 fda1da6, T6 db60528, T7 23a9c1c, T8 32f4eab, T9 32ae68d. Banco do operador preservado; scratch e recursos descartáveis próprios removidos. Logs `.validation/mon09-*.log`, XML final em `.validation/mon09-reverify-final-reports`, sensores `.validation/R*-reports`.
+- **Feature**: MON-10; `.specs/features/mon-10-painel/`.
+- **Phase / Task**: T1–T7 implementadas e gates do autor aprovados; Verifier independente automático é o próximo passo.
+- **Completed**: Painel estático servido pelo Spring Boot: lista/summary, formulário MON-04, pausa/retomada confirmadas, detalhes com três históricos filtrados/paginados e indicadores MON-09. Basic/CSRF existentes mantidos. 459 testes Java +48 UI, zero falhas/erros/skips; Checkstyle zero; runtime e smoke 37 PASS. Desktop 1440×900/mobile 390×844 e seis capturas em docs/images/mon10. README e CI atualizados.
+- **In-progress**: Revisão independente e sensor isolado ainda pendentes; não marcar backlog concluído antes de PASS.
+- **Next step**: Despachar Verifier com spec, diff be7fae1..HEAD, config/panel/*.spec.js e validate.md; corrigir gaps e executar validate_state.
+- **Blockers**: Nenhum local. CI remota e UAT humano não executados; revisão visual automatizada e pelo autor registrada.
+- **Uncommitted files**: Nenhum após este commit de fechamento da T7.
+- **Branch**: main; baseline be7fae1; T1 aad2998, T2 a07e271, T3 5e124ed, T4 b53b303, T5 22097c2, T6 5f1ad77. AD-001 a AD-011 preservadas. Bancos/serviços de UI próprios removidos; smoke removeu seu projeto. Logs .validation/mon10-*; relatórios Java em target; UI em .validation/panel.

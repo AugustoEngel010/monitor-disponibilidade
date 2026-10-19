@@ -1,6 +1,6 @@
 # MON-10: painel administrativo
 
-**Data:** 2026-10-19. **Status:** execução local autorizada no pedido.
+**Data:** 2026-10-19. **Status:** implementação e gates do autor concluídos; aguardando Verifier independente automático.
 **Origem:** MON-10-AC01 até MON-10-AC06; AD-001 a AD-011.
 
 ## Problem Statement

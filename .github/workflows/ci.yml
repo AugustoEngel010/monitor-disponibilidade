@@ -22,6 +22,8 @@ jobs:
       - name: Verify startup migrations and persistent data
         shell: pwsh
         run: ./scripts/validate-compose.ps1 -NoBuild
+      - name: Browser flows desktop and mobile in containers
+        run: docker compose -p monitor-panel-tests --profile panel-tests run --use-aliases --build --rm panel-tests
       - name: Upload test quality and lifecycle reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -32,7 +34,10 @@ jobs:
             target/failsafe-reports/
             target/checkstyle-result.xml
             .validation/*.log
+            .validation/panel/
           if-no-files-found: warn
       - name: Clean CI test resources
         if: always()
-        run: docker compose down --volumes --remove-orphans
+        run: |
+          docker compose -p monitor-panel-tests --profile panel-tests down --remove-orphans
+          docker compose down --volumes --remove-orphans
