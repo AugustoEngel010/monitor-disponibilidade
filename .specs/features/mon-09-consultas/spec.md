@@ -82,8 +82,8 @@ Validação: READ-09. Falha parcial: snapshot de leitura e erro de banco propaga
 | READ-05 | MON-09-AC05 | T2,T4 | ObservationEpochIT, SummaryQueriesIT | Verified |
 | READ-06 | MON-09-AC06 | T4,T6 | SummaryQueriesIT, docs/queries.md | Verified |
 | READ-07 | MON-09-AC07 | T4,T6 | SummaryQueriesIT, docs/queries.md | Verified |
-| READ-08 | MON-09-AC01/02 | T3,T5 | HistoryQueriesIT, QueryApiIT | Verified |
-| READ-09 | MON-09-AC01/03 | T1,T5 | QueryParametersTest, QueryApiIT | Verified |
+| READ-08 | MON-09-AC01/02 | T3,T5,T7 | HistoryQueriesIT, QueryApiIT | Verified |
+| READ-09 | MON-09-AC01/03 | T1,T5,T8 | QueryParametersTest, QueryApiIT | Needs Fix |
 
 ## Success Criteria
 

@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 2,
+  "next_id": 4,
   "lessons": [
     {
       "id": "L-001",
@@ -22,6 +22,42 @@
       ],
       "created": "2026-10-15T21:23:00Z",
       "last_seen": "2026-10-15T21:23:00Z"
+    },
+    {
+      "id": "L-002",
+      "key": "surviving_mutant::assert notification transition ids and retry timestamps against persisted values instead of checking only non null presence",
+      "text": "Assert notification transition IDs and retry timestamps against persisted values instead of checking only non-null presence.",
+      "signal": "surviving_mutant",
+      "scope": "query",
+      "status": "candidate",
+      "features": [
+        "mon-09-consultas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "M4/M5; src/test/java/br/com/monitor/HistoryQueriesIT.java:129 (query)"
+      ],
+      "created": "2026-10-19T00:13:49Z",
+      "last_seen": "2026-10-19T00:13:49Z"
+    },
+    {
+      "id": "L-003",
+      "key": "ac_gap::assert exact validation error messages per field instead of checking only that error text is nonblank",
+      "text": "Assert exact validation error messages per field instead of checking only that error text is nonblank.",
+      "signal": "ac_gap",
+      "scope": "query",
+      "status": "candidate",
+      "features": [
+        "mon-09-consultas"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "READ-09; src/test/java/br/com/monitor/QueryApiIT.java:111 (query)"
+      ],
+      "created": "2026-10-19T00:13:49Z",
+      "last_seen": "2026-10-19T00:13:49Z"
     }
   ]
 }

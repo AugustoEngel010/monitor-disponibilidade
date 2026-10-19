@@ -6,11 +6,61 @@ import java.util.UUID;
 import br.com.monitor.administration.MonitorProblem;
 import br.com.monitor.monitoring.CheckResult.Outcome;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class HistoryQueriesIT extends QueryFixture {
+    @ParameterizedTest
+    @ValueSource(strings = {"PENDING", "SENDING", "ACCEPTED", "EXHAUSTED"})
+    void notificationIdentityScheduleAndCompletionMatchStoredValuesInEveryDeliveryState(String status) {
+        processor.process(check(monitor, 1, 0, Outcome.HTTP_FAILURE, 0, false).executionId());
+        var stored = jdbc.queryForMap("SELECT id,transition_id FROM monitor.notification_intents");
+        var id = (UUID) stored.get("id");
+        boolean terminal = "ACCEPTED".equals(status) || "EXHAUSTED".equals(status);
+        int count = "EXHAUSTED".equals(status) ? 5 : 1;
+        var completed = terminal ? base.plusSeconds(count * 10L + 1) : null;
+        var next = "PENDING".equals(status) ? base.plusSeconds(50) : null;
+        jdbc.update("UPDATE monitor.notification_intents SET status=?,attempt_count=?,next_attempt_at=?,"
+                + " completed_at=? WHERE id=?", status, count, next == null ? null : Timestamp.from(next),
+                completed == null ? null : Timestamp.from(completed), id);
+        for (int number = 1; number <= count; number++) {
+            boolean sending = "SENDING".equals(status) && number == count;
+            String outcome = sending ? "SENDING" : "ACCEPTED".equals(status) && number == count
+                    ? "ACCEPTED" : "FAILED";
+            jdbc.update("INSERT INTO monitor.notification_attempts VALUES (?,?,?,?,?,?)", id, number,
+                    Timestamp.from(base.plusSeconds(number * 10L)),
+                    sending ? null : Timestamp.from(base.plusSeconds(number * 10L + 1)), outcome,
+                    "FAILED".equals(outcome) ? "SMTP_FAILURE" : null);
+        }
+        var current = monitors.find(monitor.id(), false).orElseThrow();
+        var original = current.configuration();
+        var replacement = br.com.monitor.administration.MonitorConfiguration.validated("new name", original.url(),
+                60, 5, 200, 1, 1, "new@example.org");
+        monitors.save(current.edit(replacement, base.plusSeconds(100)));
+        var page = history.notifications(monitor.id(), window(0, 600, 0, 20, null, status, "DOWN"));
+        assertThat(page.totalElements()).isEqualTo(1);
+        var item = page.items().getFirst();
+        assertThat(item.id()).isEqualTo(id);
+        assertThat(item.transitionId()).isEqualTo(stored.get("transition_id"));
+        assertThat(item.recipient()).isEqualTo("ops@example.org");
+        assertThat(item.status()).isEqualTo(status);
+        assertThat(item.nextAttemptAt()).isEqualTo(next);
+        assertThat(item.completedAt()).isEqualTo(completed);
+        assertThat(item.attemptCount()).isEqualTo(count);
+        assertThat(item.attempts()).hasSize(count);
+        var last = item.attempts().getLast();
+        assertThat(last.attemptNumber()).isEqualTo(count);
+        assertThat(last.startedAt()).isEqualTo(base.plusSeconds(count * 10L));
+        assertThat(last.finishedAt()).isEqualTo("SENDING".equals(status) ? null : base.plusSeconds(count * 10L + 1));
+        assertThat(last.outcome()).isEqualTo("SENDING".equals(status) ? "SENDING"
+                : "ACCEPTED".equals(status) ? "ACCEPTED" : "FAILED");
+        assertThat(last.errorCode()).isEqualTo("SENDING".equals(status) || "ACCEPTED".equals(status)
+                ? null : "SMTP_FAILURE");
+    }
+
     @Test
     void checksUseHalfOpenWindowOutcomeAndStableTimestampUuidOrderAcrossPages() {
         for (int id = 1; id <= 5; id++) { check(monitor, id, 10, Outcome.SUCCESS, 100, false); }

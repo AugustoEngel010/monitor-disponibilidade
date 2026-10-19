@@ -4,7 +4,7 @@
 
 Aplicar tlc-spec-driven; gate antes de cada commit, testes junto do comportamento e Verifier independente automático após T6. Pedido autoriza execução; ferramentas selecionadas: Docker/Compose, PowerShell/Python e skill. Seis tasks, execução inline. Nenhum AGENTS.md aplicável encontrado.
 
-**Status:** Done; gates locais aprovados, Verifier independente pendente. **Design:** [design.md](design.md).
+**Status:** In Progress; T1–T6 completos; Verifier encontrou gaps READ-08/09, tratados por T7/T8. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -24,15 +24,15 @@ Guidelines: README.md, pom.xml, config/checkstyle.xml, CI. Amostras: MonitorApiI
 | --- | --- | --- |
 | Quick | T1 | docker compose run --build --rm tests mvn --batch-mode --no-transfer-progress test |
 | Full | T2 e fechamento integrais | docker compose run --build --rm tests |
-| Full | T3-T5 consultas | docker compose run --build --rm tests mvn --batch-mode --no-transfer-progress '-Dit.test=HistoryQueriesIT,SummaryQueriesIT,QueryApiIT' '-Dfailsafe.failIfNoSpecifiedTests=false' verify |
-| Build | T6 | Full; docker compose build app; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild |
+| Full | T3-T5 e T7 consultas | docker compose run --build --rm tests mvn --batch-mode --no-transfer-progress '-Dit.test=HistoryQueriesIT,SummaryQueriesIT,QueryApiIT' '-Dfailsafe.failIfNoSpecifiedTests=false' verify |
+| Build | T6 e T8 | Full integral; docker compose build app; powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild |
 
 ## Execution Plan
 
 ### Phase 1: Consultas
 
 ```text
-T1 -> T2 -> T3 -> T4 -> T5 -> T6
+T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7 -> T8
 ```
 
 ## Task Breakdown
@@ -97,6 +97,26 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 **Tests**: integration
 **Gate**: build
 
+### T7: Verificar valores persistidos do payload de notificação
+**What**: Eliminar os gaps de READ-08 com assertions exatas de identidade, agendamento e conclusão em todos os estados de entrega.
+**Where**: `src/test/java/br/com/monitor/HistoryQueriesIT.java`
+**Depends on**: T6
+**Requirement**: READ-08; MON-09-AC01/02
+**Done when**:
+- [x] transitionId corresponde à transição persistida; nextAttemptAt/completedAt têm valores exatos; PENDING/SENDING/ACCEPTED/EXHAUSTED e destinatário congelado verificados; gate Full aprovado, sem enfraquecer testes.
+**Tests**: integration
+**Gate**: full
+
+### T8: Fixar mensagens e precedência dos erros de consulta
+**What**: Explicitar catálogo de mensagens e verificar valores exatos por HTTP, incluindo bordas de calendário; parâmetros desconhecidos/repetidos têm prioridade sobre seu conteúdo.
+**Where**: `src/main/java/br/com/monitor/query/QueryParameters.java`
+**Depends on**: T7
+**Requirement**: READ-09; MON-09-AC01/03
+**Done when**:
+- [ ] Mensagens exatas para cada categoria e bordas do calendário são testadas; gate Build integral aprovado; nova verificação independente elimina os mutantes sobreviventes.
+**Tests**: integration
+**Gate**: build
+
 ## Diagram-Definition Cross-Check
 
 | Task | Depends on | Diagram | Result |
@@ -107,6 +127,8 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 | T4 | T3 | T3 -> T4 | Match |
 | T5 | T4 | T4 -> T5 | Match |
 | T6 | T5 | T5 -> T6 | Match |
+| T7 | T6 | T6 -> T7 | Match |
+| T8 | T7 | T7 -> T8 | Match |
 
 ## Test Co-location Validation
 
@@ -118,3 +140,5 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6
 | T4 | SummaryQueries.java | integration | integration | Match |
 | T5 | QueryController.java | integration | integration | Match |
 | T6 | docs/queries.md | integration | integration | Match |
+| T7 | Históricos | integration | integration | Match |
+| T8 | Parâmetros/HTTP | integration | integration | Match |

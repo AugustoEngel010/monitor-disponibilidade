@@ -77,3 +77,17 @@ Reverse mapping: todos os 26 casos HTTP pertencem a READ-01/02/03/08/09 e casos 
 Logs: `.validation/mon09-final-tests.log`, `.validation/mon09-runtime-build.log`, `.validation/mon09-smoke.log`, `.validation/mon02-smoke-305b9fe32087.log`. XMLs em target/surefire-reports e target/failsafe-reports; contagens lidas dos XMLs. Baseline 387; delta +64 (20 unitarios, 44 IT). Nenhum teste removido/enfraquecido/ignorado. Gates dirigidos anteriores constam nas tasks; fechamento usa suite integral, sem selecao.
 
 Docs/queries.md define filtros, exemplos das quatro rotas, [from,to), UTC, limites/paginacao, taxas e denominadores, latencia e arredondamento, coberturaKnownFrom, pausas/politicas e ausencia de retencao implementada. README e monitor-api ligam o contrato. Adequacao A-D: todos os criterios ligados aos testes co-localizados anteriores; esta task documental nao adiciona comportamento de producao. Verificacao independente executa apos este commit. CI remota nao executada; banco do operador preservado.
+
+## T7: correcoes apontadas pelo Verifier
+
+Verificacao inicial independente: gates 451 testes/runtime/smoke verdes, mas sensor 3/5 mortos; transitionId e nextAttemptAt errados sobreviveram. Relatorio FAIL inicial versionado junto desta correcao; lessons L-002/L-003 candidates registradas pelo script da skill. T8 trata a precisao das mensagens.
+
+Gate Full selecionado apos T7: BUILD SUCCESS, 164 unitarios +47 IT (quatro novos estados), zero falhas/erros/skips/Checkstyle. `.validation/mon09-t7.log`.
+
+| Criterio | Evidencia e assertion | Outcome | Coberto |
+| --- | --- | --- | --- |
+| READ-08 identidade | HistoryQueriesIT.java:48 `item.transitionId()).isEqualTo(stored.get("transition_id"))` | Transicao persistida, nao ID da notificacao | Sim |
+| READ-08 tempos | HistoryQueriesIT.java:51 `nextAttemptAt()).isEqualTo(next)`; :52 `completedAt()).isEqualTo(completed)` | PENDING agendado; finais com fim exato; SENDING sem fim | Sim |
+| READ-08 estados/snapshot | HistoryQueriesIT.java:49 `recipient()).isEqualTo("ops@example.org")`; :50 `status()).isEqualTo(status)` | Destinatario original apos edicao; quatro estados | Sim |
+
+Reverse mapping: quatro casos parametrizados novos pertencem a READ-08 e payload de conclusao; restantes preservados. Adequacao A-D aprovada: valores exatos, dados/horarios controlados, sem assertions enfraquecidas. Evidencias das tasks T1-T6 citam as linhas nos respectivos commits; a insercao dos novos casos desloca linhas atuais de HistoryQueriesIT.

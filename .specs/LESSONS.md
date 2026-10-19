@@ -20,6 +20,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: src/main/java/br/com/monitor/notification/SmtpDelivery.java:84 (notifications)
 - last seen: 2026-10-15T21:23:00Z
 
+### L-002 - Assert notification transition IDs and retry timestamps against persisted values instead of checking only non-null presence.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `query` · harmful: 0
+- features: mon-09-consultas
+- evidence: M4/M5; src/test/java/br/com/monitor/HistoryQueriesIT.java:129 (query)
+- last seen: 2026-10-19T00:13:49Z
+
+### L-003 - Assert exact validation error messages per field instead of checking only that error text is nonblank.
+- signal: `ac_gap` · recurrence: 1 feature(s) · scope: `query` · harmful: 0
+- features: mon-09-consultas
+- evidence: READ-09; src/test/java/br/com/monitor/QueryApiIT.java:111 (query)
+- last seen: 2026-10-19T00:13:49Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
