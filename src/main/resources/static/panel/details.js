@@ -5,6 +5,14 @@ import {lifecycle} from './lifecycle.js';
 const number = value => Number(value).toLocaleString('pt-BR', {maximumFractionDigits: 9});
 const metric = (value, unit) => value === null || value === undefined ? 'Sem dados' : number(value) + unit;
 
+function retentionView(data) {
+  if (!data.historyAvailableFrom) return [];
+  return [line('Histórico disponível desde', time(data.historyAvailableFrom)),
+    ...(data.retainedOutPeriods?.length
+      ? [notice('Parte do período foi removida pela retenção. Ausência de histórico não indica disponibilidade.')]
+      : [])];
+}
+
 function incidentView(incident) {
   return el('article', {className: 'record'},
     el('h3', {}, label(incident.status) + ' · ' + incident.id),
@@ -57,6 +65,7 @@ function summaryView(summary) {
     ...(statistics.dataStatus === 'NO_DATA' ? [notice('Sem amostras externas na janela.')] : []),
     line('Janela UTC [início, fim)', `${summary.window.from} → ${summary.window.to}`),
     line('Cobertura conhecida desde', time(summary.coverageKnownFrom)),
+    ...retentionView(summary),
     el('details', {}, el('summary', {}, `Períodos sem observação (${summary.noObservationPeriods.length})`),
       summary.noObservationPeriods.length
         ? el('ul', {}, summary.noObservationPeriods.map(period => el('li', {}, time(period.from), ' → ', time(period.to))))
@@ -157,7 +166,7 @@ export async function details(root, id) {
         const params = new URLSearchParams({...period, ...applied, page});
         const data = await get(`${prefix}/${resource}?${params}`);
         if (!root.isConnected || request !== serial) return;
-        content.replaceChildren(...(data.items.length ? data.items.map(view)
+        content.replaceChildren(...retentionView(data), ...(data.items.length ? data.items.map(view)
           : [notice('Nenhum registro para os filtros selecionados.')]),
         pager(data, title, next => load(next)));
       } catch (error) {

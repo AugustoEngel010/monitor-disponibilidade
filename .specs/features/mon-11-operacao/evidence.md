@@ -58,7 +58,7 @@ Adequa??o A?D PASS: dez cen?rios de reten??o e um upgrade derivam de OPS-04 e ed
 
 Premissas/arquivos: HistoryQueries/SummaryQueries e RetentionQueriesIT/RetentionQueryApiIT. historyAvailableFrom ? global e dur?vel; retainedOutPeriods ? a interse??o da janela com o per?odo anterior ao limite. noObservationPeriods cont?m somente lacunas posteriores ao corte. Incidentes/notifica??es protegidos continuam consult?veis com aviso de hist?rico parcial; amostras anteriores n?o entram em checks/estat?sticas/cobertura.
 
-Gates Docker com verify, Checkstyle e c?pia de relat?rios: `.validation/mon11-t4.log`, 53 IT +56 unit?rios QueryParametersTest; `.validation/mon11-t4-api.log`, 6 IT +56 unit?rios. BUILD SUCCESS, zero falhas/erros/skips. Sele??es IT: RetentionQueriesIT,HistoryQueriesIT,SummaryQueriesIT,QueryApiIT; final RetentionQueriesIT,RetentionQueryApiIT.
+Gates Docker com verify, Checkstyle e c?pia de relat?rios: `.validation/mon11-t4.log`, 53 IT +23 unit?rios QueryParametersTest; `.validation/mon11-t4-api.log`, 6 IT +23 unit?rios. BUILD SUCCESS, zero falhas/erros/skips. Sele??es IT: RetentionQueriesIT,HistoryQueriesIT,SummaryQueriesIT,QueryApiIT; final RetentionQueriesIT,RetentionQueryApiIT.
 
 | AC / mapeamento direto e reverso | Evid?ncia e assertion | Resultado |
 | --- | --- | --- |
@@ -72,3 +72,15 @@ Gates Docker com verify, Checkstyle e c?pia de relat?rios: `.validation/mon11-t4
 | OPS-05 HTTP aus?ncia | `src/test/java/br/com/monitor/RetentionQueryApiIT.java:64` `assertThat(json.at("/statistics/successRatePercent").isNull()).isTrue();` | Aus?ncia n?o ? sucesso |
 
 Adequa??o A?D PASS: seis cen?rios novos derivados de OPS-05, incluindo serializa??o HTTP real, mais regress?o MON-09. Campos de payload verificados por valor, sem teste anterior removido/pulado/enfraquecido.
+
+## T5: reten??o no painel
+
+Premissas/arquivos: details.js e retention.spec.js; apenas apresentar metadados do backend, com datas UTC preservadas no atributo datetime. Backend permanece respons?vel pelos c?lculos. Gate `docker compose -p mon11-panel --profile panel-tests run --use-aliases --build --rm panel-tests`: **50/50 PASS**, zero falhas/skips, 1.6 min; `.validation/mon11-t5-panel.log`, `.validation/panel/junit.xml`. Runtime recompilado pelo Docker com 169 unit?rios e Checkstyle zero.
+
+| AC / mapeamento direto e reverso | Evid?ncia e assertion | Resultado |
+| --- | --- | --- |
+| OPS-05 limite nas quatro se??es | config/panel/retention.spec.js:27 `toBeVisible()` e :29 `toHaveAttribute('datetime', cutoff)` | Corte exato da API, sem recalcular |
+| OPS-05 aviso condicional | config/panel/retention.spec.js:31 `toHaveCount(removed ? 1 : 0)` | Aviso somente quando a janela cruza o corte |
+| OPS-05 aus?ncia | config/panel/retention.spec.js:33..35 `toHaveText('Sem dados')`, `toContainText('0 amostras externas')` | Reten??o n?o vira sucesso/zero percentual |
+
+Adequa??o A?D PASS: dois casos novos derivam de OPS-05; 48 cen?rios MON-10 preservados. Nenhuma altera??o em assertions anteriores.
