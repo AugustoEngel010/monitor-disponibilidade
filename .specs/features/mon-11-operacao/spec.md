@@ -1,6 +1,6 @@
 # MON-11: operação e retenção
 
-**Data:** 2026-10-20. **Status:** Implementing. Execução local autorizada pelo pedido.
+**Data:** 2026-10-20. **Status:** Verified. Execução local autorizada pelo pedido.
 **Origem:** MON-11-AC01 a MON-11-AC06, PROD-37; AD-001 a AD-011.
 
 ## Problem Statement
@@ -53,9 +53,9 @@ O operador precisa distinguir falhas do alvo de problemas do monitor e limitar o
 
 ## Edge Cases
 
-- Corte exato e Â±1Âµs; limpeza repetida; relógio recuado; TTL aumentado; lote parcial e rollback.
+- Corte exato e ±1µs; limpeza repetida; relógio recuado; TTL aumentado; lote parcial e rollback.
 - Incidente fechado com queda terminal e recuperação pendente; SENDING; tentativa HTTP reservada; resultado sem aplicação; última aplicação interna mantém ordenação.
-- Resultado removido reenviado não pode ressurgir. Ã‰poca corrente e épocas de evidências protegidas permanecem.
+- Resultado removido reenviado não pode ressurgir. Época corrente e épocas de evidências protegidas permanecem.
 - Janela removida, cruzada e após corte; amostra protegida anterior não gera cobertura nem taxa; watermark null preserva MON-09.
 - Exceções com credenciais/corpo/URL não entram em logs; métricas não convertem erro de consulta em backlog zero.
 
@@ -70,7 +70,7 @@ Validação: limites de TTL/lote/poll. Falhas: rollback e eventos fixos. Idempot
 | OPS-01 | MON-11-AC01 | T1 | Verified |
 | OPS-02 | MON-11-AC02 | T1 | Verified |
 | OPS-03 | MON-11-AC03 | T2 | Verified |
-| OPS-04 | MON-11-AC04 | T3,T8,T9,T10 | Implementing |
+| OPS-04 | MON-11-AC04 | T3,T8,T9,T10 | Verified |
 | OPS-05 | MON-11-AC05 | T4,T5 | Verified |
 | OPS-06 | MON-11-AC06 | T6,T7 | Verified |
 

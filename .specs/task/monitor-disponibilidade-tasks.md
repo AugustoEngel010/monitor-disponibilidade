@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada e validada em 2026-10-15; MON-09 em 2026-10-18. MON-01 permanece proposta documental; MON-10 a MON-12 planejadas. CI remota não observada.
+**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada e validada em 2026-10-15; MON-09 em 2026-10-18. MON-10 validada em 2026-10-19; MON-11 implementada e validada em 2026-10-20. MON-01 permanece proposta documental; MON-12 planejada. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -258,16 +258,18 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-11-AC01: o estado operacional informa quando o monitor não consegue usar uma dependência necessária, como o banco, conforme a distinção de saúde adotada no projeto.
-- [ ] MON-11-AC02: métricas permitem verificar o limite de concorrência, atraso de execução e acúmulo de notificações sem usar URLs ou identificadores ilimitados como rótulos.
-- [ ] MON-11-AC03: os logs permitem relacionar monitor, execução, incidente e notificação sem expor credenciais, corpos de resposta ou mensagens de erro sem sanitização.
-- [ ] MON-11-AC04: a limpeza remove somente registros elegíveis pela política, preservando incidentes abertos e trabalho de notificação pendente.
-- [ ] MON-11-AC05: consultas que cruzam um período já removido informam o limite de retenção; ausência de histórico não é convertida em sucesso.
-- [ ] MON-11-AC06: um cenário de capacidade documenta quantidade de monitores, intervalos, respostas simuladas, recursos da máquina, duração e resultados medidos. O comportamento respeita os limites definidos em MON-01.
+- [x] MON-11-AC01: o estado operacional informa quando o monitor não consegue usar uma dependência necessária, como o banco, conforme a distinção de saúde adotada no projeto.
+- [x] MON-11-AC02: métricas permitem verificar o limite de concorrência, atraso de execução e acúmulo de notificações sem usar URLs ou identificadores ilimitados como rótulos.
+- [x] MON-11-AC03: os logs permitem relacionar monitor, execução, incidente e notificação sem expor credenciais, corpos de resposta ou mensagens de erro sem sanitização.
+- [x] MON-11-AC04: a limpeza remove somente registros elegíveis pela política, preservando incidentes abertos e trabalho de notificação pendente.
+- [x] MON-11-AC05: consultas que cruzam um período já removido informam o limite de retenção; ausência de histórico não é convertida em sucesso.
+- [x] MON-11-AC06: um cenário de capacidade documenta quantidade de monitores, intervalos, respostas simuladas, recursos da máquina, duração e resultados medidos. O comportamento respeita os limites definidos em MON-01.
 
 **Testes:** integração dos indicadores operacionais e retenção com relógio controlado; carga controlada para execução concorrente e atrasos. Registrar resultados reais, sem afirmar desempenho ainda não medido.
 
 **Conclusão:** o próprio monitor tem sinais operacionais úteis, e a política de retenção é verificável.
+
+**Validação local (2026-10-20):** AC01..AC06 PASS; 482 testes Java, 50 de navegador, 37 smoke, Checkstyle e runtime aprovados. Sensor final 7/7 detectados, com reúso explícito de seis execuções por equivalência de código. [Spec](../features/mon-11-operacao/spec.md), [parecer independente](../features/mon-11-operacao/validation.md), [operação](../../docs/operations.md) e [capacidade medida](../../docs/capacity/README.md). CI remota não executada.
 
 ### MON-12 — Preparar a demonstração e a documentação do portfólio
 

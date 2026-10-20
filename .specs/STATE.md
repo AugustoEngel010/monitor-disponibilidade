@@ -92,20 +92,20 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Status**: active
 
 ### AD-012
-- **Decision**: MON-11 ret?m payload eleg?vel por 30 dias configur?veis, preserva cadeias abertas/pendentes, reservas, ?ltima observa??o e ?ltimo APPLIED corrente, e mant?m recibos UUID m?nimos sem expira??o. Um watermark global monot?nico limita amostras/cobertura; consultas exp?em reten??o separada das lacunas. Rodadas drenam lotes transacionais, com locks liberados entre commits.
-- **Reason**: Excluir volume sem perder causalidade SMTP, ordena??o, idempot?ncia ou fabricar hist?rico dispon?vel; a limpeza deve acompanhar mais de um lote por hora.
-- **Trade-off**: Recibos e evid?ncias protegidas continuam crescendo; n?o h? promessa de disco constante nem restaura??o por aumento do prazo. Manuten??o transversal fica concentrada na opera??o, sem recalcular estado de neg?cio.
-- **Scope**: MON-11/MON-12; OPS-01 a OPS-06; mant?m AD-001 a AD-011.
+- **Decision**: MON-11 retém payload elegível por 30 dias configuráveis, preserva cadeias abertas/pendentes, reservas, última observação e último APPLIED corrente, e mantém recibos UUID mínimos sem expiração. Um watermark global monotônico limita amostras/cobertura; consultas expõem retenção separada das lacunas. Rodadas drenam lotes transacionais, com locks liberados entre commits.
+- **Reason**: Excluir volume sem perder causalidade SMTP, ordenação, idempotência ou fabricar histórico disponível; a limpeza deve acompanhar mais de um lote por hora.
+- **Trade-off**: Recibos e evidências protegidas continuam crescendo; não há promessa de disco constante nem restauração por aumento do prazo. Manutenção transversal fica concentrada na operação, sem recalcular estado de negócio.
+- **Scope**: MON-11/MON-12; OPS-01 a OPS-06; mantém AD-001 a AD-011.
 - **Date**: 2026-10-20
 - **Status**: active
 
 ## Handoff
 
 - **Feature**: MON-11; `.specs/features/mon-11-operacao/`.
-- **Phase / Task**: T1?T6 e corre??es T8/T9 conclu?das; T7 documenta??o, aguardando Verifier independente.
-- **Completed**: Actuator/readiness/liveness preservados; m?tricas limitadas; eventos JSON correlacionados ap?s commit; V8 e reten??o com Clock, idempot?ncia e drenagem; metadados de hist?rico e painel; capacidade real e documenta??o. Gates autor: 482 Java, 50 UI, 37 smoke, runtime/Checkstyle aprovados.
-- **In-progress**: Fechamento documental e valida??o independente com sensor isolado; backlog MON-11 permanece aberto at? PASS.
-- **Next step**: Commit T7 e despachar Verifier fresh, conforme skill.
-- **Blockers**: Nenhum local. CI remota n?o executada.
-- **Uncommitted files**: Documenta??o T7 e seus registros de rastreabilidade.
-- **Branch**: main; baseline 6fb6cf0. T1 dcd75a2, T2 8d311e4, T3 549104c, T4 3c30616, T5 5a7c8ee, T8 02bc6ca, T9 baec948, T6 6c8e779. Infraestrutura pr?pria de painel/smoke removida; Testcontainers descart?veis.
+- **Phase / Task**: Execute concluído; T1–T10 e validação independente PASS.
+- **Completed**: Actuator/readiness/liveness; métricas limitadas; JSON correlacionado após commit; V8, retenção com Clock e idempotência; limite de histórico na API/painel; capacidade e documentação operacional. AC01..06 Verified.
+- **Validation**: 482 Java (169 unitários +313 IT), 50 UI, 37 smoke, runtime e Checkstyle aprovados. Verifier repetiu Java/runtime/smoke e M7; seis sensores reutilizados por equivalência explícita, total final 7/7 detectados. F1 inicial resolvido em T10; relatórios inicial/final preservados.
+- **Next step**: MON-12 quando solicitada; roteiro e documentação de portfólio.
+- **Blockers**: Nenhum local. CI remota não executada.
+- **Uncommitted files**: Nenhum após o commit de fechamento documental.
+- **Branch**: main; baseline 6fb6cf0. T1 dcd75a2, T2 8d311e4, T3 549104c, T4 3c30616, T5 5a7c8ee, T8 02bc6ca, T9 baec948, T6 6c8e779, T7 e82146d, T10 d3e0fef. Infraestrutura própria de painel/smoke e scratch dos sensores removidos; Testcontainers descartáveis.
