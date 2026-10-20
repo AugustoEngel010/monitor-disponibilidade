@@ -1,0 +1,51 @@
+{
+  "startedAtUtc" : "2026-10-20T20:54:31.480700469Z",
+  "durationSecondsIncludingShutdown" : 60.070333095,
+  "monitors" : 100,
+  "intervalSeconds" : 10,
+  "timeoutSeconds" : 2,
+  "concurrency" : 4,
+  "pollMillis" : 250,
+  "targets" : {
+    "healthy" : "25 x 200 immediate",
+    "slow" : "25 x 200 after 300ms",
+    "failure" : "25 x 503 immediate",
+    "timeout" : "25 x headers after 3000ms, client timeout 2000ms"
+  },
+  "runnerProcessors" : 2,
+  "runnerHeapMaxBytes" : 536870912,
+  "runnerMemoryLimitBytes" : 2147483648,
+  "databaseCpuLimit" : 1,
+  "databaseMemoryLimitBytes" : 536870912,
+  "peakInFlight" : 4,
+  "overlaps" : 0,
+  "notificationPendingPeak" : 50,
+  "smtpConnectionsDuringTimedPhase" : 100,
+  "notificationPendingAfterTimedPhase" : 50,
+  "scheduleDelayCount" : 285,
+  "scheduleDelayMaxSeconds" : 20.634817,
+  "scheduleDelayMeanSeconds" : 10.96773021754386,
+  "outcomes" : [ {
+    "outcome" : "CANCELLED",
+    "count" : 2,
+    "mean_ms" : 805.024
+  }, {
+    "outcome" : "HTTP_FAILURE",
+    "count" : 71,
+    "mean_ms" : 5.883
+  }, {
+    "outcome" : "SUCCESS",
+    "count" : 143,
+    "mean_ms" : 155.071
+  }, {
+    "outcome" : "TIMEOUT",
+    "count" : 69,
+    "mean_ms" : 2000.393
+  } ],
+  "acceleratedPhase" : "After timing, advance logical clock by 1 hour per retry; real local SMTP 421",
+  "notificationExhaustedAfterAcceleratedPhase" : 50,
+  "smtpConnectionsTotal" : 250,
+  "checksRetiredAfter31DayAdvance" : 133,
+  "receiptRowBytes" : 55.97744360902256,
+  "receiptRelationBytesWithIndex" : 24576
+}

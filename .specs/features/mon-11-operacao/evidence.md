@@ -105,7 +105,7 @@ Resultado: 287 checks/60,265065594s; pico 4, sobreposi??o 0; SUCCESS144/HTTP_FAI
 | OPS-02/06 esgotamento | `src/test/java/br/com/monitor/CapacityScenario.java:186` `assertThat(meters.get("monitor.notifications").tag("status", "EXHAUSTED").gauge().value()).isEqualTo(50);` | 50 EXHAUSTED com cinco tentativas |
 | OPS-04/06 preserva??o | `src/test/java/br/com/monitor/CapacityScenario.java:194` `assertThat(count(jdbc, "incidents WHERE recovered_at IS NULL")).isEqualTo(50);` | 50 incidentes abertos ap?s reten??o |
 
-Adequa??o A?D PASS para o cen?rio: resultados e medi??es persistidas, sem testes fora dos seis ACs. Gate Build completo em execu??o antes do commit desta task.
+Adequa??o A?D PASS para o cen?rio: resultados e medi??es persistidas, sem testes fora dos seis ACs. Gate Build completo aprovado antes do commit desta task (fechamento abaixo).
 
 ## T8: compatibilidade do processamento no upgrade hist?rico
 
@@ -134,3 +134,18 @@ Gate Docker verify `-Dtest=OperationMetricsTest -Dit.test=RetentionIT,RetentionM
 | OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:184` `assertThat(count("result_applications")).isEqualTo(4);` | Aplica??es restantes preservadas |
 
 Adequa??o A?D PASS: duas IT novas com estado SQL real e Clock fixo; barreira permite interromper ap?s commit, sem sleeps de fronteira temporal. N?o h? teste anterior enfraquecido. A fase temporizada de capacidade n?o executa RetentionRuntime; crit?rios SQL da transa??o s?o id?nticos antes/depois de T9, apenas o flag more foi acrescido.
+
+## T6: repeti??o final ap?s T8
+
+`.validation/mon11-t6-capacity-final.log`: BUILD SUCCESS, 169 unit?rios +1 cen?rio. **285 checks em60,070333095s**, todos100 monitores, pico4, sobreposi??o0; SUCCESS143/HTTP_FAILURE71/TIMEOUT69/CANCELLED2. Atraso m?ximo20,634817s, m?dio10,967730218s. Pend?ncias50, esgotadas50 ap?s rel?gio acelerado, 250 conex?es SMTP, 133 checks retirados ap?s31dias. Os n?meros iniciais acima pertencem ? primeira execu??o; o relat?rio versionado docs/capacity/mon-11.json cont?m esta repeti??o final.
+
+T9 altera somente a drenagem do runtime de reten??o, desabilitado no cen?rio, e acresce o flag more ao retorno da limpeza sem modificar seus crit?rios SQL; a fase temporizada usa o mesmo c?digo final. O README de capacidade explicita o custo do harness (tick/coleta/SMTP seguidos por250ms) e que produ??o usa pollers separados. A medi??o n?o ? apresentada como SLA ou throughput universal.
+
+## Gate Build de T6 ap?s T8/T9
+
+- `docker compose run --build --rm tests`: **482/482 Java**,169 unit?rios +313 IT, zero falhas/erros/skips/Checkstyle; `.validation/mon11-final-java.log`, XMLs em target.
+- `docker compose build app`: exit0, imagem runtime final constru?da; `.validation/mon11-final-runtime.log`.
+- `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild`: exit0,37 PASS; `.validation/mon11-final-smoke.log`, `.validation/mon02-smoke-e183d474e02f.log`. Infraestrutura pr?pria removida.
+- Painel T5:50 PASS; altera??es T8/T9 s?o exclusivamente reten??o/processamento interno, sem alterar DTOs, seguran?a ou assets testados. N?o se apresenta essa equival?ncia como outra execu??o UI.
+
+Adequa??o T6 completa: limites, medi??es, rollback/replay, threads e consultas cobertos; comandos reais, nenhum teste suprimido e nenhuma assertion anterior enfraquecida.

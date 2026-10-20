@@ -1,0 +1,12 @@
+services:
+  tests:
+    cpus: 2.0
+    mem_limit: 2g
+    command:
+      - sh
+      - -c
+      - >-
+        mvn --batch-mode --no-transfer-progress clean verify -Pcapacity;
+        result=$$?;
+        cp -a target/. /reports/;
+        exit $$result
