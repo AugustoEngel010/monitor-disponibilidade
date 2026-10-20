@@ -31,3 +31,25 @@ Gates Docker: `.validation/mon11-t2.log` (2 unit?rios +33 IT: IncidentProcessorI
 | OPS-03 formato JSON | OperationHealthIT.java:59..64 `isEqualTo` dos quatro UUIDs e INTERNAL_ERROR | Sa?da ECS real parseada por Jackson |
 
 Adequa??o A?D PASS: assertions de payload, valores derivados da spec e revers?o real. Ajuste do coletor de teste para preservar chaves com valor null, sem mudar assertions. N?o houve teste apagado/pulado/enfraquecido.
+
+## T3: reten??o transacional
+
+Premissas/arquivos: RetentionService/Runtime, V8, CheckRepository e IncidentProcessor; configura??o Compose/YAML; RetentionIT/MigrationIT e contagens atuais em ApplicationIT/MonitorRepositoryIT/smoke. V7 hist?rico isolado explicitamente em ObservationEpochIT para preservar seu contrato; assertions existentes mantidas, contagem atual elevada de 7 para 8 e assertion da vers?o 8 adicionada. V1?V7 intactas. Deduplica??o de dados removidos usa trigger V8 e recibos m?nimos sem TTL.
+
+Gate `docker compose run --build --rm tests sh -c 'mvn --batch-mode --no-transfer-progress verify -Dtest=OperationMetricsTest -Dit.test=RetentionIT,RetentionMigrationIT,ObservationEpochIT,MonitorRepositoryIT,ApplicationIT,SchedulerRuntimeIT,IncidentSchemaIT; result=$?; cp -a target/. /reports/; exit $result'`: **2 unit?rios +45 IT, zero falhas/erros/skips/Checkstyle**, BUILD SUCCESS em 1:04 min. Log `.validation/mon11-t3-final.log`.
+
+| AC / mapeamento direto e reverso | Evid?ncia | Resultado esperado |
+| --- | --- | --- |
+| OPS-04 corte/replay | `src/test/java/br/com/monitor/RetentionIT.java:35` `assertThat(checks.retired(old.executionId())).isTrue();` | Recibo dur?vel; replay rejeitado |
+| OPS-04 igualdade | `src/test/java/br/com/monitor/RetentionIT.java:33` `assertThat(checks.find(exact.executionId())).contains(exact);` | Igualdade n?o removida |
+| OPS-04 pendentes | `src/test/java/br/com/monitor/RetentionIT.java:57` `assertThat(count("notification_intents")).isEqualTo(3);` | Toda cadeia pendente preservada |
+| OPS-04 terminal | `src/test/java/br/com/monitor/RetentionIT.java:83` `assertThat(retention(base.plusNanos(1000), 100).clean().incidents()).isEqualTo(1);` | Igualdade preservada; +1?s remove |
+| OPS-04 continuidade | `src/test/java/br/com/monitor/RetentionIT.java:107` `assertThat(incidents.lastAppliedStart(internal)).contains(internalAt);` | ?ltimo APPLIED interno e observa??o preservados |
+| OPS-04 reserva | `src/test/java/br/com/monitor/RetentionIT.java:120` `assertThat(count("check_attempts")).isEqualTo(1);` | Reserva mantida |
+| OPS-04 lote/tempo | `src/test/java/br/com/monitor/RetentionIT.java:131` `assertThat(count("retired_executions")).isEqualTo(5);` | Lote limitado e watermark monot?nico |
+| OPS-04 ?pocas | `src/test/java/br/com/monitor/RetentionIT.java:144` `assertThat(count("observation_epochs")).isEqualTo(2);` | ?poca referenciada e corrente preservadas |
+| OPS-04 rollback | `src/test/java/br/com/monitor/RetentionIT.java:158` `assertThat(count("retired_executions")).isZero();` | Falha reverte recibos, aplica??es, payload e watermark |
+| OPS-04 configura??o | `src/test/java/br/com/monitor/RetentionIT.java:176` `.hasMessage("Invalid retention configuration");` | Erro gen?rico para configura??o inv?lida |
+| OPS-04 upgrade | `src/test/java/br/com/monitor/RetentionMigrationIT.java:25` `assertThat(current.migrate().migrationsExecuted).isEqualTo(1);` | V8 aplicada uma vez, checksums e dados anteriores intactos |
+
+Adequa??o A?D PASS: dez cen?rios de reten??o e um upgrade derivam de OPS-04 e edges; gates incluem regress?o dos m?dulos afetados. Nenhum teste removido/pulado nem assertion enfraquecida.

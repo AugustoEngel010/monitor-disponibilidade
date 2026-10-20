@@ -72,7 +72,7 @@ T1 ? T2 ? T3 ? T4 ? T5 ? T6 ? T7
 **Reuses**: Clock, JDBC, Actuator, Docker e contratos anteriores.
 **Tools**: shell/Docker/Python; skill tlc-spec-driven, sem MCP novo.
 **Done when**:
-- [ ] corte exato, pend?ncias, ?ltima evid?ncia, replay, rollback e lotes; gate sem falhas ou skips.
+- [x] corte exato, pend?ncias, ?ltima evid?ncia, replay, rollback e lotes; gate sem falhas ou skips.
 **Tests**: integration
 **Gate**: full
 

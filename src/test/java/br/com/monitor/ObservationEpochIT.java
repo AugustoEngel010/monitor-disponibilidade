@@ -35,7 +35,7 @@ class ObservationEpochIT {
             repository.insert(original);
             var changed = Monitor.create(UUID.randomUUID(), config, base).pause(base.plusSeconds(30));
             repository.insert(changed);
-            var current = Flyway.configure().dataSource(source).load();
+            var current = Flyway.configure().dataSource(source).target("7").load();
             assertThat(current.migrate().migrationsExecuted).isEqualTo(1);
             assertThat(java.util.Arrays.stream(current.info().applied()).limit(6).map(m -> m.getChecksum()).toList())
                     .isEqualTo(checksums);

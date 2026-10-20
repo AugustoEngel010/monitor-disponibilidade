@@ -19,6 +19,9 @@ public class CheckRepository {
 
     @Transactional
     public CheckResult save(CheckResult result) {
+        // Serialize retirement/replay with cleanup and application using the monitor lock.
+        jdbc.queryForList("SELECT id FROM monitor.monitors WHERE id=:id FOR UPDATE",
+                new MapSqlParameterSource("id", result.monitorId()));
         var parameters = new MapSqlParameterSource("execution_id", result.executionId())
                 .addValue("monitor_id", result.monitorId())
                 .addValue("configuration_version", result.configurationVersion())
@@ -48,6 +51,11 @@ public class CheckRepository {
     public Optional<CheckResult> find(UUID executionId) {
         return jdbc.query("SELECT * FROM monitor.check_results WHERE execution_id=:id",
                 new MapSqlParameterSource("id", executionId), this::map).stream().findFirst();
+    }
+
+    public boolean retired(UUID executionId) {
+        return jdbc.queryForObject("SELECT count(*) FROM monitor.retired_executions WHERE execution_id=:id",
+                new MapSqlParameterSource("id", executionId), Integer.class) != 0;
     }
 
     private CheckResult map(ResultSet row, int index) throws SQLException {

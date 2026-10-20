@@ -1,4 +1,9 @@
 monitor:
+  retention:
+    enabled: ${MONITOR_RETENTION_ENABLED:true}
+    days: ${MONITOR_RETENTION_DAYS:30}
+    batch-size: ${MONITOR_RETENTION_BATCH_SIZE:1000}
+    poll-ms: ${MONITOR_RETENTION_POLL_MS:3600000}
   notifications:
     enabled: ${MONITOR_NOTIFICATIONS_ENABLED:true}
     poll-ms: ${MONITOR_NOTIFICATIONS_POLL_MS:250}

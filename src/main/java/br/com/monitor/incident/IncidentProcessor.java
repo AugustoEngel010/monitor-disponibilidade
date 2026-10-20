@@ -29,6 +29,7 @@ public class IncidentProcessor {
 
     public boolean process(UUID executionId) {
         return Boolean.TRUE.equals(transaction.execute(status -> {
+            if (checks.retired(executionId)) { return false; }
             var result = checks.find(executionId).orElseThrow();
             var monitor = monitors.find(result.monitorId(), true).orElseThrow();
             if (incidents.processed(executionId)) { return false; }

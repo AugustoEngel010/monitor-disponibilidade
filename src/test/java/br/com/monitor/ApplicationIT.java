@@ -71,7 +71,7 @@ class ApplicationIT {
                 }
                 try (var rows = statement.executeQuery("SELECT count(*) FROM public.flyway_schema_history")) {
                     rows.next();
-                    assertThat(rows.getInt(1)).isEqualTo(7);
+                    assertThat(rows.getInt(1)).isEqualTo(8);
                 }
             }
         }
