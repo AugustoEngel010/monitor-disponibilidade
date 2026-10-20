@@ -6,16 +6,24 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.UUID;
+import br.com.monitor.monitoring.CheckResult;
+import br.com.monitor.operation.OperationalEvents;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(OutputCaptureExtension.class)
 class OperationHealthIT {
     @Test
-    void databaseFailureAffectsReadinessOnlyAndMetricsRequireBasic() throws Exception {
+    void databaseFailureAffectsReadinessOnlyAndMetricsRequireBasic(CapturedOutput output) throws Exception {
         try (var db = new PostgreSQLContainer<>("postgres:17.6-alpine")) {
             db.start();
             try (var context = (ServletWebServerApplicationContext) new SpringApplicationBuilder(
@@ -32,6 +40,21 @@ class OperationHealthIT {
                         .isEqualTo(200);
                 assertThat(get(client, address, "/actuator/health/readiness", false).body())
                         .isEqualTo("{\"status\":\"UP\"}");
+                UUID monitor = UUID.randomUUID();
+                UUID execution = UUID.randomUUID();
+                UUID incident = UUID.randomUUID();
+                UUID notification = UUID.randomUUID();
+                OperationalEvents.committed(OperationalEvents.Event.CHECK_RECORDED, monitor, execution,
+                        incident, notification, CheckResult.Outcome.INTERNAL_ERROR);
+                var jsonLine = output.getOut().lines().filter(line -> line.contains("Operation committed"))
+                        .reduce((left, right) -> right).orElseThrow();
+                var json = new ObjectMapper().readTree(jsonLine);
+                assertThat(json.path("monitorId").asText()).isEqualTo(monitor.toString());
+                assertThat(json.path("executionId").asText()).isEqualTo(execution.toString());
+                assertThat(json.path("incidentId").asText()).isEqualTo(incident.toString());
+                assertThat(json.path("notificationId").asText()).isEqualTo(notification.toString());
+                assertThat(json.path("outcome").asText()).isEqualTo("INTERNAL_ERROR");
+                assertThat(jsonLine).doesNotContain("operation-test-only", "Authorization", "stack_trace");
                 db.stop();
                 var readiness = get(client, address, "/actuator/health/readiness", false);
                 assertThat(readiness.statusCode()).isEqualTo(503);

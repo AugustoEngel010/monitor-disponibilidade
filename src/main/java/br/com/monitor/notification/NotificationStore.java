@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
+import br.com.monitor.operation.OperationalEvents;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -55,6 +57,7 @@ public class NotificationStore {
                     + "next_attempt_at=NULL WHERE id=:id", key);
             jdbc.update("INSERT INTO monitor.notification_attempts"
                     + " (notification_id,attempt_number,started_at,outcome) VALUES (:id,:attempt,:now,'SENDING')", key);
+            log(delivery, OperationalEvents.Event.NOTIFICATION_CLAIMED, null);
             return Optional.of(delivery);
         });
     }
@@ -88,6 +91,14 @@ public class NotificationStore {
                 .addValue("next", terminal ? null : Timestamp.from(now.plusSeconds(30L << (delivery.attempt() - 1))));
         jdbc.update("UPDATE monitor.notification_intents SET status=:status,completed_at=:completed,"
                 + "next_attempt_at=:next WHERE id=:id", parameters);
+        log(delivery, OperationalEvents.Event.NOTIFICATION_FINISHED, result);
+    }
+
+    private void log(NotificationDelivery delivery, OperationalEvents.Event event, Result result) {
+        var ids = jdbc.queryForMap("SELECT t.monitor_id,t.execution_id FROM monitor.state_transitions t"
+                + " JOIN monitor.notification_intents n ON n.transition_id=t.id WHERE n.id=:id", key(delivery));
+        OperationalEvents.committed(event, (UUID) ids.get("monitor_id"), (UUID) ids.get("execution_id"),
+                delivery.incidentId(), delivery.id(), result);
     }
 
     private static MapSqlParameterSource key(NotificationDelivery delivery) {

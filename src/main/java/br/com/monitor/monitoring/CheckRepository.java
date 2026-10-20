@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.UUID;
+import br.com.monitor.operation.OperationalEvents;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -26,7 +27,7 @@ public class CheckRepository {
                 .addValue("finished_at", Timestamp.from(result.finishedAt()))
                 .addValue("duration_nanos", result.durationNanos()).addValue("outcome", result.outcome().name())
                 .addValue("http_status", result.httpStatus()).addValue("error_message", result.errorMessage());
-        jdbc.update("INSERT INTO monitor.check_results (execution_id, monitor_id, configuration_version,"
+        int inserted = jdbc.update("INSERT INTO monitor.check_results (execution_id, monitor_id, configuration_version,"
                 + " execution_generation, started_at, finished_at, duration_nanos, outcome, http_status, error_message)"
                 + " VALUES (:execution_id, :monitor_id, :configuration_version, :execution_generation, :started_at,"
                 + " :finished_at, :duration_nanos, :outcome, :http_status, :error_message)"
@@ -36,6 +37,10 @@ public class CheckRepository {
                 || saved.configurationVersion() != result.configurationVersion()
                 || saved.executionGeneration() != result.executionGeneration()) {
             throw new IllegalArgumentException("Execution identifier belongs to another snapshot");
+        }
+        if (inserted == 1) {
+            OperationalEvents.committed(OperationalEvents.Event.CHECK_RECORDED, saved.monitorId(),
+                    saved.executionId(), null, null, saved.outcome());
         }
         return saved;
     }

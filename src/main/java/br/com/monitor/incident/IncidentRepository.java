@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import br.com.monitor.administration.Monitor;
 import br.com.monitor.monitoring.CheckResult;
+import br.com.monitor.operation.OperationalEvents;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -77,16 +78,19 @@ public class IncidentRepository {
                 .addValue("execution", result.executionId()).addValue("incident", incidentId)
                 .addValue("type", type.name()).addValue("confirmed", timestamp(result.finishedAt())));
         var incident = find(incidentId).orElseThrow();
+        UUID notificationId = UUID.randomUUID();
         jdbc.update("INSERT INTO monitor.notification_intents (id, transition_id, recipient, monitor_name,"
                 + " monitor_url, first_failure_at, down_confirmed_at, recovery_started_at, recovered_at)"
                 + " VALUES (:id, :transition, :recipient, :name, :url, :first, :down, :started, :recovered)",
-                new MapSqlParameterSource("id", UUID.randomUUID()).addValue("transition", transitionId)
+                new MapSqlParameterSource("id", notificationId).addValue("transition", transitionId)
                 .addValue("recipient", monitor.configuration().alertRecipient())
                 .addValue("name", monitor.configuration().name()).addValue("url", monitor.configuration().url())
                 .addValue("first", timestamp(incident.firstFailureAt()))
                 .addValue("down", timestamp(incident.downConfirmedAt()))
                 .addValue("started", timestamp(incident.recoveryStartedAt()))
                 .addValue("recovered", timestamp(incident.recoveredAt())));
+        OperationalEvents.committed(OperationalEvents.Event.INCIDENT_TRANSITION, monitor.id(), result.executionId(),
+                incidentId, notificationId, type);
     }
 
     private static MapSqlParameterSource snapshot(CheckResult result) {
