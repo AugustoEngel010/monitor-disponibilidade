@@ -14,7 +14,7 @@ CheckScheduler fornece mapa real de workers e snapshot de agendamento. Notificat
 - OperationalEvents: eventos com UUIDs e códigos fixos, JSON ECS nativo do Boot.
 - RetentionService: configuração validada, lote transacional, recibos de idempotência e watermark; runtime dedicado após ApplicationReadyEvent.
 - Consultas: metadados de retenção e exclusão de amostras/cobertura anteriores ao watermark; painel informa o limite.
-- CapacityIT: cenário explícito opt-in, servidor HTTP local, banco descartável, scheduler e SMTP falho/recuperado controlados.
+- CapacityScenario (perfil Maven capacity): cenário explícito opt-in, servidor HTTP local, banco descartável, scheduler e SMTP falho/recuperado controlados.
 
 ## Data Models
 

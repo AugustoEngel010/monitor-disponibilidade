@@ -29,8 +29,9 @@ public class IncidentProcessor {
 
     public boolean process(UUID executionId) {
         return Boolean.TRUE.equals(transaction.execute(status -> {
-            if (checks.retired(executionId)) { return false; }
-            var result = checks.find(executionId).orElseThrow();
+            var existing = checks.find(executionId);
+            if (existing.isEmpty() && checks.retired(executionId)) { return false; }
+            var result = existing.orElseThrow();
             var monitor = monitors.find(result.monitorId(), true).orElseThrow();
             if (incidents.processed(executionId)) { return false; }
             var starts = jdbc.query("SELECT started_at FROM monitor.check_attempts WHERE execution_id=:id",

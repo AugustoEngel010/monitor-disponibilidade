@@ -2,7 +2,7 @@
 
 ## Execution Protocol
 
-Usar tlc-spec-driven e seu ciclo de Execute. Implementa??o local autorizada no pedido. Sete tasks em um lote executado pelo autor; Verifier independente obrigat?rio ap?s a ?ltima task.
+Usar tlc-spec-driven e seu ciclo de Execute. Implementa??o local autorizada no pedido. Oito tasks em um lote executado pelo autor; Verifier independente obrigat?rio ap?s a ?ltima task.
 
 **Status:** In Progress. **Design:** [design.md](design.md).
 
@@ -32,7 +32,7 @@ Cada task registra o comando efetivo e testes selecionados durante desenvolvimen
 ### Phase 1: Opera??o
 
 ```text
-T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7
+T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T6 -> T7
 ```
 
 ## Task Breakdown
@@ -105,8 +105,8 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7
 ### T6: Medir capacidade controlada
 
 **What**: Medir capacidade controlada.
-**Where**: `src/test/java/br/com/monitor/CapacityIT.java`
-**Depends on**: T5
+**Where**: `src/test/java/br/com/monitor/CapacityScenario.java`
+**Depends on**: T8
 **Requirement**: OPS-06
 **Reuses**: Clock, JDBC, Actuator, Docker e contratos anteriores.
 **Tools**: shell/Docker/Python; skill tlc-spec-driven, sem MCP novo.
@@ -137,8 +137,9 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7
 | T3 | T2 | T2 | Match |
 | T4 | T3 | T3 | Match |
 | T5 | T4 | T4 | Match |
-| T6 | T5 | T5 | Match |
+| T6 | T8 | T8 | Match |
 | T7 | T6 | T6 | Match |
+| T8 | T5 | T5 | Match |
 
 ## Test Co-location Validation
 
@@ -150,4 +151,19 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7
 | T4 | Opera??o/SQL | integration | integration | OK |
 | T5 | Painel | e2e | e2e | OK |
 | T6 | Opera??o/SQL | integration | integration | OK |
+| T8 | Opera??o/SQL | integration | integration | OK |
 | T7 | Documenta??o | none | none | OK |
+
+### T8: Consultar recibo somente para resultado ausente
+
+**What**: Preservar processamento de resultado existente nos testes hist?ricos V5 e rejeitar replay de resultado retirado.
+**Where**: `src/main/java/br/com/monitor/incident/IncidentProcessor.java`
+**Depends on**: T5
+**Requirement**: OPS-04
+**Tools**: shell/Docker; skill tlc-spec-driven.
+**Done when**:
+- [x] NotificationSchemaIT e RetentionIT passam sem alterar suas assertions.
+**Tests**: integration
+**Gate**: full
+
+T8 surgiu do gate completo de T6: NotificationSchemaIT usa schema V5 sem retired_executions. Nenhum teste ou assertion foi reduzido. Ordem ajustada para T5 ? T8 ? T6 ? T7.

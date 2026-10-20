@@ -84,3 +84,38 @@ Premissas/arquivos: details.js e retention.spec.js; apenas apresentar metadados 
 | OPS-05 aus?ncia | config/panel/retention.spec.js:33..35 `toHaveText('Sem dados')`, `toContainText('0 amostras externas')` | Reten??o n?o vira sucesso/zero percentual |
 
 Adequa??o A?D PASS: dois casos novos derivam de OPS-05; 48 cen?rios MON-10 preservados. Nenhuma altera??o em assertions anteriores.
+
+## T6: capacidade controlada
+
+Premissas/arquivos: CapacityScenario, perfil Maven capacity, compose.capacity.yaml e docs/capacity. HTTP e SMTP reais locais, banco Testcontainers pr?prio; sem mocks de rede. Inst?ncia ?nica, 100 monitores, I=10s/T=2s/F=1/R=1/C=4, quatro grupos de 25. Rel?gio real por 60s; acelera??o s? depois do per?odo medido para verificar esgotamento e reten??o.
+
+Comando: `docker compose -p mon11-capacity -f compose.yaml -f compose.capacity.yaml run --build --rm tests`. Exit 0, 169 unit?rios +1 cen?rio, zero falhas/erros/skips/Checkstyle, BUILD SUCCESS. Resultado completo versionado em docs/capacity/mon-11.json e an?lise em docs/capacity/README.md. Logs `.validation/mon11-t6-capacity.log` e amostra `.validation/mon11-t6-resources.log`.
+
+Resultado: 287 checks/60,265065594s; pico 4, sobreposi??o 0; SUCCESS144/HTTP_FAILURE72/TIMEOUT69/CANCELLED2 no shutdown. Atraso m?ximo20,377306s e m?dio10,860850498s. SMTP421 real: 50 PENDING no pico/t?rmino; 50 EXHAUSTED ap?s avan?o do rel?gio; m?ximo cinco tentativas e 250 conex?es totais. Limpeza avan?ada31dias retirou135 checks e preservou50 incidentes abertos. Relat?rio explicita satura??o: essa mistura n?o sustentou I=10s, sem prometer SLA.
+
+| AC / mapeamento direto e reverso | Evid?ncia e assertion | Resultado esperado |
+| --- | --- | --- |
+| OPS-06 limite de monitores | `src/test/java/br/com/monitor/CapacityScenario.java:101` `error -> assertThat(error.code()).isEqualTo("MONITOR_LIMIT"));` | 101? rejeitado MONITOR_LIMIT |
+| OPS-06 dura??o | `src/test/java/br/com/monitor/CapacityScenario.java:161` `assertThat(duration).isGreaterThanOrEqualTo(60);` | Pelo menos 60s reais |
+| OPS-02/06 concorr?ncia | `src/test/java/br/com/monitor/CapacityScenario.java:162` `assertThat(peak).isEqualTo(4);` | Pico4 e nunca acima4 |
+| OPS-06 sobreposi??o | `src/test/java/br/com/monitor/CapacityScenario.java:163` `assertThat(overlaps.get()).isZero();` | Zero por monitor |
+| OPS-06 reserva | `src/test/java/br/com/monitor/CapacityScenario.java:166` `assertThat(count(jdbc, "check_attempts")).isZero();` | Zero ap?s shutdown |
+| OPS-02/06 backlog | `src/test/java/br/com/monitor/CapacityScenario.java:172` `assertThat(pendingPeak).isEqualTo(50);` | 50 pendentes |
+| OPS-02/06 atraso | `src/test/java/br/com/monitor/CapacityScenario.java:171` `assertThat(lag.max(TimeUnit.SECONDS)).isGreaterThan(0);` | Atraso medido positivo |
+| OPS-02/06 esgotamento | `src/test/java/br/com/monitor/CapacityScenario.java:186` `assertThat(meters.get("monitor.notifications").tag("status", "EXHAUSTED").gauge().value()).isEqualTo(50);` | 50 EXHAUSTED com cinco tentativas |
+| OPS-04/06 preserva??o | `src/test/java/br/com/monitor/CapacityScenario.java:194` `assertThat(count(jdbc, "incidents WHERE recovered_at IS NULL")).isEqualTo(50);` | 50 incidentes abertos ap?s reten??o |
+
+Adequa??o A?D PASS para o cen?rio: resultados e medi??es persistidas, sem testes fora dos seis ACs. Gate Build completo em execu??o antes do commit desta task.
+
+## T8: compatibilidade do processamento no upgrade hist?rico
+
+O primeiro gate completo de T6 executou480 testes:479 passaram e NotificationSchemaIT falhou porque IncidentProcessor consultava recibos V8 antes de ler um resultado existente em V5. Evid?ncia preservada em `.validation/mon11-java-before-t8.log`. Corrigido para consultar recibos somente quando a evid?ncia estiver ausente; o fluxo normal faz uma consulta a menos e o replay retirado continua ignorado. Nenhuma assertion de teste alterada.
+
+Gate Docker verify `-Dtest=OperationMetricsTest -Dit.test=NotificationSchemaIT,RetentionIT`, com c?pia de relat?rios: **2 unit?rios +11 IT, zero falhas/erros/skips/Checkstyle**, BUILD SUCCESS; `.validation/mon11-t8.log`.
+
+| AC / mapeamento direto e reverso | Evid?ncia e assertion | Resultado |
+| --- | --- | --- |
+| OPS-04 continuidade no upgrade | src/test/java/br/com/monitor/NotificationSchemaIT.java:53 `isEqualTo(1)` e preserva??o do snapshot V5 | Upgrade V5?V6 passa com processador atual |
+| OPS-04 replay removido | src/test/java/br/com/monitor/RetentionIT.java:34 `processor.process(old.executionId()).isFalse()` | Nenhuma reaplica??o de execu??o retirada |
+
+Adequa??o A?D PASS; regress?o encontrada pelo gate e corrigida em produ??o, sem enfraquecer testes. T6 repetir? cen?rio/gates sobre esta corre??o antes de fechar.

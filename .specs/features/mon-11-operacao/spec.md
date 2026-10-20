@@ -70,7 +70,7 @@ ValidaÃ§Ã£o: limites de TTL/lote/poll. Falhas: rollback e eventos fixos. Ide
 | OPS-01 | MON-11-AC01 | T1 | Verified |
 | OPS-02 | MON-11-AC02 | T1 | Verified |
 | OPS-03 | MON-11-AC03 | T2 | Verified |
-| OPS-04 | MON-11-AC04 | T3 | Verified |
+| OPS-04 | MON-11-AC04 | T3,T8 | Verified |
 | OPS-05 | MON-11-AC05 | T4,T5 | Verified |
 | OPS-06 | MON-11-AC06 | T6,T7 | Pending |
 
