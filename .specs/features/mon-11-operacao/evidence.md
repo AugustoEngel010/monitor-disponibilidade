@@ -149,3 +149,33 @@ T9 altera somente a drenagem do runtime de reten??o, desabilitado no cen?rio, e 
 - Painel T5:50 PASS; altera??es T8/T9 s?o exclusivamente reten??o/processamento interno, sem alterar DTOs, seguran?a ou assets testados. N?o se apresenta essa equival?ncia como outra execu??o UI.
 
 Adequa??o T6 completa: limites, medi??es, rollback/replay, threads e consultas cobertos; comandos reais, nenhum teste suprimido e nenhuma assertion anterior enfraquecida.
+
+## T7: documenta??o operacional e matriz atual
+
+Arquivos: docs/operations.md, README, .env.example, docs/queries.md, STATE/AD-012 e artefatos MON-11. Sem mudan?a em produ??o ap?s os gates finais de T6. Guia confrontado com configura??o YAML/Compose, endpoints exercitados pelas IT/smoke, tabelas migradas e resultados reais. Gates Java482/UI50/runtime/smoke37 acima s?o reutilizados por identidade de c?digo; n?o foi alegada nova execu??o para altera??o puramente documental. Spec/tasks e diff-check passam. O backlog s? ser? fechado ap?s Verifier PASS.
+
+A matriz abaixo usa as linhas atuais e prevalece sobre refer?ncias das etapas nos commits anteriores. Toda assertion nova est? limitada a OPS-01..06 e seus edges; n?o houve remo??o, skip ou enfraquecimento de testes anteriores.
+
+| AC / mapeamento direto e reverso | Assertion concreta atual | Resultado definido |
+| --- | --- | --- |
+| MON-11-AC01 / OPS-01 | `src/test/java/br/com/monitor/OperationHealthIT.java:60` `assertThat(readiness.statusCode()).isEqualTo(503);` | 503/readiness DOWN |
+| MON-11-AC01 / OPS-01 | `src/test/java/br/com/monitor/OperationHealthIT.java:63` `assertThat(liveness.statusCode()).isEqualTo(200);` | 200/liveness UP sem PostgreSQL |
+| MON-11-AC02 / OPS-02 | `src/test/java/br/com/monitor/OperationMetricsTest.java:49` `assertThat(meters.get("monitor.checks.in.flight").gauge().value()).isEqualTo(1);` | Gauge real durante execu??o |
+| MON-11-AC02 / OPS-02 | `src/test/java/br/com/monitor/OperationMetricsTest.java:61` `assertThat(meters.getMeters().stream().flatMap(m -> m.getId().getTags().stream())) .allMatch(tag -> tag.getKey().equals("outcome") && java.util.Arrays.stream(CheckResult.Outcome.values()) .anyMatch(value -> value.name().equals(tag.getValue())));` | Somente enum outcome, sem IDs/URLs |
+| MON-11-AC02 / OPS-02 | `src/test/java/br/com/monitor/OperationMetricsTest.java:79` `assertThat(meters.get("monitor.notifications").tag("status", status).gauge().value()).isNaN();` | Erro SQL ? desconhecido, n?o zero |
+| MON-11-AC03 / OPS-03 | `src/test/java/br/com/monitor/OperationalLogsIT.java:40` `assertThat(fields(event)).containsEntry("monitorId", target.id()) .containsEntry("executionId", result.executionId()) .containsEntry("incidentId", delivery.incidentId()) .containsEntry("notificationId", delivery.id());` | Quatro UUIDs reais de transi??o/entrega |
+| MON-11-AC03 / OPS-03 | `src/test/java/br/com/monitor/OperationalLogsIT.java:62` `assertThat(capture.list).hasSize(4);` | Rollback n?o confirma |
+| MON-11-AC03 / OPS-03 | `src/test/java/br/com/monitor/OperationHealthIT.java:55` `assertThat(json.path("notificationId").asText()).isEqualTo(notification.toString());` | JSON ECS real preserva UUID |
+| MON-11-AC04 / OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:38` `assertThat(checks.find(exact.executionId())).contains(exact);` | Igualdade n?o expira |
+| MON-11-AC04 / OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:62` `assertThat(count("notification_intents")).isEqualTo(3);` | Cadeias pendentes/SENDING preservadas |
+| MON-11-AC04 / OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:40` `assertThat(checks.retired(old.executionId())).isTrue();` | Recibo dur?vel e trigger rejeitam replay |
+| MON-11-AC04 / OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:112` `assertThat(incidents.lastAppliedStart(internal)).contains(internalAt);` | ?ltimo APPLIED preserva ordena??o |
+| MON-11-AC04 / OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:208` `assertThat(count("retired_executions")).isZero();` | Rollback remove recibos novos |
+| MON-11-AC04 / OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:183` `assertThat(count("retired_executions")).isEqualTo(2);` | Shutdown preserva s? primeiro lote confirmado |
+| MON-11-AC05 / OPS-05 | `src/test/java/br/com/monitor/RetentionQueriesIT.java:33` `assertThat(summary.statistics().dataStatus()).isEqualTo("NO_DATA");` | NO_DATA em janela removida |
+| MON-11-AC05 / OPS-05 | `src/test/java/br/com/monitor/RetentionQueryApiIT.java:58` `assertThat(json.path("historyAvailableFrom").asText()).isEqualTo(base.toString());` | Metadados exatos nos quatro endpoints |
+| MON-11-AC06 / OPS-06 | `src/test/java/br/com/monitor/CapacityScenario.java:162` `assertThat(peak).isEqualTo(4);` | Pico4, com assertion por rodada <=4 |
+| MON-11-AC06 / OPS-06 | `src/test/java/br/com/monitor/CapacityScenario.java:163` `assertThat(overlaps.get()).isZero();` | Zero sobreposi??o por monitor |
+| MON-11-AC06 / OPS-06 | `src/test/java/br/com/monitor/CapacityScenario.java:172` `assertThat(pendingPeak).isEqualTo(50);` | 50 PENDING com SMTP421 real |
+
+Adequa??o A?D T7 PASS: documenta??o explicita limites, matriz atual cita valores e estado; comandos/c?digo s?o os mesmos dos gates aprovados. Verifica??o independente ser? despachada ap?s este commit.

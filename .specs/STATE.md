@@ -91,13 +91,21 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 - **Date**: 2026-10-18
 - **Status**: active
 
+### AD-012
+- **Decision**: MON-11 ret?m payload eleg?vel por 30 dias configur?veis, preserva cadeias abertas/pendentes, reservas, ?ltima observa??o e ?ltimo APPLIED corrente, e mant?m recibos UUID m?nimos sem expira??o. Um watermark global monot?nico limita amostras/cobertura; consultas exp?em reten??o separada das lacunas. Rodadas drenam lotes transacionais, com locks liberados entre commits.
+- **Reason**: Excluir volume sem perder causalidade SMTP, ordena??o, idempot?ncia ou fabricar hist?rico dispon?vel; a limpeza deve acompanhar mais de um lote por hora.
+- **Trade-off**: Recibos e evid?ncias protegidas continuam crescendo; n?o h? promessa de disco constante nem restaura??o por aumento do prazo. Manuten??o transversal fica concentrada na opera??o, sem recalcular estado de neg?cio.
+- **Scope**: MON-11/MON-12; OPS-01 a OPS-06; mant?m AD-001 a AD-011.
+- **Date**: 2026-10-20
+- **Status**: active
+
 ## Handoff
 
-- **Feature**: MON-10; `.specs/features/mon-10-painel/`.
-- **Phase / Task**: Execute concluído; T1–T8 e Verifier independente final PASS nos seis ACs e requisitos.
-- **Completed**: Painel estático servido pelo Spring Boot: lista/summary, formulário MON-04, pausa/retomada confirmadas, detalhes com três históricos filtrados/paginados e indicadores MON-09. Basic/CSRF existentes mantidos. 459 testes Java +48 UI, zero falhas/erros/skips; Checkstyle zero; runtime e smoke 37 PASS. Desktop 1440×900/mobile 390×844 e seis capturas em docs/images/mon10. README e CI atualizados.
-- **In-progress**: Nenhuma implementação pendente. Verifier inicial identificou m6 sobrevivente; T8 reforçou os quatro datetime e ausências OPEN. Baseline final independente 48/48 e quatro mutações de instantes mortas; com cinco anteriores equivalentes, nove distintas sem sobreviventes. validate_state PASS. Histórico FAIL e L-005 candidate preservados.
-- **Next step**: MON-11: operação, métricas e retenção, preservando épocas/referências e informando limites históricos no contrato consumido pelo painel. Manter AD-001 a AD-011.
-- **Blockers**: Nenhum local. CI remota não executada; usuário adiou UAT humano (Vou conferir depois). Inspeção visual automatizada e pelo autor registrada.
-- **Uncommitted files**: Nenhum após o commit de fechamento documental.
-- **Branch**: main; baseline be7fae1; T1 aad2998, T2 a07e271, T3 5e124ed, T4 b53b303, T5 22097c2, T6 5f1ad77, T7 16a0b78, T8 68b2018. AD-001 a AD-011 preservadas. Bancos/serviços próprios de UI, smoke e Verifier removidos. Logs .validation/mon10-*; Java em target; UI em .validation/panel; revisão final em .validation/mon10-verifier-t8.
+- **Feature**: MON-11; `.specs/features/mon-11-operacao/`.
+- **Phase / Task**: T1?T6 e corre??es T8/T9 conclu?das; T7 documenta??o, aguardando Verifier independente.
+- **Completed**: Actuator/readiness/liveness preservados; m?tricas limitadas; eventos JSON correlacionados ap?s commit; V8 e reten??o com Clock, idempot?ncia e drenagem; metadados de hist?rico e painel; capacidade real e documenta??o. Gates autor: 482 Java, 50 UI, 37 smoke, runtime/Checkstyle aprovados.
+- **In-progress**: Fechamento documental e valida??o independente com sensor isolado; backlog MON-11 permanece aberto at? PASS.
+- **Next step**: Commit T7 e despachar Verifier fresh, conforme skill.
+- **Blockers**: Nenhum local. CI remota n?o executada.
+- **Uncommitted files**: Documenta??o T7 e seus registros de rastreabilidade.
+- **Branch**: main; baseline 6fb6cf0. T1 dcd75a2, T2 8d311e4, T3 549104c, T4 3c30616, T5 5a7c8ee, T8 02bc6ca, T9 baec948, T6 6c8e779. Infraestrutura pr?pria de painel/smoke removida; Testcontainers descart?veis.

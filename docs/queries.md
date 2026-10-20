@@ -159,3 +159,13 @@ QueryParametersTest: validação. ObservationEpochIT: upgrade/transações. Hist
 [Spec](../.specs/features/mon-09-consultas/spec.md), [design](../.specs/features/mon-09-consultas/design.md), [tasks](../.specs/features/mon-09-consultas/tasks.md), [evidências](../.specs/features/mon-09-consultas/evidence.md).
 
 [Validação independente](../.specs/features/mon-09-consultas/validation.md): PASS nos sete critérios de aceite e nove requisitos, 459 testes sem falhas/erros/skips/Checkstyle, runtime e smoke 37 PASS; cinco mutações detectadas. A primeira revisão encontrou gaps de payload/mensagens, corrigidos e revalidados. Evidências locais; CI remota não executada.
+
+## Reten??o MON-11
+
+As p?ginas de checks, incidents e notifications e o summary acrescentam `historyAvailableFrom` (UTC, nullable) e `retainedOutPeriods` (lista de `{from,to}` semiabertos). Antes da primeira limpeza confirmada: null e lista vazia. Depois: limite dur?vel monot?nico, mesmo se o rel?gio recuar ou o prazo aumentar. O limite ? a fronteira do hist?rico completo garantido pela pol?tica, n?o o menor timestamp f?sico: payloads protegidos e lotes ainda por consumir podem ser anteriores.
+
+`retainedOutPeriods` ? a interse??o de `[from,to)` com o per?odo estritamente anterior ao limite. Exemplo: from=12:00, to=13:00, limite=12:30 produz `[12:00,12:30)`. `noObservationPeriods` cont?m somente lacunas da parte dispon?vel, separadamente da reten??o. Em janela toda removida: statistics NO_DATA, totalChecks/validSamples/successSamples/latencySamples=0, percentuais/m?dia=null, checks vazio; noObservationPeriods vazio e retainedOutPeriods cobre toda a janela. N?o fabricar sucesso nem indisponibilidade a partir de exclus?o.
+
+Resultados anteriores ao limite n?o entram nas amostras, nos checks paginados ou na cobertura, mesmo quando preservados como ?ltima evid?ncia operacional. `lastObservation`, estado atual e `currentIncident` continuam operacionais e independentes da janela. Incidentes abertos e notifica??es pendentes preservados continuam consult?veis nas respectivas p?ginas com os metadados de hist?rico parcial; n?o s?o usados para inventar amostras. A p?gina de notifica??es preserva esses campos tamb?m quando preenche as tentativas.
+
+Janelas que come?am exatamente no limite n?o t?m trecho removido. Cobertura de uma observa??o anterior ao limite n?o atravessa o corte; observa??o posterior ainda pode cobrir uma janela iniciada depois dela. Filtros, ordena??o, pagina??o, Basic/CSRF e REPEATABLE_READ anteriores permanecem. `coverageKnownFrom` continua informando conhecimento das ?pocas; `historyAvailableFrom` informa reten??o separadamente. Consulte [configura??o, prote??es e diagn?stico](operations.md).

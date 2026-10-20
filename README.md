@@ -65,7 +65,7 @@ docker compose up -d --force-recreate app
 | Rotas | Acesso |
 | --- | --- |
 | GET/HEAD /actuator/health, /actuator/health/liveness, /actuator/health/readiness | Público, somente status, sem detalhes ou criação de sessão |
-| GET /actuator/info | HTTP Basic do operador |
+| GET /actuator/info e /actuator/metrics/** | HTTP Basic do operador |
 | GET /api/admin/csrf | HTTP Basic; entrega token/headerName/parameterName para CSRF |
 | Todas as demais, incluindo /, /api/**, /admin/**, assets e outros actuators | HTTP Basic por padrão; rotas não implementadas retornam 404 após autenticação |
 | POST/PUT/PATCH/DELETE administrativos | Basic + cookie de sessão e token CSRF válido |
@@ -118,7 +118,7 @@ docker compose run --build --rm tests
 
 Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte Java tem 459 casos: 167 unitários e 292 integrações, incluindo os 387 anteriores e 72 da MON-09 para validação, épocas de observação, histórico paginado, resumo e contratos HTTP. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
 
-Os 48 testes adicionais de navegador da MON-10 usam Chromium/Playwright em contêiner, sem Node ou navegador instalados no host. Execute em projeto separado; `down` desse projeto descarta somente seu banco de testes em tmpfs e permite repetir a suíte com banco vazio:
+Os 50 testes adicionais de navegador da MON-10/11 usam Chromium/Playwright em contêiner, sem Node ou navegador instalados no host. Execute em projeto separado; `down` desse projeto descarta somente seu banco de testes em tmpfs e permite repetir a suíte com banco vazio:
 
 ```sh
 docker compose -p monitor-panel-tests --profile panel-tests down
@@ -171,6 +171,7 @@ Limites dos módulos:
 | Incidentes (`br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados duráveis, lock de monitor, JDBC e intenção atômica; MON-07 implementada, sem executar HTTP |
 | Notificações (`br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Outbox transacional, worker SMTP, tentativas e retomada; MON-08 implementada |
 | Consultas (`br.com.monitor.query`) | Histórico paginado e resumo com indicadores | Leitura dos módulos em snapshot, sem alterar estado do executor; dados para MON-10 |
+| Opera??o (`br.com.monitor.operation`) | M?tricas da outbox, eventos tipados e manuten??o de reten??o | JDBC transacional limitado, Clock e Micrometer; limpeza preserva trabalho e n?o recalcula estado de neg?cio |
 | Painel (`resources/static`) | Lista, configuração, ciclo e históricos no navegador | HTML/CSS/módulos JS locais, contratos MON-04/09 e Basic/CSRF MON-03 |
 
 Nenhum módulo de produção depende de bibliotecas de teste; `ArchitectureTest` impõe esse limite. Os pacotes futuros serão criados com suas funcionalidades, sem classes vazias nesta base. As [specs da MON-02](.specs/features/mon-02-base-docker/spec.md), [decisão AD-004](.specs/STATE.md) e [tasks](.specs/features/mon-02-base-docker/tasks.md) mantêm a rastreabilidade MON-02-AC01 a MON-02-AC08.
@@ -204,3 +205,5 @@ A [validação independente MON-09](.specs/features/mon-09-consultas/validation.
 A [spec MON-10](.specs/features/mon-10-painel/spec.md), [design](.specs/features/mon-10-painel/design.md), [tasks](.specs/features/mon-10-painel/tasks.md) e [evidências](.specs/features/mon-10-painel/evidence.md) relacionam MON-10-AC01 até MON-10-AC06 aos fluxos do painel e às assertions dos testes. As capturas acima vêm da suíte automatizada, com inspeção visual registrada; não equivalem a uma revisão humana do operador. A execução da CI remota não foi observada.
 
 A [validação independente MON-10](.specs/features/mon-10-painel/validation.md) concluiu PASS nos seis critérios: 459 testes Java e 48 testes de navegador aprovados, build/runtime e smoke 37 PASS. Nove regressões distintas foram detectadas ao longo da revisão; a lacuna inicial nos valores dos horários de incidente foi corrigida na T8 e re-verificada. O relatório preserva o resultado inicial, a correção e quais gates foram executados ou reutilizados por equivalência. A conferência visual do operador foi adiada pelo usuário.
+
+MON-11: consulte o [guia operacional](docs/operations.md) para probes p?blicos m?nimos, m?tricas administrativas, JSON de correla??o e reten??o padr?o de 30 dias. Incidentes abertos, pend?ncias, evid?ncias correntes e recibos de idempot?ncia s?o protegidos. O painel e as quatro consultas informam o limite hist?rico; aus?ncia n?o vira sucesso. O [cen?rio de capacidade](docs/capacity/README.md) usa 100 monitores, alvos locais e recursos expl?citos; a mistura medida saturou C=4 sem exceder concorr?ncia, com atrasos registrados. Reproduza-o com `docker compose -p mon11-capacity -f compose.yaml -f compose.capacity.yaml run --build --rm tests`.

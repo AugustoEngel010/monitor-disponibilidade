@@ -4,7 +4,7 @@
 
 Usar tlc-spec-driven e seu ciclo de Execute. Implementa??o local autorizada no pedido. Sete tasks iniciais e duas corre??es de gate executadas pelo autor; Verifier independente obrigat?rio ap?s a ?ltima task.
 
-**Status:** In Progress. **Design:** [design.md](design.md).
+**Status:** Implementation complete; independent validation pending. **Design:** [design.md](design.md).
 
 ## Test Coverage Matrix
 
@@ -124,7 +124,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T9 -> T6 -> T7
 **Reuses**: Clock, JDBC, Actuator, Docker e contratos anteriores.
 **Tools**: shell/Docker/Python; skill tlc-spec-driven, sem MCP novo.
 **Done when**:
-- [ ] comandos executados, resultados reais e rastreabilidade dos seis ACs; gate sem falhas ou skips.
+- [x] comandos executados, resultados reais e rastreabilidade dos seis ACs; gate sem falhas ou skips.
 **Tests**: none
 **Gate**: build
 
