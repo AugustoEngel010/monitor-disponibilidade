@@ -32,7 +32,7 @@ Cada task registra o comando efetivo e testes selecionados durante desenvolvimen
 ### Phase 1: Opera??o
 
 ```text
-T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T9 -> T6 -> T7
+T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T9 -> T6 -> T7 -> T10
 ```
 
 ## Task Breakdown
@@ -141,6 +141,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T9 -> T6 -> T7
 | T7 | T6 | T6 | Match |
 | T8 | T5 | T5 | Match |
 | T9 | T8 | T8 | Match |
+| T10 | T7 | T7 | Match |
 
 ## Test Co-location Validation
 
@@ -154,6 +155,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T9 -> T6 -> T7
 | T6 | Opera??o/SQL | integration | integration | OK |
 | T8 | Opera??o/SQL | integration | integration | OK |
 | T9 | Opera??o/SQL | integration | integration | OK |
+| T10 | Opera??o/SQL | integration | integration | OK |
 | T7 | Documenta??o | none | none | OK |
 
 ### T8: Consultar recibo somente para resultado ausente
@@ -183,3 +185,17 @@ T8 surgiu do gate completo de T6: NotificationSchemaIT usa schema V5 sem retired
 **Gate**: full
 
 Corre??o do ritmo operacional identificada na revis?o de capacidade: a taxa de entrada pode superar um lote por hora. Apenas o runtime de reten??o muda; ele est? desabilitado na medi??o temporizada de CapacityScenario. A execu??o inicial coube em um lote do autor; T8/T9 s?o corre??es subsequentes dos gates, sem delega??o de implementa??o.
+
+### T10: Discriminar drenagem em uma ?nica rodada
+
+**What**: Exercitar uma rodada diretamente, sem polls posteriores que mascarem a aus?ncia de continua??o.
+**Where**: `src/main/java/br/com/monitor/operation/RetentionRuntime.java`
+**Depends on**: T7
+**Requirement**: OPS-04
+**Tools**: shell/Docker; skill tlc-spec-driven; Verifier independente ap?s commit.
+**Done when**:
+- [x] Uma chamada tick sem start remove5 de6 registros e mant?m5 recibos; mutante sem continua??o deve falhar por estado SQL; shutdown real preservado.
+**Tests**: integration
+**Gate**: full
+
+F1/M7 do Verifier inicial: o await de10s permitia tr?s polls. Extra??o de tick segue o padr?o NotificationRuntime, sem endpoint administrativo novo nem mudan?a na elegibilidade SQL. As assertions de estado s?o mantidas e seu escopo temporal ? fortalecido.

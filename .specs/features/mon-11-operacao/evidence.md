@@ -1,5 +1,17 @@
 # MON-11: evid?ncias
 
+## T10: uma rodada de limpeza, sem polls compensatorios
+
+F1 do Verifier inicial permanece em `validation-initial.md`. O teste agora chama `RetentionRuntime.tick()` uma unica vez, sem `start` nem await. As assertions SQL imediatas em `RetentionIT.java:147-148` exigem um resultado protegido e cinco recibos. O teste de shutdown entre commits permanece. Nenhum teste foi removido ou ignorado.
+
+Gate direcionado: `docker compose run --build --rm tests sh -c 'mvn --batch-mode --no-transfer-progress verify -Dtest=OperationMetricsTest -Dit.test=RetentionIT,RetentionMigrationIT,NotificationSchemaIT; result=$?; cp -a target/. /reports/; exit $result'`: 2 unitarios +14 IT, zero falhas/erros/skips/Checkstyle; `.validation/mon11-t10.log`.
+
+Sensor autor em copia isolada: trocar somente a continuacao por `while (false)` produziu 12 IT, uma falha, zero erros; `oneRuntimeRoundDrainsEligibleBacklogAcrossShortTransactions` esperava1 resultado, encontrou4. M7 morto por estado SQL, sem falha de compilacao/infraestrutura (`.validation/mon11-t10-M7.log`). Porcelain antes/depois identico apos normalizar CRLF/LF; scratch removido sem stash. O Verifier deve repetir este sensor independentemente.
+
+Adequacao A-D: OPS-04/T9/T10 mapeiam diretamente as duas contagens e o teste de shutdown. As assertions existentes foram preservadas e seu escopo temporal foi fortalecido; nenhuma mudanca na elegibilidade SQL. Capacidade e UI anteriores permanecem aplicaveis: runtime de retencao desabilitado no cenario temporizado, DTOs/assets inalterados. A extracao segue o padrao de tick do runtime de notificacoes.
+
+Gate completo T10: `docker compose run --build --rm tests`, `.validation/mon11-t10-full.log`: BUILD SUCCESS, 482 testes (169 unitarios +313 IT), zero falhas/erros/skips/Checkstyle. O Verifier deve repetir o gate independentemente.
+
 ## T1: sa?de e m?tricas
 
 Premissas: probes status-only existentes; instrumenta??o no scheduler real; outbox consultada no scrape. Arquivos: CheckScheduler, SchedulerRuntime, NotificationMetrics, application.yml e OperationMetricsTest/OperationHealthIT. Sucesso: m?tricas exatas e readiness independente de liveness.

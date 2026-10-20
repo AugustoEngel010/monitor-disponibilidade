@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 6,
+  "next_id": 7,
   "lessons": [
     {
       "id": "L-001",
@@ -94,6 +94,24 @@
       ],
       "created": "2026-10-19T22:24:34Z",
       "last_seen": "2026-10-19T22:24:34Z"
+    },
+    {
+      "id": "L-006",
+      "key": "surviving_mutant::nos testes dos pollers exercite uma unica rodada sem novos agendamentos para distinguir drenagem interna de rodadas subsequentes",
+      "text": "Nos testes dos pollers, exercite uma unica rodada sem novos agendamentos para distinguir drenagem interna de rodadas subsequentes.",
+      "signal": "surviving_mutant",
+      "scope": "operation/runtime-tests",
+      "status": "candidate",
+      "features": [
+        "mon-11-operacao"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        "src/test/java/br/com/monitor/RetentionIT.java:143 (operation/runtime-tests)"
+      ],
+      "created": "2026-10-20T21:20:44Z",
+      "last_seen": "2026-10-20T21:20:44Z"
     }
   ]
 }

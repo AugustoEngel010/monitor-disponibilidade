@@ -2,7 +2,6 @@ package br.com.monitor;
 
 import java.sql.Timestamp;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -19,7 +18,6 @@ import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.awaitility.Awaitility.await;
 
 class RetentionIT extends QueryFixture {
     @BeforeEach
@@ -144,12 +142,10 @@ class RetentionIT extends QueryFixture {
         for (int i = 0; i < 6; i++) { result(base.minusSeconds(10 - i), true); }
         var runtime = new RetentionRuntime(retention(base, 2),
                 new MockEnvironment().withProperty("monitor.retention.poll-ms", "1000"));
-        runtime.start();
         try {
-            await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
-                assertThat(count("check_results")).isEqualTo(1);
-                assertThat(count("retired_executions")).isEqualTo(5);
-            });
+            runtime.tick();
+            assertThat(count("check_results")).isEqualTo(1);
+            assertThat(count("retired_executions")).isEqualTo(5);
         } finally { runtime.destroy(); }
         assertThat(retention(base, 2).clean().more()).isFalse();
         assertThat(checks.find(jdbc.queryForObject("SELECT execution_id FROM monitor.check_results", UUID.class)))

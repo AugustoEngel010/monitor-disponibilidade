@@ -28,22 +28,25 @@ public class RetentionRuntime implements DisposableBean {
 
     @EventListener(ApplicationReadyEvent.class)
     public void start() {
-        polling.scheduleWithFixedDelay(() -> {
-            try {
-                RetentionService.Cleanup result;
-                do {
-                    result = retention.clean();
-                    LOG.atInfo().addKeyValue("event", "RETENTION_COMPLETED")
-                            .addKeyValue("historyAvailableFrom", result.historyAvailableFrom())
-                            .addKeyValue("checksRemoved", result.checks())
-                            .addKeyValue("incidentsRemoved", result.incidents())
-                            .addKeyValue("epochsRemoved", result.epochs()).addKeyValue("more", result.more())
-                            .log("Retention batch committed");
-                } while (result.more() && !Thread.currentThread().isInterrupted());
-            } catch (RuntimeException error) {
-                LOG.atWarn().addKeyValue("event", "RETENTION_FAILED").log("Retention batch rolled back");
-            }
-        }, pollMillis, pollMillis, TimeUnit.MILLISECONDS);
+        polling.scheduleWithFixedDelay(this::tick, pollMillis, pollMillis, TimeUnit.MILLISECONDS);
+    }
+
+    public void tick() {
+        if (polling.isShutdown()) { return; }
+        try {
+            RetentionService.Cleanup result;
+            do {
+                result = retention.clean();
+                LOG.atInfo().addKeyValue("event", "RETENTION_COMPLETED")
+                        .addKeyValue("historyAvailableFrom", result.historyAvailableFrom())
+                        .addKeyValue("checksRemoved", result.checks())
+                        .addKeyValue("incidentsRemoved", result.incidents())
+                        .addKeyValue("epochsRemoved", result.epochs()).addKeyValue("more", result.more())
+                        .log("Retention batch committed");
+            } while (result.more() && !Thread.currentThread().isInterrupted());
+        } catch (RuntimeException error) {
+            LOG.atWarn().addKeyValue("event", "RETENTION_FAILED").log("Retention batch rolled back");
+        }
     }
 
     @Override

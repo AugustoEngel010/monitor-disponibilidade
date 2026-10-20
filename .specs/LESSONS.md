@@ -44,6 +44,12 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: m6-instants (panel)
 - last seen: 2026-10-19T22:24:34Z
 
+### L-006 - Nos testes dos pollers, exercite uma unica rodada sem novos agendamentos para distinguir drenagem interna de rodadas subsequentes.
+- signal: `surviving_mutant` · recurrence: 1 feature(s) · scope: `operation/runtime-tests` · harmful: 0
+- features: mon-11-operacao
+- evidence: src/test/java/br/com/monitor/RetentionIT.java:143 (operation/runtime-tests)
+- last seen: 2026-10-20T21:20:44Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.
