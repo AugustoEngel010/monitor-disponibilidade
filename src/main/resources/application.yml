@@ -43,7 +43,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
   endpoint:
     health:
       show-details: never
@@ -53,3 +53,11 @@ management:
       group:
         readiness:
           include: readinessState,db
+        liveness:
+          include: livenessState
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    org.springframework.boot.actuate.jdbc.DataSourceHealthIndicator: OFF

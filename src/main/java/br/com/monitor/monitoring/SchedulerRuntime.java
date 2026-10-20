@@ -1,6 +1,7 @@
 package br.com.monitor.monitoring;
 
 import java.time.Clock;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -21,11 +22,12 @@ public class SchedulerRuntime implements DisposableBean {
     private final long pollMillis;
     private final ScheduledExecutorService polling;
 
-    public SchedulerRuntime(ScheduleStore store, CheckService checks, Clock clock, Environment environment) {
+    public SchedulerRuntime(ScheduleStore store, CheckService checks, Clock clock, Environment environment,
+            MeterRegistry meters) {
         int capacity = environment.getProperty("monitor.scheduler.concurrency", Integer.class, 4);
         pollMillis = environment.getProperty("monitor.scheduler.poll-ms", Long.class, 250L);
         if (pollMillis <= 0) { throw new IllegalArgumentException("Scheduler poll interval must be positive"); }
-        scheduler = new CheckScheduler(store, checks::executeAndRecord, clock, capacity);
+        scheduler = new CheckScheduler(store, checks::executeAndRecord, clock, capacity, meters);
         polling = Executors.newSingleThreadScheduledExecutor(Thread.ofPlatform().daemon().name("check-poll").factory());
     }
 
