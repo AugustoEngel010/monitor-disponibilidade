@@ -30,12 +30,16 @@ public class RetentionRuntime implements DisposableBean {
     public void start() {
         polling.scheduleWithFixedDelay(() -> {
             try {
-                var result = retention.clean();
-                LOG.atInfo().addKeyValue("event", "RETENTION_COMPLETED")
-                        .addKeyValue("historyAvailableFrom", result.historyAvailableFrom())
-                        .addKeyValue("checksRemoved", result.checks())
-                        .addKeyValue("incidentsRemoved", result.incidents())
-                        .addKeyValue("epochsRemoved", result.epochs()).log("Retention batch committed");
+                RetentionService.Cleanup result;
+                do {
+                    result = retention.clean();
+                    LOG.atInfo().addKeyValue("event", "RETENTION_COMPLETED")
+                            .addKeyValue("historyAvailableFrom", result.historyAvailableFrom())
+                            .addKeyValue("checksRemoved", result.checks())
+                            .addKeyValue("incidentsRemoved", result.incidents())
+                            .addKeyValue("epochsRemoved", result.epochs()).addKeyValue("more", result.more())
+                            .log("Retention batch committed");
+                } while (result.more() && !Thread.currentThread().isInterrupted());
             } catch (RuntimeException error) {
                 LOG.atWarn().addKeyValue("event", "RETENTION_FAILED").log("Retention batch rolled back");
             }

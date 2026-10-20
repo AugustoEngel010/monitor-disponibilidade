@@ -29,7 +29,7 @@ public class RetentionService {
         batchSize = setting(environment, "monitor.retention.batch-size", 1000, 1, 10000);
     }
 
-    public record Cleanup(Instant historyAvailableFrom, int incidents, int checks, int epochs) { }
+    public record Cleanup(Instant historyAvailableFrom, int incidents, int checks, int epochs, boolean more) { }
 
     public Cleanup clean() {
         return transaction.execute(status -> {
@@ -89,7 +89,8 @@ public class RetentionService {
                     + " AND NOT EXISTS (SELECT 1 FROM monitor.check_attempts a WHERE a.monitor_id=e.monitor_id"
                     + " AND a.execution_generation=e.execution_generation) ORDER BY e.ended_at LIMIT :batch)", p);
             jdbc.update("UPDATE monitor.retention_state SET history_available_from=:cutoff WHERE singleton", p);
-            return new Cleanup(cutoff, incidents.size(), checks.size(), epochs);
+            return new Cleanup(cutoff, incidents.size(), checks.size(), epochs,
+                    incidents.size() == batchSize || checks.size() == batchSize || epochs == batchSize);
         });
     }
 

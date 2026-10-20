@@ -119,3 +119,18 @@ Gate Docker verify `-Dtest=OperationMetricsTest -Dit.test=NotificationSchemaIT,R
 | OPS-04 replay removido | src/test/java/br/com/monitor/RetentionIT.java:34 `processor.process(old.executionId()).isFalse()` | Nenhuma reaplica??o de execu??o retirada |
 
 Adequa??o A?D PASS; regress?o encontrada pelo gate e corrigida em produ??o, sem enfraquecer testes. T6 repetir? cen?rio/gates sobre esta corre??o antes de fechar.
+
+## T9: drenagem e interrup??o entre lotes
+
+Revis?o do cen?rio identificou que um ?nico lote1000/hora elimina somente24mil linhas/dia, abaixo da entrada poss?vel. RetentionRuntime agora continua lotes curtos at? esvaziar elegibilidade, liberando locks entre commits e respeitando interrup??o. RetentionService informa more quando qualquer grupo preenche o lote. Arquivos limitados ao componente de reten??o e seus testes derivados de OPS-04.
+
+Gate Docker verify `-Dtest=OperationMetricsTest -Dit.test=RetentionIT,RetentionMigrationIT,NotificationSchemaIT`: **2 unit?rios +14 IT**, zero falhas/erros/skips/Checkstyle, BUILD SUCCESS; `.validation/mon11-t9-final.log`.
+
+| AC / mapeamento direto e reverso | Evid?ncia e assertion | Resultado |
+| --- | --- | --- |
+| OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:135` `assertThat(count("check_results")).isEqualTo(1);` | Rodada drena cinco antigos e preserva ?ltimo APPLIED |
+| OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:182` `assertThat(count("check_results")).isEqualTo(4);` | Shutdown ap?s primeiro lote impede lotes seguintes |
+| OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:183` `assertThat(count("retired_executions")).isEqualTo(2);` | Primeiro lote permanece confirmado |
+| OPS-04 | `src/test/java/br/com/monitor/RetentionIT.java:184` `assertThat(count("result_applications")).isEqualTo(4);` | Aplica??es restantes preservadas |
+
+Adequa??o A?D PASS: duas IT novas com estado SQL real e Clock fixo; barreira permite interromper ap?s commit, sem sleeps de fronteira temporal. N?o h? teste anterior enfraquecido. A fase temporizada de capacidade n?o executa RetentionRuntime; crit?rios SQL da transa??o s?o id?nticos antes/depois de T9, apenas o flag more foi acrescido.

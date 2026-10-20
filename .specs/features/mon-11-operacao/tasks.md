@@ -2,7 +2,7 @@
 
 ## Execution Protocol
 
-Usar tlc-spec-driven e seu ciclo de Execute. Implementa??o local autorizada no pedido. Oito tasks em um lote executado pelo autor; Verifier independente obrigat?rio ap?s a ?ltima task.
+Usar tlc-spec-driven e seu ciclo de Execute. Implementa??o local autorizada no pedido. Sete tasks iniciais e duas corre??es de gate executadas pelo autor; Verifier independente obrigat?rio ap?s a ?ltima task.
 
 **Status:** In Progress. **Design:** [design.md](design.md).
 
@@ -32,7 +32,7 @@ Cada task registra o comando efetivo e testes selecionados durante desenvolvimen
 ### Phase 1: Opera??o
 
 ```text
-T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T6 -> T7
+T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T9 -> T6 -> T7
 ```
 
 ## Task Breakdown
@@ -106,7 +106,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T6 -> T7
 
 **What**: Medir capacidade controlada.
 **Where**: `src/test/java/br/com/monitor/CapacityScenario.java`
-**Depends on**: T8
+**Depends on**: T9
 **Requirement**: OPS-06
 **Reuses**: Clock, JDBC, Actuator, Docker e contratos anteriores.
 **Tools**: shell/Docker/Python; skill tlc-spec-driven, sem MCP novo.
@@ -137,9 +137,10 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T6 -> T7
 | T3 | T2 | T2 | Match |
 | T4 | T3 | T3 | Match |
 | T5 | T4 | T4 | Match |
-| T6 | T8 | T8 | Match |
+| T6 | T9 | T9 | Match |
 | T7 | T6 | T6 | Match |
 | T8 | T5 | T5 | Match |
+| T9 | T8 | T8 | Match |
 
 ## Test Co-location Validation
 
@@ -152,6 +153,7 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T6 -> T7
 | T5 | Painel | e2e | e2e | OK |
 | T6 | Opera??o/SQL | integration | integration | OK |
 | T8 | Opera??o/SQL | integration | integration | OK |
+| T9 | Opera??o/SQL | integration | integration | OK |
 | T7 | Documenta??o | none | none | OK |
 
 ### T8: Consultar recibo somente para resultado ausente
@@ -167,3 +169,17 @@ T1 -> T2 -> T3 -> T4 -> T5 -> T8 -> T6 -> T7
 **Gate**: full
 
 T8 surgiu do gate completo de T6: NotificationSchemaIT usa schema V5 sem retired_executions. Nenhum teste ou assertion foi reduzido. Ordem ajustada para T5 ? T8 ? T6 ? T7.
+
+### T9: Drenar backlog de reten??o em lotes transacionais
+
+**What**: Continuar a mesma rodada enquanto um lote estiver cheio, sem limitar a remo??o a mil registros por hora.
+**Where**: `src/main/java/br/com/monitor/operation/RetentionRuntime.java`
+**Depends on**: T8
+**Requirement**: OPS-04
+**Tools**: shell/Docker; skill tlc-spec-driven.
+**Done when**:
+- [x] Uma rodada com lote2 remove5 registros eleg?veis em transa??es separadas e preserva a ?ltima evid?ncia; shutdown interrompe continua??o.
+**Tests**: integration
+**Gate**: full
+
+Corre??o do ritmo operacional identificada na revis?o de capacidade: a taxa de entrada pode superar um lote por hora. Apenas o runtime de reten??o muda; ele est? desabilitado na medi??o temporizada de CapacityScenario. A execu??o inicial coube em um lote do autor; T8/T9 s?o corre??es subsequentes dos gates, sem delega??o de implementa??o.

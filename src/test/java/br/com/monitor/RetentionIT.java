@@ -2,12 +2,16 @@ package br.com.monitor;
 
 import java.sql.Timestamp;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import br.com.monitor.monitoring.CheckResult;
 import br.com.monitor.notification.NotificationStore;
 import br.com.monitor.operation.RetentionService;
+import br.com.monitor.operation.RetentionRuntime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -15,6 +19,7 @@ import org.springframework.mock.env.MockEnvironment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 
 class RetentionIT extends QueryFixture {
     @BeforeEach
@@ -132,6 +137,51 @@ class RetentionIT extends QueryFixture {
         var longer = new RetentionService(named, manager(), Clock.fixed(base.plusSeconds(86400), ZoneOffset.UTC),
                 new MockEnvironment().withProperty("monitor.retention.days", "30"));
         assertThat(longer.clean().historyAvailableFrom()).isEqualTo(base);
+    }
+
+    @Test
+    void oneRuntimeRoundDrainsEligibleBacklogAcrossShortTransactions() {
+        for (int i = 0; i < 6; i++) { result(base.minusSeconds(10 - i), true); }
+        var runtime = new RetentionRuntime(retention(base, 2),
+                new MockEnvironment().withProperty("monitor.retention.poll-ms", "1000"));
+        runtime.start();
+        try {
+            await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
+                assertThat(count("check_results")).isEqualTo(1);
+                assertThat(count("retired_executions")).isEqualTo(5);
+            });
+        } finally { runtime.destroy(); }
+        assertThat(retention(base, 2).clean().more()).isFalse();
+        assertThat(checks.find(jdbc.queryForObject("SELECT execution_id FROM monitor.check_results", UUID.class)))
+                .isPresent();
+    }
+
+    @Test
+    void shutdownStopsBetweenBatchesWithoutRollingBackTheCommittedBatch() throws Exception {
+        for (int i = 0; i < 6; i++) { result(base.minusSeconds(10 - i), true); }
+        var committed = new CountDownLatch(1);
+        var hold = new CountDownLatch(1);
+        var service = new RetentionService(named, manager(),
+                Clock.fixed(base.plusSeconds(86400), ZoneOffset.UTC), new MockEnvironment()
+                        .withProperty("monitor.retention.days", "1")
+                        .withProperty("monitor.retention.batch-size", "2")) {
+            @Override
+            public Cleanup clean() {
+                var batch = super.clean();
+                committed.countDown();
+                try { hold.await(5, TimeUnit.SECONDS); }
+                catch (InterruptedException error) { Thread.currentThread().interrupt(); }
+                return batch;
+            }
+        };
+        var runtime = new RetentionRuntime(service,
+                new MockEnvironment().withProperty("monitor.retention.poll-ms", "1000"));
+        runtime.start();
+        try { assertThat(committed.await(10, TimeUnit.SECONDS)).isTrue(); }
+        finally { runtime.destroy(); hold.countDown(); }
+        assertThat(count("check_results")).isEqualTo(4);
+        assertThat(count("retired_executions")).isEqualTo(2);
+        assertThat(count("result_applications")).isEqualTo(4);
     }
 
     @Test
