@@ -35,7 +35,8 @@ public class HistoryQueries {
         this.clock = clock;
     }
 
-    public record Page<T>(List<T> items, int page, int size, long totalElements, long totalPages) { }
+    public record Page<T>(List<T> items, int page, int size, long totalElements, long totalPages,
+            Instant historyAvailableFrom, List<SummaryQueries.Period> retainedOutPeriods) { }
     public record CheckView(UUID monitorId, UUID executionId, long configurationVersion, long executionGeneration,
             Instant startedAt, Instant finishedAt, long durationNanos, String outcome,
             Integer httpStatus, String errorMessage) { }
@@ -52,6 +53,8 @@ public class HistoryQueries {
         required(id);
         String where = " FROM monitor.check_results r WHERE r.monitor_id=:id"
                 + " AND r.finished_at>=:from AND r.finished_at<:to"
+                + " AND r.finished_at>=coalesce((SELECT history_available_from FROM monitor.retention_state),"
+                + " r.finished_at)"
                 + (q.outcome() == null ? "" : " AND r.outcome=:outcome");
         return page("r.*", where, "r.finished_at DESC, r.execution_id DESC", q, parameters(id, q),
                 HistoryQueries::check);
@@ -91,7 +94,8 @@ public class HistoryQueries {
                 n.transitionId(), n.incidentId(), n.type(), n.confirmedAt(), n.recipient(), n.status(),
                 n.attemptCount(), n.nextAttemptAt(), n.completedAt(),
                 List.copyOf(attempts.getOrDefault(n.id(), List.of())))).toList(),
-                result.page(), result.size(), result.totalElements(), result.totalPages());
+                result.page(), result.size(), result.totalElements(), result.totalPages(),
+                result.historyAvailableFrom(), result.retainedOutPeriods());
     }
 
     Monitor required(UUID id) {
@@ -110,7 +114,19 @@ public class HistoryQueries {
         long count = jdbc.queryForObject("SELECT count(*)" + where, parameters, Long.class);
         var items = jdbc.query("SELECT " + columns + where + " ORDER BY " + order + " LIMIT :size OFFSET :offset",
                 parameters, mapper);
-        return new Page<>(items, q.page(), q.size(), count, (count + q.size() - 1) / q.size());
+        Instant cutoff = historyAvailableFrom();
+        return new Page<>(items, q.page(), q.size(), count, (count + q.size() - 1) / q.size(),
+                cutoff, retainedOutPeriods(q, cutoff));
+    }
+
+    Instant historyAvailableFrom() {
+        return jdbc.query("SELECT history_available_from FROM monitor.retention_state",
+                new MapSqlParameterSource(), (row, index) -> instant(row, "history_available_from")).getFirst();
+    }
+
+    static List<SummaryQueries.Period> retainedOutPeriods(QueryParameters q, Instant cutoff) {
+        if (cutoff == null || !q.from().isBefore(cutoff)) { return List.of(); }
+        return List.of(new SummaryQueries.Period(q.from(), cutoff.isBefore(q.to()) ? cutoff : q.to()));
     }
 
     static MapSqlParameterSource parameters(UUID id, QueryParameters q) {

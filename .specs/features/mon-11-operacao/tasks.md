@@ -32,7 +32,7 @@ Cada task registra o comando efetivo e testes selecionados durante desenvolvimen
 ### Phase 1: Opera??o
 
 ```text
-T1 ? T2 ? T3 ? T4 ? T5 ? T6 ? T7
+T1 -> T2 -> T3 -> T4 -> T5 -> T6 -> T7
 ```
 
 ## Task Breakdown
@@ -85,7 +85,7 @@ T1 ? T2 ? T3 ? T4 ? T5 ? T6 ? T7
 **Reuses**: Clock, JDBC, Actuator, Docker e contratos anteriores.
 **Tools**: shell/Docker/Python; skill tlc-spec-driven, sem MCP novo.
 **Done when**:
-- [ ] metadados em quatro recursos, NO_DATA em janela removida e cobertura cortada; gate sem falhas ou skips.
+- [x] metadados em quatro recursos, NO_DATA em janela removida e cobertura cortada; gate sem falhas ou skips.
 **Tests**: integration
 **Gate**: full
 

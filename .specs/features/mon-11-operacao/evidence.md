@@ -53,3 +53,22 @@ Gate `docker compose run --build --rm tests sh -c 'mvn --batch-mode --no-transfe
 | OPS-04 upgrade | `src/test/java/br/com/monitor/RetentionMigrationIT.java:25` `assertThat(current.migrate().migrationsExecuted).isEqualTo(1);` | V8 aplicada uma vez, checksums e dados anteriores intactos |
 
 Adequa??o A?D PASS: dez cen?rios de reten??o e um upgrade derivam de OPS-04 e edges; gates incluem regress?o dos m?dulos afetados. Nenhum teste removido/pulado nem assertion enfraquecida.
+
+## T4: consultas e limite hist?rico
+
+Premissas/arquivos: HistoryQueries/SummaryQueries e RetentionQueriesIT/RetentionQueryApiIT. historyAvailableFrom ? global e dur?vel; retainedOutPeriods ? a interse??o da janela com o per?odo anterior ao limite. noObservationPeriods cont?m somente lacunas posteriores ao corte. Incidentes/notifica??es protegidos continuam consult?veis com aviso de hist?rico parcial; amostras anteriores n?o entram em checks/estat?sticas/cobertura.
+
+Gates Docker com verify, Checkstyle e c?pia de relat?rios: `.validation/mon11-t4.log`, 53 IT +56 unit?rios QueryParametersTest; `.validation/mon11-t4-api.log`, 6 IT +56 unit?rios. BUILD SUCCESS, zero falhas/erros/skips. Sele??es IT: RetentionQueriesIT,HistoryQueriesIT,SummaryQueriesIT,QueryApiIT; final RetentionQueriesIT,RetentionQueryApiIT.
+
+| AC / mapeamento direto e reverso | Evid?ncia e assertion | Resultado |
+| --- | --- | --- |
+| OPS-05 janela removida | `src/test/java/br/com/monitor/RetentionQueriesIT.java:33` `assertThat(summary.statistics().dataStatus()).isEqualTo("NO_DATA");` | NO_DATA/null/zero amostras |
+| OPS-05 dados operacionais | `src/test/java/br/com/monitor/RetentionQueriesIT.java:29` `assertThat(summary.lastObservation().executionId()).isEqualTo(result.executionId());` | ?ltima evid?ncia operacional separada da janela |
+| OPS-05 janela cruzada | `src/test/java/br/com/monitor/RetentionQueriesIT.java:60` `assertThat(summary.retainedOutPeriods()).containsExactly(new SummaryQueries.Period(q.from(), base));` | Reten??o separada de lacuna |
+| OPS-05 cadeia protegida | `src/test/java/br/com/monitor/RetentionQueriesIT.java:74` `assertThat(notificationPage.retainedOutPeriods()).isEqualTo(summary.retainedOutPeriods());` | Pend?ncia preservada com metadados |
+| OPS-05 cobertura | `src/test/java/br/com/monitor/RetentionQueriesIT.java:87` `assertThat(summary.noObservationPeriods()).containsExactly(new SummaryQueries.Period(q.from(), q.to()));` | Amostra antiga n?o atravessa o corte |
+| OPS-05 antes da limpeza | `src/test/java/br/com/monitor/RetentionQueriesIT.java:96` `assertThat(summary.historyAvailableFrom()).isNull();` | Contrato anterior preservado |
+| OPS-05 HTTP quatro recursos | `src/test/java/br/com/monitor/RetentionQueryApiIT.java:58` `assertThat(json.path("historyAvailableFrom").asText()).isEqualTo(base.toString());` | Corte UTC exato nos quatro DTOs |
+| OPS-05 HTTP aus?ncia | `src/test/java/br/com/monitor/RetentionQueryApiIT.java:64` `assertThat(json.at("/statistics/successRatePercent").isNull()).isTrue();` | Aus?ncia n?o ? sucesso |
+
+Adequa??o A?D PASS: seis cen?rios novos derivados de OPS-05, incluindo serializa??o HTTP real, mais regress?o MON-09. Campos de payload verificados por valor, sem teste anterior removido/pulado/enfraquecido.

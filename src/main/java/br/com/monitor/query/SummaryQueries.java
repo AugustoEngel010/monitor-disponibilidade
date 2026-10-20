@@ -40,19 +40,23 @@ public class SummaryQueries {
             String evidence, boolean recentObservation, String label, Instant lastObservedAt,
             HistoryQueries.CheckView lastObservation, int failureCount, int recoveryCount, long configurationVersion,
             long executionGeneration, Instant nextCheckAt, HistoryQueries.IncidentView currentIncident,
-            Statistics statistics, Instant coverageKnownFrom, List<Period> noObservationPeriods) { }
+            Statistics statistics, Instant coverageKnownFrom, List<Period> noObservationPeriods,
+            Instant historyAvailableFrom, List<Period> retainedOutPeriods) { }
 
     public Summary summary(UUID id, QueryParameters q) {
         var monitor = history.required(id);
         Instant now = clock.instant().truncatedTo(ChronoUnit.MICROS);
         var s = monitor.state();
+        Instant cutoff = history.historyAvailableFrom();
         var parameters = HistoryQueries.parameters(id, q).addValue("external", Arrays.stream(Outcome.values())
                 .filter(Outcome::external).map(Enum::name).toList());
         var statistics = jdbc.query("SELECT count(*) AS total, count(*) FILTER (WHERE outcome IN (:external)) AS valid,"
                 + " count(*) FILTER (WHERE outcome='SUCCESS') AS successes,"
                 + " count(*) FILTER (WHERE outcome='SUCCESS' AND duration_nanos>=0) AS latency_samples,"
                 + " avg(duration_nanos) FILTER (WHERE outcome='SUCCESS' AND duration_nanos>=0) AS latency"
-                + " FROM monitor.check_results WHERE monitor_id=:id AND finished_at>=:from AND finished_at<:to",
+                + " FROM monitor.check_results WHERE monitor_id=:id AND finished_at>=:from AND finished_at<:to"
+                + " AND finished_at>=coalesce((SELECT history_available_from FROM monitor.retention_state),"
+                + " finished_at)",
                 parameters, (row, index) -> {
                     long valid = row.getLong("valid");
                     long successes = row.getLong("successes");
@@ -76,10 +80,14 @@ public class SummaryQueries {
         return new Summary(id, now, new Window(q.from(), q.to(), "UTC"), s.lifecycle(), s.confirmedState(), evidence,
                 "FRESH".equals(evidence), label(monitor, evidence), s.lastObservedAt(), last,
                 s.failureCount(), s.recoveryCount(), s.configurationVersion(), s.executionGeneration(), s.nextCheckAt(),
-                history.currentIncident(s.openIncidentId(), now), statistics, known, gaps(q, parameters));
+                history.currentIncident(s.openIncidentId(), now), statistics, known, gaps(q, parameters, cutoff),
+                cutoff, HistoryQueries.retainedOutPeriods(q, cutoff));
     }
 
-    private List<Period> gaps(QueryParameters q, MapSqlParameterSource parameters) {
+    private List<Period> gaps(QueryParameters q, MapSqlParameterSource parameters, Instant cutoff) {
+        Instant from = cutoff != null && cutoff.isAfter(q.from()) ? cutoff : q.from();
+        if (!from.isBefore(q.to())) { return List.of(); }
+        parameters.addValue("from", Timestamp.from(from));
         // Epoch snapshots preserve the policy in effect at the observation, including old generations.
         var coverage = jdbc.query("SELECT greatest(r.finished_at,:from) AS coverage_start,"
                 + " least(r.finished_at+e.freshness_seconds*interval '1 second',coalesce(e.ended_at,:to),:to)"
@@ -89,6 +97,8 @@ public class SummaryQueries {
                 + " AND e.execution_generation=r.execution_generation"
                 + " AND e.configuration_version=r.configuration_version"
                 + " WHERE r.monitor_id=:id AND a.disposition='APPLIED' AND r.outcome IN (:external)"
+                + " AND r.finished_at>=coalesce((SELECT history_available_from FROM monitor.retention_state),"
+                + " r.finished_at)"
                 + " AND e.lifecycle='ACTIVE' AND r.finished_at>=e.started_at"
                 + " AND (e.ended_at IS NULL OR r.finished_at<e.ended_at)"
                 + " AND r.finished_at<:to AND r.finished_at+e.freshness_seconds*interval '1 second'>:from"
@@ -96,7 +106,7 @@ public class SummaryQueries {
                 (row, index) -> new Period(HistoryQueries.instant(row, "coverage_start"),
                         HistoryQueries.instant(row, "coverage_end")));
         var missing = new ArrayList<Period>();
-        Instant cursor = q.from();
+        Instant cursor = from;
         for (var period : coverage) {
             if (period.from().isAfter(cursor)) { missing.add(new Period(cursor, period.from())); }
             if (period.to().isAfter(cursor)) { cursor = period.to(); }
