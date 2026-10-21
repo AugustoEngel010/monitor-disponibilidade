@@ -1,135 +1,303 @@
 # Monitor de disponibilidade
 
-Monitor HTTP para quem opera APIs e precisa reconhecer quedas sem consultar cada serviço manualmente. Registra verificações, confirma falhas consecutivas, abre um incidente e envia e-mail. Confirma a recuperação antes de encerrar o incidente. PostgreSQL preserva o trabalho após reinícios.
+Monitor de APIs e sites que verifica endpoints HTTP/HTTPS, identifica quedas e recuperações e envia alertas por e-mail. Um painel administrativo reúne o estado dos monitores, as verificações realizadas, os incidentes e as tentativas de notificação.
 
-O MVP tem um operador, uma instância e até 100 monitores. O painel distingue **pausa administrativa**, **estado confirmado** e **frescor da observação**. Taxa de sucesso por amostragem não é uptime temporal.
+O projeto foi construído como um portfólio backend com execução local reproduzível. O foco está no comportamento diante de falhas: confirmar uma queda antes de alertar, preservar registros após reinícios, retomar notificações pendentes e impedir que um alvo lento bloqueie os demais.
 
-![Painel durante uma queda real](docs/images/mon12/02-down.png)
+![Painel com uma API indisponível e outra saudável](docs/images/mon12/02-down.png)
 
-Funcionalidades: cadastro, edição, pausa e retomada; executor HTTP/HTTPS com timeout total e proteção de destinos; concorrência limitada; incidentes e outbox transacionais; retries SMTP; histórico paginado; indicadores; probes, métricas e retenção. A demonstração usa dois alvos controláveis e Mailpit, sem enviar para destinatários reais.
+## Navegação
 
-Stack: Java 21, Spring Boot 3.5.16, Spring Security, JDBC, PostgreSQL 17.6 e Flyway. Painel HTML/CSS/JavaScript servido pelo Spring. Maven, JUnit, Testcontainers, Checkstyle e Playwright executam em contêineres. Node 22 executa apenas os auxiliares de demonstração e navegador.
+- [O que o projeto faz](#o-que-o-projeto-faz)
+- [Início rápido](#início-rápido)
+- [Como usar](#como-usar)
+- [Experimentar quedas e recuperações](#experimentar-quedas-e-recuperações)
+- [Como foi feito](#como-foi-feito)
+- [Configuração](#configuração)
+- [Operação local](#operação-local)
+- [Testar](#testar)
+- [Specs, testes e limites](#specs-testes-e-limites)
+- [Diagnóstico](#diagnóstico)
 
-## Executar localmente
+## O que o projeto faz
 
-Pré-requisitos: Git, Docker Engine Linux com Compose ou Docker Desktop em modo Linux, daemon ativo e acesso às imagens. Para o roteiro automatizado, PowerShell 5.1 ou 7. Não precisa instalar JDK, Maven, Node ou navegador no host. Reserve recursos para PostgreSQL, JVM e navegador; os testes criam bancos descartáveis adicionais. Portas padrão livres: 8080, 8081, 8025 e 1025.
+O monitor atende a quem precisa acompanhar endpoints sem verificar cada um manualmente. Para cada destino, o operador define o código HTTP esperado, o intervalo, o timeout e quantas falhas ou sucessos consecutivos confirmam uma mudança de estado.
 
-Na raiz do checkout, copie a configuração:
+| Funcionalidade | Comportamento |
+| --- | --- |
+| Administração | Cadastrar, editar, listar, pausar e retomar monitores |
+| Verificação HTTP | Executar GET com timeout total e comparação do status esperado |
+| Confirmação de queda | Abrir um único incidente após o número configurado de falhas consecutivas |
+| Confirmação de recuperação | Encerrar o incidente após o número configurado de sucessos consecutivos |
+| Alertas por e-mail | Registrar a intenção de envio, tentar a entrega e manter o histórico de tentativas |
+| Histórico e indicadores | Consultar verificações, incidentes, notificações, taxa de sucesso por amostragem e latência |
+| Continuidade | Preservar dados e retomar trabalho pendente após reinícios |
+| Operação | Expor probes, métricas administrativas, logs estruturados e retenção configurável |
+
+A versão local suporta **um operador, uma instância da aplicação e até 100 monitores**, incluindo os pausados. O limite de cadastro não garante que qualquer combinação de intervalos e timeouts seja atendida; consulte a [capacidade medida](#capacidade-medida).
+
+## Início rápido
+
+### 1. Preparar o ambiente
+
+Instale Git e Docker com Compose. No Docker Desktop, use contêineres Linux e mantenha o daemon iniciado. O primeiro build precisa de acesso à internet para baixar imagens e dependências.
+
+**Java, Maven, Node e navegador de testes executam nos contêineres.** Não é necessário instalá-los no host. PowerShell 5.1 ou 7 é necessário apenas para os roteiros automatizados de demonstração e validação.
+
+```sh
+git clone https://github.com/AugustoEngel010/monitor-disponibilidade.git
+cd monitor-disponibilidade
+```
+
+### 2. Configurar as credenciais
+
+Copie o arquivo de exemplo para `.env`:
 
 ```powershell
+# Windows PowerShell
 Copy-Item .env.example .env
 ```
 
-Em Linux/macOS: `cp .env.example .env`. Edite `.env` e substitua os placeholders de `ADMIN_USERNAME` e `ADMIN_PASSWORD`. Sem valores válidos a aplicação recusa startup. Não publique `.env`; ele está ignorado pelo Git.
+```sh
+# Linux/macOS
+cp .env.example .env
+```
+
+Edite `.env` e substitua os valores de `ADMIN_USERNAME` e `ADMIN_PASSWORD` por credenciais locais. Os placeholders são recusados e impedem o startup. Mantenha as demais variáveis com os valores do exemplo para executar a demonstração padrão. `.env` é ignorado pelo Git.
+
+### 3. Iniciar os serviços
 
 ```sh
 docker compose up --build
 ```
 
-O comando compila a aplicação do código, inicia PostgreSQL, Mailpit e API demo. `demo-seed` espera a prontidão e cria dois monitores pela API com Basic e CSRF; termina com exit 0. Confira sua conclusão com `docker compose logs demo-seed`.
+O Compose constrói a aplicação a partir do código e inicia quatro serviços: **aplicação, PostgreSQL, Mailpit e API de demonstração**. Um serviço auxiliar, `demo-seed`, aguarda a prontidão e cadastra dois monitores locais. Ele termina com código zero após concluir a carga inicial.
 
-| Acesso | Endereço padrão |
+| Serviço | Endereço padrão | Uso |
+| --- | --- | --- |
+| Painel | http://localhost:8080/ | Autenticar com as credenciais de `.env` |
+| Mailpit | http://localhost:8025/ | Consultar os e-mails capturados localmente |
+| API de demonstração | http://localhost:8081/control | Consultar os modos dos dois alvos |
+| Prontidão da aplicação | http://localhost:8080/actuator/health/readiness | Conferir se a aplicação está pronta |
+
+As portas 8080, 8081, 8025 e 1025 precisam estar livres; todas as portas publicadas estão vinculadas ao loopback do host. Para iniciar em segundo plano, use `docker compose up --build -d`. Confira a carga inicial com `docker compose logs demo-seed`.
+
+## Como usar
+
+### Acompanhar os monitores de demonstração
+
+Ao abrir o painel, informe o usuário e a senha configurados. A lista contém **Demo principal** e **Demo independente**, criados automaticamente. Com os alvos saudáveis, ambos passam a mostrar **Disponível** após a primeira observação.
+
+Clique em **Detalhes** para consultar resumo, verificações, incidentes e notificações. Os históricos têm filtros e paginação; o período informado delimita as consultas. Use **Atualizar** ou reabra a página para obter os dados atuais: o painel não pressupõe atualização automática.
+
+O SMTP padrão aponta para o Mailpit. Assim, os alertas ficam disponíveis na interface local, inclusive os destinados a `portfolio@example.test`; não são encaminhados a caixas postais externas.
+
+### Cadastrar um destino próprio
+
+Clique em **Novo monitor**, preencha os campos e selecione **Salvar monitor**:
+
+| Campo | Exemplo | Regra |
+| --- | --- | --- |
+| Nome | API de pedidos | 1 a 100 caracteres |
+| URL | `https://example.org/health` | HTTP/HTTPS, sem credenciais, query ou fragmento |
+| Intervalo | 60 segundos | De 10 a 3600 segundos |
+| Timeout | 5 segundos | De 1 a 30 segundos, menor que o intervalo |
+| Código HTTP esperado | 200 | Um código de 200 a 599, comparado exatamente |
+| Falhas para confirmar queda | 3 | De 1 a 10 falhas consecutivas |
+| Sucessos para confirmar recuperação | 2 | De 1 a 10 sucessos consecutivos |
+| Destinatário dos alertas | `ops@example.org` | Um endereço de e-mail |
+
+Use um endpoint público sob seu controle para verificações reais. Destinos privados são bloqueados, com uma exceção explícita para a API demo. Dentro do Compose, os alvos locais são `http://demo:8080/targets/main` e `http://demo:8080/targets/secondary`: **localhost dentro do contêiner não é o host**.
+
+Com um incidente aberto, é possível alterar nome e destinatário, mas mudanças de URL ou política são recusadas para preservar a relação entre incidente e destino. As notificações já criadas mantêm seu destinatário original.
+
+### Entender os estados
+
+O painel separa três informações: se o monitor está ativo, qual foi o estado confirmado e se ainda há observação recente.
+
+| Indicação | Significado |
 | --- | --- |
-| Painel, login Basic com as credenciais de `.env` | http://localhost:8080/ |
-| Readiness pública, corpo mínimo | http://localhost:8080/actuator/health/readiness |
-| E-mails capturados, destinatário `portfolio@example.test` | http://localhost:8025/ |
-| Controle e estado da API demo | http://localhost:8081/control |
-| Alvos | http://localhost:8081/targets/main e /targets/secondary |
+| Sem observação corrente | Ainda não há evidência válida para o período ativo atual |
+| Disponível | Há uma observação recente e o estado confirmado é UP |
+| Confirmando queda | Existem falhas, mas o limiar de confirmação ainda não foi atingido |
+| Indisponível | A queda foi confirmada e existe um incidente aberto |
+| Confirmando recuperação | Já houve sucesso, mas faltam confirmações para encerrar o incidente |
+| Pausado | O operador suspendeu as verificações; o estado e o incidente são preservados |
+| Dados antigos | A última observação perdeu o frescor; não há evidência recente para afirmar a condição atual |
 
-Os monitores usam **http://demo:8080**, a origem dentro da rede Compose. Não use localhost como URL do alvo. `.env.example` habilita explicitamente `MONITOR_DEMO_ORIGIN=http://demo:8080`. A variável vazia bloqueia destinos privados; a exceção libera somente esquema/host/porta exatos, preservando a política MON-05. Em execução sem demo, deixe-a vazia e inicie apenas os serviços necessários. A API demo não tem autenticação própria; suas portas no host estão limitadas a 127.0.0.1 e seus controles não fazem parte da API administrativa.
+O limite de frescor é `2 × intervalo + timeout`. Pausar ou deixar de coletar dados não confirma recuperação. Ao retomar um monitor, uma nova observação é necessária para restabelecer a evidência corrente.
 
-Para repetir o seed, sem criar monitores adicionais:
+## Experimentar quedas e recuperações
 
-```sh
-docker compose run --rm --no-deps demo-seed
+Os dois alvos locais têm modos independentes. No PowerShell, altere o principal para retornar HTTP 503:
+
+```powershell
+Invoke-RestMethod -Method Post http://localhost:8081/control/main/error
 ```
 
-Execute seeds em série. A identidade é a URL; duplicações ou configuração divergente fazem o seed falhar sem sobrescrever registros. Pausa e incidentes existentes são preservados. Os dados iniciais usam I=10s, T=2s, F=3, R=2, status esperado 200. Os modos da demo são voláteis e voltam a healthy quando o contêiner é recriado; o histórico permanece no PostgreSQL.
+Atualize o painel a cada intervalo. Os monitores de demonstração usam intervalo de **10s**, timeout de **2s**, **3 falhas** para queda e **2 sucessos** para recuperação. A terceira falha confirma a queda, abre um incidente e gera uma notificação. Falhas seguintes preservam o mesmo incidente.
 
-## Configuração
+Volte ao modo saudável:
 
-A lista completa está em [.env.example](.env.example). Variáveis do shell prevalecem sobre `.env`.
+```powershell
+Invoke-RestMethod -Method Post http://localhost:8081/control/main/healthy
+```
 
-| Variáveis | Uso / padrão |
-| --- | --- |
-| ADMIN_USERNAME, ADMIN_PASSWORD | Obrigatórias; usuário até 128 caracteres, sem colon/controles; senha até 72 bytes UTF-8; placeholders recusados |
-| APP_PORT, DEMO_PORT | Portas loopback 8080, 8081 |
-| DB_NAME, DB_USER, DB_PASSWORD | Banco local; defaults descartáveis; senha só é aplicada ao inicializar volume vazio |
-| JAVA_TOOL_OPTIONS | `-XX:MaxRAMPercentage=75.0` |
-| MONITOR_DEMO_ORIGIN | Origem exata opcional; vazia no Compose sem `.env` |
-| MONITOR_CHECK_CONCURRENCY | 4, intervalo 1..16; uma instância |
-| MONITOR_SCHEDULER_ENABLED, MONITOR_SCHEDULER_POLL_MS | true, 250ms positivo |
-| MONITOR_NOTIFICATIONS_ENABLED, MONITOR_NOTIFICATIONS_POLL_MS | true, 250ms; polling 1..60000ms |
-| SMTP_HOST, SMTP_PORT, SMTP_FROM | smtp, 1025, monitor@example.org; Mailpit local sem relay |
-| SMTP_USERNAME, SMTP_PASSWORD, SMTP_AUTH | Vazios, vazios, false |
-| SMTP_STARTTLS, SMTP_SSL | false; não combinar ambos |
-| SMTP_CONNECT_TIMEOUT_MS, SMTP_READ_TIMEOUT_MS, SMTP_WRITE_TIMEOUT_MS | 5000, 3000, 5000; cada um 1..60000ms |
-| SMTP_UI_PORT, SMTP_LOCAL_PORT | 8025 e 1025 no loopback |
-| MONITOR_RETENTION_ENABLED, MONITOR_RETENTION_DAYS | true e 30 dias (1..3650) |
-| MONITOR_RETENTION_BATCH_SIZE, MONITOR_RETENTION_POLL_MS | 1000 (1..10000); 3600000ms (1000..86400000) |
-| TESTCONTAINERS_HOST_OVERRIDE | host.docker.internal, somente testes |
+O primeiro sucesso inicia a confirmação de recuperação; o segundo encerra o incidente e gera o aviso de recuperação. Consulte os dois e-mails no Mailpit e os horários nos detalhes do monitor.
 
-Para rotacionar credenciais, altere `.env` e execute `docker compose up -d --force-recreate app`. Basic é exigido a cada requisição. Cookie de sessão serve ao CSRF e não mantém autenticação antiga. Escritas exigem Basic, cookie e token de `GET /api/admin/csrf`. O painel faz esse fluxo; o [cliente demo](config/demo/client.mjs) mostra um exemplo executável. Só GET/HEAD dos três health endpoints são públicos; métricas, APIs, página e assets são protegidos. Use HTTPS se futuramente expuser a aplicação fora do host.
+Para observar um timeout, use o modo lento, que aguarda **15s antes de responder os cabeçalhos**:
 
-## Demonstração completa
+```powershell
+Invoke-RestMethod -Method Post http://localhost:8081/control/main/slow
+```
 
-O [roteiro](docs/demo.md) detalha as etapas manuais e automatizadas. Para executar assertions e capturas reais em projeto separado, com banco novo:
+O principal registra TIMEOUT enquanto o alvo independente continua sendo verificado. Os mesmos controles existem para `secondary`. Em terminais com curl, use, por exemplo, `curl -X POST http://localhost:8081/control/main/error`.
+
+### Executar a demonstração completa
+
+O [roteiro detalhado](docs/demo.md) demonstra também reinício com incidente aberto e notificação pendente, retomada do envio, concorrência, pausa e período sem dados recentes. Para executar todas as etapas com verificações automáticas e capturas reais:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo.ps1
 ```
 
-Com PowerShell 7, use `pwsh -File scripts/demo.ps1`. O roteiro demora alguns minutos, pois espera intervalos e retries reais. Usa o projeto `monitor-portfolio`, portas 18080/18081/18025/11025 e as credenciais **fictícias locais** `portfolio-operator` / `portfolio-local-only`, independentes do operador de `.env`.
+No PowerShell 7: `pwsh -File scripts/demo.ps1`. O script usa um projeto separado, `monitor-portfolio`, com banco novo, SMTP local e as credenciais fictícias `portfolio-operator` / `portfolio-local-only`. Painel em http://localhost:18080, Mailpit em http://localhost:18025; portas adicionais 18081 e 11025. A execução leva alguns minutos porque respeita os intervalos e retries reais.
 
-Ele verifica: sucesso → confirmação de queda → um incidente → SMTP → confirmação de recuperação → encerramento; nova queda com SMTP parado → PENDING → reinício → mesma intenção enviada; timeout de um alvo enquanto outro conclui; pausa preservando incidente; scheduler desligado e evidência STALE; recuperação final. Relatórios e imagens ficam em `.validation/demo/`, com logs. Os serviços permanecem disponíveis para inspeção em http://localhost:18080 e http://localhost:18025.
+Os serviços permanecem disponíveis para inspeção. Snapshots, logs e oito capturas ficam em `.validation/demo/`. Para repetir, consulte no roteiro as opções de projeto novo ou descarte dos dados da execução anterior; as assertions exigem um histórico inicial vazio.
 
-O roteiro exige volume novo e falha diante de histórico prévio. Para repetir, pare o projeto anterior e use outro nome em `-ProjectName monitor-portfolio-2` (as portas são as mesmas), ou apague explicitamente os dados descartáveis:
+<details>
+<summary>Ver pausa e ausência de dados recentes no fluxo real</summary>
 
-```sh
-docker compose -p monitor-portfolio down --volumes
-```
+![Monitor pausado com incidente preservado](docs/images/mon12/06-paused.png)
 
-Isso **apaga os volumes do projeto indicado**; não use no projeto com dados que deseja guardar. O fluxo normal preserva volumes:
+![Dados antigos com estado confirmado e incidente preservados](docs/images/mon12/07-stale.png)
 
-```sh
-docker compose up --build -d
-docker compose ps -a
-docker compose logs -f app db smtp demo demo-seed
-docker compose restart app
-docker compose down
-```
+</details>
 
-`postgres-data` mantém configurações, verificações, incidentes e outbox após restart e down/up. `smtp-data` preserva as mensagens capturadas pelo Mailpit. Migrações aplicadas não devem ser editadas. `down --volumes` apaga esses dados e o cache Maven do projeto. `docker compose build app` constrói só a aplicação, sem exigir credenciais nem JAR no host. O runtime usa UID 10001, JRE e JAR, sem Maven, javac ou socket Docker.
+## Como foi feito
 
-![Pausa preservando estado e incidente](docs/images/mon12/06-paused.png)
-![Dados antigos preservando o incidente](docs/images/mon12/07-stale.png)
+### Tecnologias e organização
 
-## Arquitetura
+| Camada | Tecnologias |
+| --- | --- |
+| Backend | Java 21, Spring Boot 3.5.16, Spring Security, JDBC e Actuator |
+| Persistência | PostgreSQL 17.6 e migrações Flyway |
+| Painel | HTML, CSS e módulos JavaScript servidos pela aplicação |
+| Build e ambiente | Maven em build com múltiplas etapas, runtime JRE e Docker Compose |
+| Qualidade | JUnit, Testcontainers com PostgreSQL real, ArchUnit, Checkstyle e Playwright |
+| Demonstração | API auxiliar em Node 22 e Mailpit para captura SMTP |
+
+A aplicação é um **monólito modular**: mantém uma única implantação, com responsabilidades separadas por domínio. A API de demonstração é um auxiliar local separado do backend Java.
 
 ```mermaid
 flowchart LR
-  Operador -->|Basic e CSRF| App[Spring Boot e painel]
-  App --> DB[(PostgreSQL / Flyway)]
-  Scheduler[Workers HTTP limitados] -->|GET seguro| Destinos[API demo ou destino público]
-  Scheduler --> DB
-  DB --> Outbox[Worker SMTP]
-  Outbox --> Mailpit[Mailpit local]
+    Operador -->|Basic e CSRF| App[API e painel Spring Boot]
+    App --> DB[(PostgreSQL)]
+    HTTP[Agendador e workers HTTP] -->|GET| Alvos[Destinos públicos ou API demo]
+    HTTP --> DB
+    DB --> SMTP[Worker de notificações]
+    SMTP --> Email[Mailpit ou SMTP configurado]
 ```
 
-Monólito modular: `administration` controla configuração e ciclo; `monitoring` agenda tentativas duráveis e executa HTTP; `incident` aplica resultados e confirma transições; `notification` processa outbox; `query` lê snapshots; `operation` fornece retenção, eventos e métricas; `security` protege a fronteira. Bootstrap em `br.com.monitor`, painel em `resources/static`. [ArchitectureTest](src/test/java/br/com/monitor/ArchitectureTest.java) impede dependências de produção em bibliotecas de teste.
+| Módulo em `src/main/java/br/com/monitor` | Responsabilidade |
+| --- | --- |
+| `administration` | Configuração, validação e ciclo de vida dos monitores |
+| `monitoring` | Agendamento persistente, execução HTTP e registro dos resultados |
+| `incident` | Confirmação de transições e manutenção dos incidentes |
+| `notification` | Envio SMTP, tentativas e retomada de pendências |
+| `query` | Consultas de histórico e composição dos indicadores |
+| `operation` | Retenção, eventos operacionais e métricas |
+| `security` | Autenticação administrativa, CSRF e acesso aos probes |
 
-Estado, incidente, transição e intenção confirmam na mesma transação. SMTP ocorre fora dela. UUIDs, índices e recibos evitam reaplicações locais. Em confirmação SMTP incerta pode haver entrega duplicada com Message-ID estável; não há exactly-once entre banco e SMTP. A instância anterior precisa estar parada antes de iniciar outra sobre o mesmo banco.
+O painel está em `src/main/resources/static`; as migrações, em `src/main/resources/db/migration`. Os auxiliares locais ficam em `config/demo` e os testes de navegador em `config/panel`.
+
+### Decisões que sustentam o comportamento
+
+**Transações e outbox.** A aplicação confirma estado, incidente, transição e intenção de notificação na mesma transação. O worker envia o e-mail depois, fora dela. Isso permite retomar um envio pendente sem perder a transição que o originou.
+
+**Idempotência e histórico durável.** Identificadores de execução, restrições de unicidade e registros de aplicação impedem que um resultado repetido reaplique os mesmos efeitos. Reinícios preservam configurações, incidentes, resultados e trabalho de notificação.
+
+**Concorrência limitada.** O agendador reserva tentativas no PostgreSQL e usa um número limitado de workers, quatro por padrão. Não sobrepõe verificações do mesmo monitor nem reproduz cada intervalo perdido após uma interrupção. Excesso de carga aparece como atraso de agendamento.
+
+**Separação entre evidência e estado.** Pausa administrativa, estado confirmado e frescor são dimensões independentes. Falta de dados não gera sucesso fictício; taxa de sucesso por amostragem não é apresentada como uptime temporal.
+
+**Segurança de administração e destinos.** HTTP Basic protege painel e API; escritas exigem token CSRF da mesma sessão. O executor valida destinos, bloqueia endereços privados, não segue redirects e mantém validação TLS. A exceção local autoriza somente a origem exata configurada em `MONITOR_DEMO_ORIGIN`.
+
+**Desenvolvimento orientado por especificações.** O trabalho foi dividido nas entregas MON-01 a MON-12, com critérios de aceite, decisões, tarefas, testes derivados dos requisitos e revisão independente usando a skill `tlc-spec-driven` do Tech Leads Club. As specs e os pareceres ficam versionados em [`.specs/`](.specs), com [rastreabilidade de requisitos e testes](docs/traceability.md).
+
+## Configuração
+
+[`.env.example`](.env.example) contém a lista completa de variáveis e comentários. Variáveis exportadas no terminal prevalecem sobre `.env`.
+
+| Grupo | Variáveis principais | Padrão local |
+| --- | --- | --- |
+| Operador | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Obrigatórias, sem credenciais padrão válidas |
+| Portas | `APP_PORT`, `DEMO_PORT`, `SMTP_UI_PORT`, `SMTP_LOCAL_PORT` | 8080, 8081, 8025 e 1025 |
+| Banco | `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL local com valores de desenvolvimento |
+| Destino local permitido | `MONITOR_DEMO_ORIGIN` | `http://demo:8080` no arquivo de exemplo |
+| Agendamento | `MONITOR_CHECK_CONCURRENCY`, `MONITOR_SCHEDULER_ENABLED`, `MONITOR_SCHEDULER_POLL_MS` | 4 workers, habilitado, polling de 250ms |
+| Notificações | `MONITOR_NOTIFICATIONS_ENABLED`, `MONITOR_NOTIFICATIONS_POLL_MS` | Habilitadas, polling de 250ms |
+| SMTP | `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM` | `smtp`, 1025, `monitor@example.org` |
+| Autenticação e TLS SMTP | `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_AUTH`, `SMTP_STARTTLS`, `SMTP_SSL` | Credenciais vazias; autenticação e TLS desabilitados no Mailpit local |
+| Timeouts SMTP | `SMTP_CONNECT_TIMEOUT_MS`, `SMTP_READ_TIMEOUT_MS`, `SMTP_WRITE_TIMEOUT_MS` | 5000, 3000 e 5000ms |
+| Retenção | `MONITOR_RETENTION_ENABLED`, `MONITOR_RETENTION_DAYS`, `MONITOR_RETENTION_BATCH_SIZE`, `MONITOR_RETENTION_POLL_MS` | Habilitada, 30 dias, lotes de 1000, polling de uma hora |
+| JVM | `JAVA_TOOL_OPTIONS` | `-XX:MaxRAMPercentage=75.0` |
+| Rede dos testes | `TESTCONTAINERS_HOST_OVERRIDE` | `host.docker.internal` |
+
+O usuário administrativo aceita até 128 caracteres, sem dois-pontos ou controles; a senha aceita até 72 bytes UTF-8. Para trocar as credenciais, edite `.env` e recrie a aplicação:
+
+```sh
+docker compose up -d --force-recreate app
+```
+
+Basic continua sendo exigido a cada requisição; o cookie de sessão usado pelo CSRF não substitui a autenticação. Só GET/HEAD dos três endpoints de health são públicos. Para clientes da API, consulte o [contrato administrativo](docs/monitor-api.md) e o [exemplo de cliente com Basic e CSRF](config/demo/client.mjs).
+
+Deixar `MONITOR_DEMO_ORIGIN` vazia mantém destinos privados bloqueados. Para operar sem a demonstração, mantenha a variável vazia e inicie apenas os serviços necessários, por exemplo `docker compose up --build -d app db smtp`. O ambiente padrão é local; exposição fora do host exige HTTPS e uma configuração de implantação própria.
+
+## Operação local
+
+```sh
+# Iniciar em segundo plano
+docker compose up --build -d
+
+# Conferir serviços, inclusive a conclusão do seed
+docker compose ps -a
+
+# Acompanhar logs
+docker compose logs -f app db smtp demo demo-seed
+
+# Reiniciar a aplicação
+docker compose restart app
+
+# Parar e remover contêineres, preservando os dados
+docker compose down
+```
+
+O volume `postgres-data` preserva o banco e `smtp-data` preserva as mensagens capturadas. Ambos pertencem ao projeto Compose. **`docker compose down --volumes` apaga esses dados e o cache Maven do projeto**; não é o comando habitual de parada. Credenciais de inicialização do PostgreSQL só são aplicadas a um volume vazio, e migrações já aplicadas não devem ser editadas.
+
+Para executar novamente a carga inicial, espere o seed de startup terminar e use:
+
+```sh
+docker compose run --rm --no-deps demo-seed
+```
+
+O seed identifica os monitores por URL e preserva IDs, pausa e incidentes existentes. Execuções devem ocorrer em série; configuração incompatível ou identidades duplicadas provocam erro, sem sobrescrever registros. Recriar o contêiner demo restaura seus modos para healthy, sem apagar o histórico no PostgreSQL.
+
+O build usa apenas o código-fonte, sem JAR prévio no host. A imagem de runtime executa com UID 10001 e contém JRE e JAR; ferramentas de build e socket Docker ficam fora dela.
 
 ## Testar
 
+Os comandos de validação usam contêineres e propagam código diferente de zero em falhas.
+
 ```sh
+# Testes unitários, integração com PostgreSQL real e Checkstyle
 docker compose run --build --rm tests
+
+# Contratos da API demo e idempotência do seed
 docker compose run --build --rm --no-deps demo-seed node --test server.test.mjs seed.test.mjs
 ```
 
-A suíte Java executa `mvn clean verify`, Surefire, Failsafe com PostgreSQL real e Checkstyle. Baseline MON-11: **482 Java (169 unitários + 313 integrações)** e **50 casos de navegador**. Resultados MON-12 nas [evidências](.specs/features/mon-12-demonstracao/evidence.md). Falhas retornam exit diferente de zero; relatórios são copiados mesmo em falha para `target/surefire-reports`, `target/failsafe-reports` e `target/checkstyle-result.xml`.
-
-Testes de navegador em banco separado/tmpfs, sem portas host:
+Os testes de navegador usam aplicação e banco próprios, sem portas no host e sem acesso ao volume do operador:
 
 ```sh
 docker compose -p monitor-panel-tests --profile panel-tests down
@@ -137,39 +305,80 @@ docker compose -p monitor-panel-tests --profile panel-tests run --use-aliases --
 docker compose -p monitor-panel-tests --profile panel-tests down
 ```
 
-JUnit, HTML e traces ficam em `.validation/panel/`. O smoke verifica configuração administrativa, autenticação, rotação, migrações, SMTP e persistência:
+Para conferir startup, autenticação, rotação de credenciais, migrações e persistência:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1
 ```
 
-Execute `docker compose build app` antes de `-NoBuild`, ou omita a opção. O smoke usa projeto temporário próprio e limpa seus recursos. A [CI](.github/workflows/ci.yml) usa Docker para suíte, build, smoke e navegador; execução remota não foi observada.
+Para validar build e execução em uma cópia limpa, sem `target` ou `.env` do operador:
 
-Para validar startup, seed repetido e persistência após down/up em uma cópia limpa das alterações atuais, sem `target` ou `.env` do operador: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-clean.ps1`. O script usa portas aleatórias, salva `.validation/mon12-clean.json` e remove somente os contêineres e volumes que criou. A cópia permanece em `.validation/` para inspeção.
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-clean.ps1
+```
 
-Somente `tests` recebe `/var/run/docker.sock`, concedendo controle sobre o daemon para Testcontainers. Usa contêineres irmãos com portas aleatórias, Ryuk e `host.docker.internal:host-gateway`; Linux Engine precisa permitir essa rota. O runtime não recebe socket. Testes não usam o banco persistente do operador. Docker Windows containers, daemon remoto e Podman não foram validados.
+Os dois scripts usam projetos descartáveis e removem somente os recursos criados para seus testes. O segundo mantém a cópia do checkout em `.validation/` para inspeção. A [CI](.github/workflows/ci.yml) executa suíte Java, build runtime, contratos demo, smoke, navegador e demonstração completa por Docker, além de preservar relatórios em caso de falha.
+
+| Evidência local da entrega MON-12 | Resultado |
+| --- | --- |
+| Java | 482 testes: 169 unitários e 313 de integração |
+| Navegador | 50 testes Playwright |
+| API demo e seed | 2 testes |
+| Smoke operacional | 37 verificações aprovadas |
+| Demonstração e checkout limpo | Aprovados; dois incidentes encerrados e quatro mensagens capturadas |
+| Revisão independente | 8/8 critérios aprovados; três regressões injetadas detectadas |
+
+Os resultados são da validação local registrada, sem inferir sucesso de CI remota. Consulte o [parecer independente](.specs/features/mon-12-demonstracao/validation.md), os [comandos e resultados](.specs/features/mon-12-demonstracao/evidence.md) e os [snapshots da demonstração](.specs/features/mon-12-demonstracao/demo-evidence.json).
+
+Relatórios Java e Checkstyle ficam em `target/`; HTML, JUnit e traces do navegador em `.validation/panel/`; demonstração em `.validation/demo/`. O serviço `tests` recebe acesso ao socket Docker para criar bancos Testcontainers descartáveis. A rede usa `host.docker.internal` com `host-gateway`; esse acesso ao daemon é restrito ao contêiner de testes, e o runtime não o recebe.
 
 ## Specs, testes e limites
 
-O [mapa de requisitos e testes](docs/traceability.md) liga MON-01 a MON-12 às specs, decisões e suites. [STATE.md](.specs/STATE.md) registra as decisões e o estado da entrega; o [backlog](.specs/task/monitor-disponibilidade-tasks.md) mantém IDs de origem. Contratos detalhados: [administração](docs/monitor-api.md), [HTTP](docs/http-checks.md), [agendamento](docs/scheduling.md), [incidentes](docs/incidents.md), [notificações](docs/notifications.md), [consultas](docs/queries.md) e [operação/retenção](docs/operations.md).
+### Documentação de referência
 
-Na [medição MON-11](docs/capacity/README.md), 100 monitores com C=4 produziram **285 verificações em 60,070333095s**, sem sobreposição. Atraso máximo **20,634817s**, média **10,967730218s**. A mistura de timeouts e alvos lentos **não sustentou I=10s** com os recursos medidos (runner/app/alvos em 2 CPUs/2GiB; PostgreSQL 1 CPU/512MiB). É uma amostra desse harness, sem promessa de SLA. Recursos, resultados brutos, fase de retries e reprodução estão no guia.
+| Assunto | Documento |
+| --- | --- |
+| Roteiro manual e automatizado | [Demonstração local](docs/demo.md) |
+| Cadastro, edição e ciclo de vida | [API administrativa](docs/monitor-api.md) |
+| Timeout, classificações e segurança de rede | [Verificações HTTP](docs/http-checks.md) |
+| Concorrência, reservas e retomada | [Agendamento](docs/scheduling.md) |
+| Confirmação de queda e recuperação | [Incidentes](docs/incidents.md) |
+| Outbox, SMTP e retries | [Notificações](docs/notifications.md) |
+| Histórico, filtros e indicadores | [Consultas](docs/queries.md) |
+| Probes, métricas, logs e retenção | [Operação](docs/operations.md) |
+| Requisitos e cobertura de testes | [Rastreabilidade](docs/traceability.md) |
+| Decisões e estado da entrega | [STATE.md](.specs/STATE.md) |
+| Entregas e critérios de aceite | [Backlog](.specs/task/monitor-disponibilidade-tasks.md) e [specs](.specs/features) |
 
-Limitações: operador e executor únicos; GET até cabeçalhos, sem corpo, redirects, headers de autenticação ou query na URL; somente e-mail; até cinco tentativas; ACCEPTED é aceitação SMTP, não caixa postal. Sem exclusão de monitores ou fechamento manual. Retenção padrão de 30 dias preserva cadeias abertas/pendentes e recibos, portanto não garante disco constante. Lacunas e pausas não provam saúde ou indisponibilidade contínua. MON-01 continua proposta histórica; contratos usados foram concretizados nas specs posteriores. Publicação e hospedagem ficam para outra entrega.
+### Capacidade medida
+
+O [cenário de capacidade MON-11](docs/capacity/README.md) verificou **100 monitores**, com concorrência **4**, em uma mistura de respostas rápidas, lentas, HTTP 503 e timeouts. Foram registradas **285 verificações em aproximadamente 60s**, sem sobreposição por monitor e sem ultrapassar quatro verificações simultâneas.
+
+O atraso de agendamento chegou a **20,63s**, com média de **10,97s**. Essa carga **não sustentou o intervalo de 10s** com os recursos medidos: aplicação, runner e alvos em 2 CPUs/2GiB; PostgreSQL em 1 CPU/512MiB. A medição caracteriza esse cenário local e não estabelece SLA ou capacidade universal. Parâmetros, valores exatos, dados brutos e reprodução estão no guia de capacidade.
+
+### Limites da versão
+
+- Uma instância da aplicação e um operador; a instância anterior deve estar parada antes de outra assumir o mesmo banco.
+- Verificações por GET até os cabeçalhos, sem validação de corpo, redirects, query na URL ou autenticação no destino.
+- Alertas somente por e-mail, com até cinco tentativas. ACCEPTED significa aceitação pelo SMTP, não recebimento na caixa postal. Confirmação incerta pode produzir mensagens duplicadas com o mesmo Message-ID.
+- Sem exclusão de monitores, fechamento manual de incidentes, múltiplas organizações ou monitoramento distribuído.
+- Taxa de sucesso calculada por amostras. Pausas e lacunas não comprovam disponibilidade ou indisponibilidade contínua.
+- Retenção padrão de 30 dias, preservando incidentes abertos, pendências, evidências necessárias e recibos de idempotência. Isso não garante uso de disco constante.
+- Ambiente validado com Docker em contêineres Linux; Docker Windows containers, daemon remoto e Podman não foram validados. Publicação e hospedagem ficam para uma evolução posterior.
 
 ## Diagnóstico
 
-| Sintoma | Conferir / ação |
+| Sintoma | O que conferir |
 | --- | --- |
-| Docker não conecta | Iniciar Docker Desktop/Engine e confirmar `docker info`; usar contêineres Linux |
-| App sai durante startup | `docker compose logs app db`; preencher credenciais válidas e conferir banco |
-| Seed falha | `docker compose logs demo-seed`; aguardar readiness; conferir autenticação e configuração divergente |
-| Porta ocupada | Alterar APP_PORT/DEMO_PORT/SMTP_UI_PORT/SMTP_LOCAL_PORT; roteiro usa portas próprias |
-| DESTINATION_BLOCKED | Usar origem interna exata `http://demo:8080`; manter proteção MON-05 |
-| 401 / 403 | Conferir Basic; para escrita renovar token e cookie da mesma sessão, sem repetir automaticamente |
-| Notificação pendente | Consultar tentativas e `docker compose logs smtp app`; respeitar nextAttemptAt e cinco tentativas |
-| Dados antigos | Conferir scheduler, logs, nextCheckAt e idade > 2I+T; ausência não é recuperação |
-| Testcontainers inacessível | Conferir socket, Docker Linux, host.docker.internal/host-gateway e firewall |
-| Histórico ausente | Conferir watermark; aumentar prazo não restaura dados apagados |
+| Docker não conecta | Inicie o daemon, confirme `docker info` e use contêineres Linux |
+| Aplicação encerra no startup | Consulte `docker compose logs app db`; confira credenciais administrativas e banco |
+| Monitores demo não aparecem | Consulte `docker compose logs demo-seed`; espere a prontidão e confira a configuração |
+| Porta ocupada | Altere `APP_PORT`, `DEMO_PORT`, `SMTP_UI_PORT` ou `SMTP_LOCAL_PORT` |
+| DESTINATION_BLOCKED | Confira a URL interna e a origem exata em `MONITOR_DEMO_ORIGIN` |
+| HTTP 401 ou 403 | Confira Basic; para escritas de clientes API, renove token e cookie da mesma sessão |
+| Notificação pendente | Veja as tentativas e `nextAttemptAt`; confira `docker compose logs smtp app` |
+| Dados antigos no painel | Confira scheduler, última observação e atraso em `nextCheckAt`; ausência de execução não é recuperação |
+| Testcontainers não alcança PostgreSQL | Confira socket, rota `host.docker.internal`/`host-gateway` e firewall |
+| Histórico ausente | Confira o limite de retenção; aumentar o prazo não restaura registros removidos |
 
-Métricas exigem Basic em `/actuator/metrics`; probes públicos mostram somente status. Logs JSON usam IDs de correlação. Veja [operação](docs/operations.md) para diagnóstico detalhado.
+Os probes públicos retornam somente status. Métricas em `/actuator/metrics` exigem Basic; logs JSON usam IDs de correlação. O [guia operacional](docs/operations.md) detalha as consultas para diagnóstico.
