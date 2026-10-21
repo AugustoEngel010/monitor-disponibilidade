@@ -10,7 +10,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Validate Compose configuration
@@ -19,11 +19,16 @@ jobs:
         run: docker compose run --build --rm tests
       - name: Build runtime image from source
         run: docker compose build app
+      - name: Demo target and idempotent seed contracts
+        run: docker compose run --build --rm --no-deps demo-seed node --test server.test.mjs seed.test.mjs
       - name: Verify startup migrations and persistent data
         shell: pwsh
         run: ./scripts/validate-compose.ps1 -NoBuild
       - name: Browser flows desktop and mobile in containers
         run: docker compose -p monitor-panel-tests --profile panel-tests run --use-aliases --build --rm panel-tests
+      - name: Real local portfolio demonstration
+        shell: pwsh
+        run: ./scripts/demo.ps1 -ProjectName mon12-ci
       - name: Upload test quality and lifecycle reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -35,9 +40,11 @@ jobs:
             target/checkstyle-result.xml
             .validation/*.log
             .validation/panel/
+            .validation/demo/
           if-no-files-found: warn
       - name: Clean CI test resources
         if: always()
         run: |
           docker compose -p monitor-panel-tests --profile panel-tests down --remove-orphans
+          docker compose -p mon12-ci down --volumes --remove-orphans
           docker compose down --volumes --remove-orphans

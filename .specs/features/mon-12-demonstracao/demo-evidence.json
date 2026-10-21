@@ -1,0 +1,1631 @@
+{
+  "date": "2026-10-21",
+  "timezone": "America/Sao_Paulo",
+  "project": "mon12-verified",
+  "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo.ps1 -ProjectName mon12-verified",
+  "verdict": "PASS",
+  "snapshots": {
+    "confirming-down": {
+      "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+      "generatedAt": "2026-10-21T16:37:33.915188Z",
+      "window": {
+        "from": "2026-10-20T16:37:33.912967Z",
+        "to": "2026-10-21T16:37:33.912967Z",
+        "timeZone": "UTC"
+      },
+      "lifecycle": "ACTIVE",
+      "confirmedState": "UP",
+      "evidence": "FRESH",
+      "recentObservation": true,
+      "label": "CONFIRMANDO_QUEDA",
+      "lastObservedAt": "2026-10-21T16:37:33.799279Z",
+      "lastObservation": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "executionId": "3c74bc07-3ae2-4878-ade7-a215c44bd5ae",
+        "configurationVersion": 1,
+        "executionGeneration": 1,
+        "startedAt": "2026-10-21T16:37:33.795206Z",
+        "finishedAt": "2026-10-21T16:37:33.799279Z",
+        "durationNanos": 4074499,
+        "outcome": "HTTP_FAILURE",
+        "httpStatus": 503,
+        "errorMessage": "Unexpected HTTP status"
+      },
+      "failureCount": 1,
+      "recoveryCount": 0,
+      "configurationVersion": 1,
+      "executionGeneration": 1,
+      "nextCheckAt": "2026-10-21T16:37:43.790154Z",
+      "currentIncident": null,
+      "statistics": {
+        "metricType": "CHECK_SUCCESS_SAMPLING",
+        "dataStatus": "HAS_DATA",
+        "totalChecks": 2,
+        "validSamples": 2,
+        "successSamples": 1,
+        "latencySamples": 1,
+        "successRatePercent": 50,
+        "averageResponseTimeMs": 303.28
+      },
+      "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+      "noObservationPeriods": [
+        {
+          "from": "2026-10-20T16:37:33.912967Z",
+          "to": "2026-10-21T16:37:23.941605Z"
+        }
+      ],
+      "historyAvailableFrom": null,
+      "retainedOutPeriods": []
+    },
+    "confirming-recovery": {
+      "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+      "generatedAt": "2026-10-21T16:38:14.464721Z",
+      "window": {
+        "from": "2026-10-20T16:38:14.463651Z",
+        "to": "2026-10-21T16:38:14.463651Z",
+        "timeZone": "UTC"
+      },
+      "lifecycle": "ACTIVE",
+      "confirmedState": "DOWN",
+      "evidence": "FRESH",
+      "recentObservation": true,
+      "label": "CONFIRMANDO_RECUPERACAO",
+      "lastObservedAt": "2026-10-21T16:38:14.308636Z",
+      "lastObservation": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "executionId": "0b601e5f-c079-4278-9dec-fa6002cc2993",
+        "configurationVersion": 1,
+        "executionGeneration": 1,
+        "startedAt": "2026-10-21T16:38:14.296085Z",
+        "finishedAt": "2026-10-21T16:38:14.308636Z",
+        "durationNanos": 12543747,
+        "outcome": "SUCCESS",
+        "httpStatus": 200,
+        "errorMessage": null
+      },
+      "failureCount": 0,
+      "recoveryCount": 1,
+      "configurationVersion": 1,
+      "executionGeneration": 1,
+      "nextCheckAt": "2026-10-21T16:38:24.292310Z",
+      "currentIncident": {
+        "id": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "configurationVersion": 1,
+        "status": "OPEN",
+        "firstFailureAt": "2026-10-21T16:37:33.799279Z",
+        "downConfirmedAt": "2026-10-21T16:37:54.072990Z",
+        "recoveryStartedAt": "2026-10-21T16:38:14.308636Z",
+        "recoveredAt": null,
+        "estimatedDurationSeconds": null,
+        "ageSeconds": 40.665442
+      },
+      "statistics": {
+        "metricType": "CHECK_SUCCESS_SAMPLING",
+        "dataStatus": "HAS_DATA",
+        "totalChecks": 6,
+        "validSamples": 6,
+        "successSamples": 2,
+        "latencySamples": 2,
+        "successRatePercent": 33.33,
+        "averageResponseTimeMs": 157.91
+      },
+      "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+      "noObservationPeriods": [
+        {
+          "from": "2026-10-20T16:38:14.463651Z",
+          "to": "2026-10-21T16:37:23.941605Z"
+        }
+      ],
+      "historyAvailableFrom": null,
+      "retainedOutPeriods": []
+    },
+    "normal": {
+      "main": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+      "secondary": "ea4937da-dee9-4bc2-b2de-6a0a3214ac40",
+      "down": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "generatedAt": "2026-10-21T16:37:54.248041Z",
+        "window": {
+          "from": "2026-10-20T16:37:54.245764Z",
+          "to": "2026-10-21T16:37:54.245764Z",
+          "timeZone": "UTC"
+        },
+        "lifecycle": "ACTIVE",
+        "confirmedState": "DOWN",
+        "evidence": "FRESH",
+        "recentObservation": true,
+        "label": "DOWN",
+        "lastObservedAt": "2026-10-21T16:37:54.072990Z",
+        "lastObservation": {
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "executionId": "cad433e4-2c23-4a1c-bc8d-f58e349c0bf4",
+          "configurationVersion": 1,
+          "executionGeneration": 1,
+          "startedAt": "2026-10-21T16:37:54.068587Z",
+          "finishedAt": "2026-10-21T16:37:54.072990Z",
+          "durationNanos": 4369073,
+          "outcome": "HTTP_FAILURE",
+          "httpStatus": 503,
+          "errorMessage": "Unexpected HTTP status"
+        },
+        "failureCount": 3,
+        "recoveryCount": 0,
+        "configurationVersion": 1,
+        "executionGeneration": 1,
+        "nextCheckAt": "2026-10-21T16:38:04.047880Z",
+        "currentIncident": {
+          "id": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "configurationVersion": 1,
+          "status": "OPEN",
+          "firstFailureAt": "2026-10-21T16:37:33.799279Z",
+          "downConfirmedAt": "2026-10-21T16:37:54.072990Z",
+          "recoveryStartedAt": null,
+          "recoveredAt": null,
+          "estimatedDurationSeconds": null,
+          "ageSeconds": 20.448762
+        },
+        "statistics": {
+          "metricType": "CHECK_SUCCESS_SAMPLING",
+          "dataStatus": "HAS_DATA",
+          "totalChecks": 4,
+          "validSamples": 4,
+          "successSamples": 1,
+          "latencySamples": 1,
+          "successRatePercent": 25,
+          "averageResponseTimeMs": 303.28
+        },
+        "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+        "noObservationPeriods": [
+          {
+            "from": "2026-10-20T16:37:54.245764Z",
+            "to": "2026-10-21T16:37:23.941605Z"
+          }
+        ],
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "closed": [
+        {
+          "id": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "configurationVersion": 1,
+          "status": "CLOSED",
+          "firstFailureAt": "2026-10-21T16:37:33.799279Z",
+          "downConfirmedAt": "2026-10-21T16:37:54.072990Z",
+          "recoveryStartedAt": "2026-10-21T16:38:14.308636Z",
+          "recoveredAt": "2026-10-21T16:38:24.404517Z",
+          "estimatedDurationSeconds": 40.509357,
+          "ageSeconds": null
+        }
+      ],
+      "delivered": {
+        "items": [
+          {
+            "id": "a25609ec-e9a1-467c-8406-869a2e1d486a",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "transitionId": "ad6c2260-401a-45d3-9a70-12d0b994ae21",
+            "incidentId": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+            "type": "RECOVERY",
+            "confirmedAt": "2026-10-21T16:38:24.404517Z",
+            "recipient": "portfolio@example.test",
+            "status": "ACCEPTED",
+            "attemptCount": 1,
+            "nextAttemptAt": null,
+            "completedAt": "2026-10-21T16:38:24.441146Z",
+            "attempts": [
+              {
+                "attemptNumber": 1,
+                "startedAt": "2026-10-21T16:38:24.428679Z",
+                "finishedAt": "2026-10-21T16:38:24.441146Z",
+                "outcome": "ACCEPTED",
+                "errorCode": null
+              }
+            ]
+          },
+          {
+            "id": "cc786ee3-d65e-4c13-94fb-c8afb8458845",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "transitionId": "76d434af-59b4-4d1e-869b-bea64cac277c",
+            "incidentId": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+            "type": "DOWN",
+            "confirmedAt": "2026-10-21T16:37:54.072990Z",
+            "recipient": "portfolio@example.test",
+            "status": "ACCEPTED",
+            "attemptCount": 1,
+            "nextAttemptAt": null,
+            "completedAt": "2026-10-21T16:37:54.217015Z",
+            "attempts": [
+              {
+                "attemptNumber": 1,
+                "startedAt": "2026-10-21T16:37:54.159920Z",
+                "finishedAt": "2026-10-21T16:37:54.217015Z",
+                "outcome": "ACCEPTED",
+                "errorCode": null
+              }
+            ]
+          }
+        ],
+        "page": 0,
+        "size": 100,
+        "totalElements": 2,
+        "totalPages": 1,
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "checks": {
+        "items": [
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "e7225cba-a40c-4dff-ad71-827ed9392733",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:24.400428Z",
+            "finishedAt": "2026-10-21T16:38:24.404517Z",
+            "durationNanos": 4088413,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "0b601e5f-c079-4278-9dec-fa6002cc2993",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:14.296085Z",
+            "finishedAt": "2026-10-21T16:38:14.308636Z",
+            "durationNanos": 12543747,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "c29f2dae-90e0-41f5-9b64-b75c7674a47c",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:04.175348Z",
+            "finishedAt": "2026-10-21T16:38:04.178987Z",
+            "durationNanos": 3639395,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "cad433e4-2c23-4a1c-bc8d-f58e349c0bf4",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:54.068587Z",
+            "finishedAt": "2026-10-21T16:37:54.072990Z",
+            "durationNanos": 4369073,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "2eaf296c-98cd-4102-b0c7-7a7bb2f0c923",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:43.929648Z",
+            "finishedAt": "2026-10-21T16:37:43.937115Z",
+            "durationNanos": 7463294,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "3c74bc07-3ae2-4878-ade7-a215c44bd5ae",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:33.795206Z",
+            "finishedAt": "2026-10-21T16:37:33.799279Z",
+            "durationNanos": 4074499,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "b268d33d-6b05-4396-83ac-aaf0ac6aa239",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:23.638329Z",
+            "finishedAt": "2026-10-21T16:37:23.941605Z",
+            "durationNanos": 303275732,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          }
+        ],
+        "page": 0,
+        "size": 100,
+        "totalElements": 7,
+        "totalPages": 1,
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      }
+    },
+    "pending": {
+      "main": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+      "secondary": "ea4937da-dee9-4bc2-b2de-6a0a3214ac40",
+      "down": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "generatedAt": "2026-10-21T16:38:54.884849Z",
+        "window": {
+          "from": "2026-10-20T16:38:54.883481Z",
+          "to": "2026-10-21T16:38:54.883481Z",
+          "timeZone": "UTC"
+        },
+        "lifecycle": "ACTIVE",
+        "confirmedState": "DOWN",
+        "evidence": "FRESH",
+        "recentObservation": true,
+        "label": "DOWN",
+        "lastObservedAt": "2026-10-21T16:38:54.746216Z",
+        "lastObservation": {
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "executionId": "d1d7dc37-b95d-41dd-9f66-6c315bf0abf0",
+          "configurationVersion": 1,
+          "executionGeneration": 1,
+          "startedAt": "2026-10-21T16:38:54.740322Z",
+          "finishedAt": "2026-10-21T16:38:54.746216Z",
+          "durationNanos": 5887727,
+          "outcome": "HTTP_FAILURE",
+          "httpStatus": 503,
+          "errorMessage": "Unexpected HTTP status"
+        },
+        "failureCount": 3,
+        "recoveryCount": 0,
+        "configurationVersion": 1,
+        "executionGeneration": 1,
+        "nextCheckAt": "2026-10-21T16:39:04.717647Z",
+        "currentIncident": {
+          "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "configurationVersion": 1,
+          "status": "OPEN",
+          "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+          "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+          "recoveryStartedAt": null,
+          "recoveredAt": null,
+          "estimatedDurationSeconds": null,
+          "ageSeconds": 20.35841
+        },
+        "statistics": {
+          "metricType": "CHECK_SUCCESS_SAMPLING",
+          "dataStatus": "HAS_DATA",
+          "totalChecks": 10,
+          "validSamples": 10,
+          "successSamples": 3,
+          "latencySamples": 3,
+          "successRatePercent": 30,
+          "averageResponseTimeMs": 106.64
+        },
+        "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+        "noObservationPeriods": [
+          {
+            "from": "2026-10-20T16:38:54.883481Z",
+            "to": "2026-10-21T16:37:23.941605Z"
+          }
+        ],
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "notice": {
+        "id": "f8d91122-1d85-4b76-8027-af07c8129e5a",
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "transitionId": "3ccbdd85-b273-42a6-ab7b-e3cabf8bcfca",
+        "incidentId": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+        "type": "DOWN",
+        "confirmedAt": "2026-10-21T16:38:54.746216Z",
+        "recipient": "portfolio@example.test",
+        "status": "PENDING",
+        "attemptCount": 1,
+        "nextAttemptAt": "2026-10-21T16:39:28.888640Z",
+        "completedAt": null,
+        "attempts": [
+          {
+            "attemptNumber": 1,
+            "startedAt": "2026-10-21T16:38:54.874641Z",
+            "finishedAt": "2026-10-21T16:38:58.888640Z",
+            "outcome": "FAILED",
+            "errorCode": "SMTP_FAILURE"
+          }
+        ]
+      },
+      "checks": {
+        "items": [
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "d1d7dc37-b95d-41dd-9f66-6c315bf0abf0",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:54.740322Z",
+            "finishedAt": "2026-10-21T16:38:54.746216Z",
+            "durationNanos": 5887727,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "c7496bcc-eb06-4c36-afa7-5b0a3bca59fd",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:44.628169Z",
+            "finishedAt": "2026-10-21T16:38:44.631182Z",
+            "durationNanos": 3011098,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "a4f995a2-1beb-49c1-91ce-d0225ba15129",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:34.523810Z",
+            "finishedAt": "2026-10-21T16:38:34.526439Z",
+            "durationNanos": 2627676,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "e7225cba-a40c-4dff-ad71-827ed9392733",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:24.400428Z",
+            "finishedAt": "2026-10-21T16:38:24.404517Z",
+            "durationNanos": 4088413,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "0b601e5f-c079-4278-9dec-fa6002cc2993",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:14.296085Z",
+            "finishedAt": "2026-10-21T16:38:14.308636Z",
+            "durationNanos": 12543747,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "c29f2dae-90e0-41f5-9b64-b75c7674a47c",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:04.175348Z",
+            "finishedAt": "2026-10-21T16:38:04.178987Z",
+            "durationNanos": 3639395,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "cad433e4-2c23-4a1c-bc8d-f58e349c0bf4",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:54.068587Z",
+            "finishedAt": "2026-10-21T16:37:54.072990Z",
+            "durationNanos": 4369073,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "2eaf296c-98cd-4102-b0c7-7a7bb2f0c923",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:43.929648Z",
+            "finishedAt": "2026-10-21T16:37:43.937115Z",
+            "durationNanos": 7463294,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "3c74bc07-3ae2-4878-ade7-a215c44bd5ae",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:33.795206Z",
+            "finishedAt": "2026-10-21T16:37:33.799279Z",
+            "durationNanos": 4074499,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "b268d33d-6b05-4396-83ac-aaf0ac6aa239",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:23.638329Z",
+            "finishedAt": "2026-10-21T16:37:23.941605Z",
+            "durationNanos": 303275732,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          }
+        ],
+        "page": 0,
+        "size": 100,
+        "totalElements": 10,
+        "totalPages": 1,
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "incidents": {
+        "items": [
+          {
+            "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "configurationVersion": 1,
+            "status": "OPEN",
+            "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+            "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+            "recoveryStartedAt": null,
+            "recoveredAt": null,
+            "estimatedDurationSeconds": null,
+            "ageSeconds": 24.640740946
+          },
+          {
+            "id": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "configurationVersion": 1,
+            "status": "CLOSED",
+            "firstFailureAt": "2026-10-21T16:37:33.799279Z",
+            "downConfirmedAt": "2026-10-21T16:37:54.072990Z",
+            "recoveryStartedAt": "2026-10-21T16:38:14.308636Z",
+            "recoveredAt": "2026-10-21T16:38:24.404517Z",
+            "estimatedDurationSeconds": 40.509357,
+            "ageSeconds": null
+          }
+        ],
+        "page": 0,
+        "size": 100,
+        "totalElements": 2,
+        "totalPages": 1,
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      }
+    },
+    "restart": {
+      "down": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "generatedAt": "2026-10-21T16:39:07.252210Z",
+        "window": {
+          "from": "2026-10-20T16:39:07.248657Z",
+          "to": "2026-10-21T16:39:07.248657Z",
+          "timeZone": "UTC"
+        },
+        "lifecycle": "ACTIVE",
+        "confirmedState": "DOWN",
+        "evidence": "FRESH",
+        "recentObservation": true,
+        "label": "DOWN",
+        "lastObservedAt": "2026-10-21T16:39:07.085916Z",
+        "lastObservation": {
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "executionId": "fbd440ec-89c4-4608-87f1-a48350dc9d6f",
+          "configurationVersion": 1,
+          "executionGeneration": 1,
+          "startedAt": "2026-10-21T16:39:06.855275Z",
+          "finishedAt": "2026-10-21T16:39:07.085916Z",
+          "durationNanos": 230640107,
+          "outcome": "HTTP_FAILURE",
+          "httpStatus": 503,
+          "errorMessage": "Unexpected HTTP status"
+        },
+        "failureCount": 3,
+        "recoveryCount": 0,
+        "configurationVersion": 1,
+        "executionGeneration": 1,
+        "nextCheckAt": "2026-10-21T16:39:16.814336Z",
+        "currentIncident": {
+          "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "configurationVersion": 1,
+          "status": "OPEN",
+          "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+          "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+          "recoveryStartedAt": null,
+          "recoveredAt": null,
+          "estimatedDurationSeconds": null,
+          "ageSeconds": 32.725771
+        },
+        "statistics": {
+          "metricType": "CHECK_SUCCESS_SAMPLING",
+          "dataStatus": "HAS_DATA",
+          "totalChecks": 11,
+          "validSamples": 11,
+          "successSamples": 3,
+          "latencySamples": 3,
+          "successRatePercent": 27.27,
+          "averageResponseTimeMs": 106.64
+        },
+        "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+        "noObservationPeriods": [
+          {
+            "from": "2026-10-20T16:39:07.248657Z",
+            "to": "2026-10-21T16:37:23.941605Z"
+          }
+        ],
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "notice": {
+        "id": "f8d91122-1d85-4b76-8027-af07c8129e5a",
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "transitionId": "3ccbdd85-b273-42a6-ab7b-e3cabf8bcfca",
+        "incidentId": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+        "type": "DOWN",
+        "confirmedAt": "2026-10-21T16:38:54.746216Z",
+        "recipient": "portfolio@example.test",
+        "status": "PENDING",
+        "attemptCount": 1,
+        "nextAttemptAt": "2026-10-21T16:39:28.888640Z",
+        "completedAt": null,
+        "attempts": [
+          {
+            "attemptNumber": 1,
+            "startedAt": "2026-10-21T16:38:54.874641Z",
+            "finishedAt": "2026-10-21T16:38:58.888640Z",
+            "outcome": "FAILED",
+            "errorCode": "SMTP_FAILURE"
+          }
+        ]
+      },
+      "checks": {
+        "items": [
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "fbd440ec-89c4-4608-87f1-a48350dc9d6f",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:39:06.855275Z",
+            "finishedAt": "2026-10-21T16:39:07.085916Z",
+            "durationNanos": 230640107,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "d1d7dc37-b95d-41dd-9f66-6c315bf0abf0",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:54.740322Z",
+            "finishedAt": "2026-10-21T16:38:54.746216Z",
+            "durationNanos": 5887727,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "c7496bcc-eb06-4c36-afa7-5b0a3bca59fd",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:44.628169Z",
+            "finishedAt": "2026-10-21T16:38:44.631182Z",
+            "durationNanos": 3011098,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "a4f995a2-1beb-49c1-91ce-d0225ba15129",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:34.523810Z",
+            "finishedAt": "2026-10-21T16:38:34.526439Z",
+            "durationNanos": 2627676,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "e7225cba-a40c-4dff-ad71-827ed9392733",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:24.400428Z",
+            "finishedAt": "2026-10-21T16:38:24.404517Z",
+            "durationNanos": 4088413,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "0b601e5f-c079-4278-9dec-fa6002cc2993",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:14.296085Z",
+            "finishedAt": "2026-10-21T16:38:14.308636Z",
+            "durationNanos": 12543747,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "c29f2dae-90e0-41f5-9b64-b75c7674a47c",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:38:04.175348Z",
+            "finishedAt": "2026-10-21T16:38:04.178987Z",
+            "durationNanos": 3639395,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "cad433e4-2c23-4a1c-bc8d-f58e349c0bf4",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:54.068587Z",
+            "finishedAt": "2026-10-21T16:37:54.072990Z",
+            "durationNanos": 4369073,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "2eaf296c-98cd-4102-b0c7-7a7bb2f0c923",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:43.929648Z",
+            "finishedAt": "2026-10-21T16:37:43.937115Z",
+            "durationNanos": 7463294,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "3c74bc07-3ae2-4878-ade7-a215c44bd5ae",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:33.795206Z",
+            "finishedAt": "2026-10-21T16:37:33.799279Z",
+            "durationNanos": 4074499,
+            "outcome": "HTTP_FAILURE",
+            "httpStatus": 503,
+            "errorMessage": "Unexpected HTTP status"
+          },
+          {
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "executionId": "b268d33d-6b05-4396-83ac-aaf0ac6aa239",
+            "configurationVersion": 1,
+            "executionGeneration": 1,
+            "startedAt": "2026-10-21T16:37:23.638329Z",
+            "finishedAt": "2026-10-21T16:37:23.941605Z",
+            "durationNanos": 303275732,
+            "outcome": "SUCCESS",
+            "httpStatus": 200,
+            "errorMessage": null
+          }
+        ],
+        "page": 0,
+        "size": 100,
+        "totalElements": 11,
+        "totalPages": 1,
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      }
+    },
+    "retry": {
+      "notice": {
+        "id": "f8d91122-1d85-4b76-8027-af07c8129e5a",
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "transitionId": "3ccbdd85-b273-42a6-ab7b-e3cabf8bcfca",
+        "incidentId": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+        "type": "DOWN",
+        "confirmedAt": "2026-10-21T16:38:54.746216Z",
+        "recipient": "portfolio@example.test",
+        "status": "ACCEPTED",
+        "attemptCount": 2,
+        "nextAttemptAt": null,
+        "completedAt": "2026-10-21T16:39:29.081892Z",
+        "attempts": [
+          {
+            "attemptNumber": 1,
+            "startedAt": "2026-10-21T16:38:54.874641Z",
+            "finishedAt": "2026-10-21T16:38:58.888640Z",
+            "outcome": "FAILED",
+            "errorCode": "SMTP_FAILURE"
+          },
+          {
+            "attemptNumber": 2,
+            "startedAt": "2026-10-21T16:39:29.009653Z",
+            "finishedAt": "2026-10-21T16:39:29.081892Z",
+            "outcome": "ACCEPTED",
+            "errorCode": null
+          }
+        ]
+      },
+      "down": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "generatedAt": "2026-10-21T16:39:29.475272Z",
+        "window": {
+          "from": "2026-10-20T16:39:29.473596Z",
+          "to": "2026-10-21T16:39:29.473596Z",
+          "timeZone": "UTC"
+        },
+        "lifecycle": "ACTIVE",
+        "confirmedState": "DOWN",
+        "evidence": "FRESH",
+        "recentObservation": true,
+        "label": "DOWN",
+        "lastObservedAt": "2026-10-21T16:39:27.114364Z",
+        "lastObservation": {
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "executionId": "3c0ec27d-1b30-461e-83d3-6ec62cf99392",
+          "configurationVersion": 1,
+          "executionGeneration": 1,
+          "startedAt": "2026-10-21T16:39:27.111274Z",
+          "finishedAt": "2026-10-21T16:39:27.114364Z",
+          "durationNanos": 3089890,
+          "outcome": "HTTP_FAILURE",
+          "httpStatus": 503,
+          "errorMessage": "Unexpected HTTP status"
+        },
+        "failureCount": 3,
+        "recoveryCount": 0,
+        "configurationVersion": 1,
+        "executionGeneration": 1,
+        "nextCheckAt": "2026-10-21T16:39:37.102001Z",
+        "currentIncident": {
+          "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "configurationVersion": 1,
+          "status": "OPEN",
+          "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+          "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+          "recoveryStartedAt": null,
+          "recoveredAt": null,
+          "estimatedDurationSeconds": null,
+          "ageSeconds": 54.948833
+        },
+        "statistics": {
+          "metricType": "CHECK_SUCCESS_SAMPLING",
+          "dataStatus": "HAS_DATA",
+          "totalChecks": 13,
+          "validSamples": 13,
+          "successSamples": 3,
+          "latencySamples": 3,
+          "successRatePercent": 23.08,
+          "averageResponseTimeMs": 106.64
+        },
+        "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+        "noObservationPeriods": [
+          {
+            "from": "2026-10-20T16:39:29.473596Z",
+            "to": "2026-10-21T16:37:23.941605Z"
+          }
+        ],
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      }
+    },
+    "slow": {
+      "slow": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "generatedAt": "2026-10-21T16:39:33.783381Z",
+        "window": {
+          "from": "2026-10-20T16:39:33.781787Z",
+          "to": "2026-10-21T16:39:33.781787Z",
+          "timeZone": "UTC"
+        },
+        "lifecycle": "ACTIVE",
+        "confirmedState": "DOWN",
+        "evidence": "FRESH",
+        "recentObservation": true,
+        "label": "DOWN",
+        "lastObservedAt": "2026-10-21T16:39:33.676545Z",
+        "lastObservation": {
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "executionId": "8cb66dc3-dbe0-4081-83e8-b1c62304c94f",
+          "configurationVersion": 1,
+          "executionGeneration": 3,
+          "startedAt": "2026-10-21T16:39:31.675751Z",
+          "finishedAt": "2026-10-21T16:39:33.676545Z",
+          "durationNanos": 2000789261,
+          "outcome": "TIMEOUT",
+          "httpStatus": null,
+          "errorMessage": "Attempt timed out"
+        },
+        "failureCount": 3,
+        "recoveryCount": 0,
+        "configurationVersion": 1,
+        "executionGeneration": 3,
+        "nextCheckAt": "2026-10-21T16:39:41.653843Z",
+        "currentIncident": {
+          "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "configurationVersion": 1,
+          "status": "OPEN",
+          "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+          "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+          "recoveryStartedAt": null,
+          "recoveredAt": null,
+          "estimatedDurationSeconds": null,
+          "ageSeconds": 59.256942
+        },
+        "statistics": {
+          "metricType": "CHECK_SUCCESS_SAMPLING",
+          "dataStatus": "HAS_DATA",
+          "totalChecks": 14,
+          "validSamples": 14,
+          "successSamples": 3,
+          "latencySamples": 3,
+          "successRatePercent": 21.43,
+          "averageResponseTimeMs": 106.64
+        },
+        "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+        "noObservationPeriods": [
+          {
+            "from": "2026-10-20T16:39:33.781787Z",
+            "to": "2026-10-21T16:37:23.941605Z"
+          },
+          {
+            "from": "2026-10-21T16:39:31.050634Z",
+            "to": "2026-10-21T16:39:33.676545Z"
+          }
+        ],
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "fastCheck": {
+        "monitorId": "ea4937da-dee9-4bc2-b2de-6a0a3214ac40",
+        "executionId": "ad6e4c7a-a555-4da7-858a-3cf8bbd3c7d8",
+        "configurationVersion": 1,
+        "executionGeneration": 3,
+        "startedAt": "2026-10-21T16:39:32.198425Z",
+        "finishedAt": "2026-10-21T16:39:32.201632Z",
+        "durationNanos": 3206512,
+        "outcome": "SUCCESS",
+        "httpStatus": 200,
+        "errorMessage": null
+      }
+    },
+    "paused": {
+      "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+      "generatedAt": "2026-10-21T16:39:34.031117Z",
+      "window": {
+        "from": "2026-10-20T16:39:34.029478Z",
+        "to": "2026-10-21T16:39:34.029478Z",
+        "timeZone": "UTC"
+      },
+      "lifecycle": "PAUSED",
+      "confirmedState": "DOWN",
+      "evidence": "NEVER_OBSERVED",
+      "recentObservation": false,
+      "label": "PAUSED",
+      "lastObservedAt": "2026-10-21T16:39:33.676545Z",
+      "lastObservation": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "executionId": "8cb66dc3-dbe0-4081-83e8-b1c62304c94f",
+        "configurationVersion": 1,
+        "executionGeneration": 3,
+        "startedAt": "2026-10-21T16:39:31.675751Z",
+        "finishedAt": "2026-10-21T16:39:33.676545Z",
+        "durationNanos": 2000789261,
+        "outcome": "TIMEOUT",
+        "httpStatus": null,
+        "errorMessage": "Attempt timed out"
+      },
+      "failureCount": 0,
+      "recoveryCount": 0,
+      "configurationVersion": 1,
+      "executionGeneration": 4,
+      "nextCheckAt": null,
+      "currentIncident": {
+        "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "configurationVersion": 1,
+        "status": "OPEN",
+        "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+        "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+        "recoveryStartedAt": null,
+        "recoveredAt": null,
+        "estimatedDurationSeconds": null,
+        "ageSeconds": 59.504678
+      },
+      "statistics": {
+        "metricType": "CHECK_SUCCESS_SAMPLING",
+        "dataStatus": "HAS_DATA",
+        "totalChecks": 14,
+        "validSamples": 14,
+        "successSamples": 3,
+        "latencySamples": 3,
+        "successRatePercent": 21.43,
+        "averageResponseTimeMs": 106.64
+      },
+      "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+      "noObservationPeriods": [
+        {
+          "from": "2026-10-20T16:39:34.029478Z",
+          "to": "2026-10-21T16:37:23.941605Z"
+        },
+        {
+          "from": "2026-10-21T16:39:31.050634Z",
+          "to": "2026-10-21T16:39:33.676545Z"
+        },
+        {
+          "from": "2026-10-21T16:39:33.948937Z",
+          "to": "2026-10-21T16:39:34.029478Z"
+        }
+      ],
+      "historyAvailableFrom": null,
+      "retainedOutPeriods": []
+    },
+    "stale": {
+      "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+      "generatedAt": "2026-10-21T16:40:10.579281Z",
+      "window": {
+        "from": "2026-10-20T16:40:10.577259Z",
+        "to": "2026-10-21T16:40:10.577259Z",
+        "timeZone": "UTC"
+      },
+      "lifecycle": "ACTIVE",
+      "confirmedState": "DOWN",
+      "evidence": "STALE",
+      "recentObservation": false,
+      "label": "SEM_DADOS_RECENTES",
+      "lastObservedAt": "2026-10-21T16:39:48.373529Z",
+      "lastObservation": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "executionId": "c43e1635-33f9-4da8-9ebe-5ff27acdb01a",
+        "configurationVersion": 1,
+        "executionGeneration": 5,
+        "startedAt": "2026-10-21T16:39:46.374173Z",
+        "finishedAt": "2026-10-21T16:39:48.373529Z",
+        "durationNanos": 2000667130,
+        "outcome": "TIMEOUT",
+        "httpStatus": null,
+        "errorMessage": "Attempt timed out"
+      },
+      "failureCount": 3,
+      "recoveryCount": 0,
+      "configurationVersion": 1,
+      "executionGeneration": 5,
+      "nextCheckAt": "2026-10-21T16:39:56.352172Z",
+      "currentIncident": {
+        "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "configurationVersion": 1,
+        "status": "OPEN",
+        "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+        "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+        "recoveryStartedAt": null,
+        "recoveredAt": null,
+        "estimatedDurationSeconds": null,
+        "ageSeconds": 96.052842
+      },
+      "statistics": {
+        "metricType": "CHECK_SUCCESS_SAMPLING",
+        "dataStatus": "HAS_DATA",
+        "totalChecks": 15,
+        "validSamples": 15,
+        "successSamples": 3,
+        "latencySamples": 3,
+        "successRatePercent": 20,
+        "averageResponseTimeMs": 106.64
+      },
+      "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+      "noObservationPeriods": [
+        {
+          "from": "2026-10-20T16:40:10.577259Z",
+          "to": "2026-10-21T16:37:23.941605Z"
+        },
+        {
+          "from": "2026-10-21T16:39:31.050634Z",
+          "to": "2026-10-21T16:39:33.676545Z"
+        },
+        {
+          "from": "2026-10-21T16:39:33.948937Z",
+          "to": "2026-10-21T16:39:48.373529Z"
+        },
+        {
+          "from": "2026-10-21T16:40:10.373529Z",
+          "to": "2026-10-21T16:40:10.577259Z"
+        }
+      ],
+      "historyAvailableFrom": null,
+      "retainedOutPeriods": []
+    },
+    "final": {
+      "main": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+      "secondary": "ea4937da-dee9-4bc2-b2de-6a0a3214ac40",
+      "summary": {
+        "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+        "generatedAt": "2026-10-21T16:40:38.147636Z",
+        "window": {
+          "from": "2026-10-20T16:40:38.146232Z",
+          "to": "2026-10-21T16:40:38.146232Z",
+          "timeZone": "UTC"
+        },
+        "lifecycle": "ACTIVE",
+        "confirmedState": "UP",
+        "evidence": "FRESH",
+        "recentObservation": true,
+        "label": "UP",
+        "lastObservedAt": "2026-10-21T16:40:37.730952Z",
+        "lastObservation": {
+          "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+          "executionId": "b18c3705-50df-4bcf-9cd8-77fd919b0e47",
+          "configurationVersion": 1,
+          "executionGeneration": 5,
+          "startedAt": "2026-10-21T16:40:37.728661Z",
+          "finishedAt": "2026-10-21T16:40:37.730952Z",
+          "durationNanos": 2290834,
+          "outcome": "SUCCESS",
+          "httpStatus": 200,
+          "errorMessage": null
+        },
+        "failureCount": 0,
+        "recoveryCount": 2,
+        "configurationVersion": 1,
+        "executionGeneration": 5,
+        "nextCheckAt": "2026-10-21T16:40:47.723796Z",
+        "currentIncident": null,
+        "statistics": {
+          "metricType": "CHECK_SUCCESS_SAMPLING",
+          "dataStatus": "HAS_DATA",
+          "totalChecks": 18,
+          "validSamples": 18,
+          "successSamples": 5,
+          "latencySamples": 5,
+          "successRatePercent": 27.78,
+          "averageResponseTimeMs": 65
+        },
+        "coverageKnownFrom": "2026-10-21T16:37:23.588593Z",
+        "noObservationPeriods": [
+          {
+            "from": "2026-10-20T16:40:38.146232Z",
+            "to": "2026-10-21T16:37:23.941605Z"
+          },
+          {
+            "from": "2026-10-21T16:39:31.050634Z",
+            "to": "2026-10-21T16:39:33.676545Z"
+          },
+          {
+            "from": "2026-10-21T16:39:33.948937Z",
+            "to": "2026-10-21T16:39:48.373529Z"
+          },
+          {
+            "from": "2026-10-21T16:40:10.373529Z",
+            "to": "2026-10-21T16:40:19.471926Z"
+          }
+        ],
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "incidents": {
+        "items": [
+          {
+            "id": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "configurationVersion": 1,
+            "status": "CLOSED",
+            "firstFailureAt": "2026-10-21T16:38:34.526439Z",
+            "downConfirmedAt": "2026-10-21T16:38:54.746216Z",
+            "recoveryStartedAt": "2026-10-21T16:40:27.628576Z",
+            "recoveredAt": "2026-10-21T16:40:37.730952Z",
+            "estimatedDurationSeconds": 113.102137,
+            "ageSeconds": null
+          },
+          {
+            "id": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "configurationVersion": 1,
+            "status": "CLOSED",
+            "firstFailureAt": "2026-10-21T16:37:33.799279Z",
+            "downConfirmedAt": "2026-10-21T16:37:54.072990Z",
+            "recoveryStartedAt": "2026-10-21T16:38:14.308636Z",
+            "recoveredAt": "2026-10-21T16:38:24.404517Z",
+            "estimatedDurationSeconds": 40.509357,
+            "ageSeconds": null
+          }
+        ],
+        "page": 0,
+        "size": 100,
+        "totalElements": 2,
+        "totalPages": 1,
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "notifications": {
+        "items": [
+          {
+            "id": "65badce2-5b78-4b8f-8ed7-78e3399eeb32",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "transitionId": "32b480e4-4830-43c4-a9e3-98ba88348c75",
+            "incidentId": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+            "type": "RECOVERY",
+            "confirmedAt": "2026-10-21T16:40:37.730952Z",
+            "recipient": "portfolio@example.test",
+            "status": "ACCEPTED",
+            "attemptCount": 1,
+            "nextAttemptAt": null,
+            "completedAt": "2026-10-21T16:40:37.907429Z",
+            "attempts": [
+              {
+                "attemptNumber": 1,
+                "startedAt": "2026-10-21T16:40:37.854226Z",
+                "finishedAt": "2026-10-21T16:40:37.907429Z",
+                "outcome": "ACCEPTED",
+                "errorCode": null
+              }
+            ]
+          },
+          {
+            "id": "f8d91122-1d85-4b76-8027-af07c8129e5a",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "transitionId": "3ccbdd85-b273-42a6-ab7b-e3cabf8bcfca",
+            "incidentId": "bb0478da-d7c0-4cb7-91b0-d6fd3d788478",
+            "type": "DOWN",
+            "confirmedAt": "2026-10-21T16:38:54.746216Z",
+            "recipient": "portfolio@example.test",
+            "status": "ACCEPTED",
+            "attemptCount": 2,
+            "nextAttemptAt": null,
+            "completedAt": "2026-10-21T16:39:29.081892Z",
+            "attempts": [
+              {
+                "attemptNumber": 1,
+                "startedAt": "2026-10-21T16:38:54.874641Z",
+                "finishedAt": "2026-10-21T16:38:58.888640Z",
+                "outcome": "FAILED",
+                "errorCode": "SMTP_FAILURE"
+              },
+              {
+                "attemptNumber": 2,
+                "startedAt": "2026-10-21T16:39:29.009653Z",
+                "finishedAt": "2026-10-21T16:39:29.081892Z",
+                "outcome": "ACCEPTED",
+                "errorCode": null
+              }
+            ]
+          },
+          {
+            "id": "a25609ec-e9a1-467c-8406-869a2e1d486a",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "transitionId": "ad6c2260-401a-45d3-9a70-12d0b994ae21",
+            "incidentId": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+            "type": "RECOVERY",
+            "confirmedAt": "2026-10-21T16:38:24.404517Z",
+            "recipient": "portfolio@example.test",
+            "status": "ACCEPTED",
+            "attemptCount": 1,
+            "nextAttemptAt": null,
+            "completedAt": "2026-10-21T16:38:24.441146Z",
+            "attempts": [
+              {
+                "attemptNumber": 1,
+                "startedAt": "2026-10-21T16:38:24.428679Z",
+                "finishedAt": "2026-10-21T16:38:24.441146Z",
+                "outcome": "ACCEPTED",
+                "errorCode": null
+              }
+            ]
+          },
+          {
+            "id": "cc786ee3-d65e-4c13-94fb-c8afb8458845",
+            "monitorId": "a0d16184-418e-4b9d-bfa1-f9f0e5331044",
+            "transitionId": "76d434af-59b4-4d1e-869b-bea64cac277c",
+            "incidentId": "3e64bec2-c479-4a3d-8f52-0d83a5a1e760",
+            "type": "DOWN",
+            "confirmedAt": "2026-10-21T16:37:54.072990Z",
+            "recipient": "portfolio@example.test",
+            "status": "ACCEPTED",
+            "attemptCount": 1,
+            "nextAttemptAt": null,
+            "completedAt": "2026-10-21T16:37:54.217015Z",
+            "attempts": [
+              {
+                "attemptNumber": 1,
+                "startedAt": "2026-10-21T16:37:54.159920Z",
+                "finishedAt": "2026-10-21T16:37:54.217015Z",
+                "outcome": "ACCEPTED",
+                "errorCode": null
+              }
+            ]
+          }
+        ],
+        "page": 0,
+        "size": 100,
+        "totalElements": 4,
+        "totalPages": 1,
+        "historyAvailableFrom": null,
+        "retainedOutPeriods": []
+      },
+      "mailpit": {
+        "total": 4,
+        "unread": 4,
+        "count": 4,
+        "messages_count": 4,
+        "messages_unread": 4,
+        "start": 0,
+        "tags": [],
+        "messages": [
+          {
+            "ID": "2dK4hHUz7yfwTG7kKUXcxe",
+            "MessageID": "notification-65badce2-5b78-4b8f-8ed7-78e3399eeb32@monitor.local",
+            "Read": false,
+            "From": {
+              "Name": "",
+              "Address": "monitor@example.org"
+            },
+            "To": [
+              {
+                "Name": "",
+                "Address": "portfolio@example.test"
+              }
+            ],
+            "Cc": null,
+            "Bcc": null,
+            "ReplyTo": [],
+            "Subject": "[RECOVERY] Demo principal",
+            "Created": "2026-10-21T16:40:37.906Z",
+            "Username": "",
+            "Tags": [],
+            "Size": 1059,
+            "Attachments": 0,
+            "Snippet": "Monitor: Demo principal URL: http://demo:8080/targets/main Transição: RECOVERY Incidente: bb0478da-d7c0-4cb7-91b0-d6fd3d788478 Primeira falha: 2026-10-21T16:38:34.526439Z Queda confirmada: 2026-10-2..."
+          },
+          {
+            "ID": "SrSpB2XrmLYYYVoXDhoEo2",
+            "MessageID": "notification-f8d91122-1d85-4b76-8027-af07c8129e5a@monitor.local",
+            "Read": false,
+            "From": {
+              "Name": "",
+              "Address": "monitor@example.org"
+            },
+            "To": [
+              {
+                "Name": "",
+                "Address": "portfolio@example.test"
+              }
+            ],
+            "Cc": null,
+            "Bcc": null,
+            "ReplyTo": [],
+            "Subject": "[DOWN] Demo principal",
+            "Created": "2026-10-21T16:39:29.076Z",
+            "Username": "",
+            "Tags": [],
+            "Size": 794,
+            "Attachments": 0,
+            "Snippet": "Monitor: Demo principal URL: http://demo:8080/targets/main Transição: DOWN Incidente: bb0478da-d7c0-4cb7-91b0-d6fd3d788478 Primeira falha: 2026-10-21T16:38:34.526439Z Queda confirmada: 2026-10-21T16..."
+          },
+          {
+            "ID": "e9H3yR5RUJTzF7MXbs85LK",
+            "MessageID": "notification-a25609ec-e9a1-467c-8406-869a2e1d486a@monitor.local",
+            "Read": false,
+            "From": {
+              "Name": "",
+              "Address": "monitor@example.org"
+            },
+            "To": [
+              {
+                "Name": "",
+                "Address": "portfolio@example.test"
+              }
+            ],
+            "Cc": null,
+            "Bcc": null,
+            "ReplyTo": [],
+            "Subject": "[RECOVERY] Demo principal",
+            "Created": "2026-10-21T16:38:24.439Z",
+            "Username": "",
+            "Tags": [],
+            "Size": 1058,
+            "Attachments": 0,
+            "Snippet": "Monitor: Demo principal URL: http://demo:8080/targets/main Transição: RECOVERY Incidente: 3e64bec2-c479-4a3d-8f52-0d83a5a1e760 Primeira falha: 2026-10-21T16:37:33.799279Z Queda confirmada: 2026-10-2..."
+          },
+          {
+            "ID": "WUo6QDgETf9fcktN7GpseB",
+            "MessageID": "notification-cc786ee3-d65e-4c13-94fb-c8afb8458845@monitor.local",
+            "Read": false,
+            "From": {
+              "Name": "",
+              "Address": "monitor@example.org"
+            },
+            "To": [
+              {
+                "Name": "",
+                "Address": "portfolio@example.test"
+              }
+            ],
+            "Cc": null,
+            "Bcc": null,
+            "ReplyTo": [],
+            "Subject": "[DOWN] Demo principal",
+            "Created": "2026-10-21T16:37:54.214Z",
+            "Username": "",
+            "Tags": [],
+            "Size": 794,
+            "Attachments": 0,
+            "Snippet": "Monitor: Demo principal URL: http://demo:8080/targets/main Transição: DOWN Incidente: 3e64bec2-c479-4a3d-8f52-0d83a5a1e760 Primeira falha: 2026-10-21T16:37:33.799279Z Queda confirmada: 2026-10-21T16..."
+          }
+        ]
+      },
+      "emails": [
+        {
+          "ID": "2dK4hHUz7yfwTG7kKUXcxe",
+          "MessageID": "notification-65badce2-5b78-4b8f-8ed7-78e3399eeb32@monitor.local",
+          "From": {
+            "Name": "",
+            "Address": "monitor@example.org"
+          },
+          "To": [
+            {
+              "Name": "",
+              "Address": "portfolio@example.test"
+            }
+          ],
+          "Cc": [],
+          "Bcc": [],
+          "ReplyTo": [],
+          "ReturnPath": "monitor@example.org",
+          "Subject": "[RECOVERY] Demo principal",
+          "ListUnsubscribe": {
+            "Header": "",
+            "Links": [],
+            "Errors": "",
+            "HeaderPost": ""
+          },
+          "Date": "2026-10-21T16:40:37Z",
+          "Tags": [],
+          "Username": "",
+          "Text": "Monitor: Demo principal\r\nURL: http://demo:8080/targets/main\r\nTransição: RECOVERY\r\nIncidente: bb0478da-d7c0-4cb7-91b0-d6fd3d788478\r\nPrimeira falha: 2026-10-21T16:38:34.526439Z\r\nQueda confirmada: 2026-10-21T16:38:54.746216Z\r\nInício da recuperação: 2026-10-21T16:40:27.628576Z\r\nRecuperação confirmada: 2026-10-21T16:40:37.730952Z\r\nDuração estimada: 113.102137 segundos (inclui pausas e lacunas; não prova indisponibilidade contínua).\r\n",
+          "HTML": "",
+          "Size": 1059,
+          "Inline": [],
+          "Attachments": []
+        },
+        {
+          "ID": "SrSpB2XrmLYYYVoXDhoEo2",
+          "MessageID": "notification-f8d91122-1d85-4b76-8027-af07c8129e5a@monitor.local",
+          "From": {
+            "Name": "",
+            "Address": "monitor@example.org"
+          },
+          "To": [
+            {
+              "Name": "",
+              "Address": "portfolio@example.test"
+            }
+          ],
+          "Cc": [],
+          "Bcc": [],
+          "ReplyTo": [],
+          "ReturnPath": "monitor@example.org",
+          "Subject": "[DOWN] Demo principal",
+          "ListUnsubscribe": {
+            "Header": "",
+            "Links": [],
+            "Errors": "",
+            "HeaderPost": ""
+          },
+          "Date": "2026-10-21T16:38:54Z",
+          "Tags": [],
+          "Username": "",
+          "Text": "Monitor: Demo principal\r\nURL: http://demo:8080/targets/main\r\nTransição: DOWN\r\nIncidente: bb0478da-d7c0-4cb7-91b0-d6fd3d788478\r\nPrimeira falha: 2026-10-21T16:38:34.526439Z\r\nQueda confirmada: 2026-10-21T16:38:54.746216Z\r\n",
+          "HTML": "",
+          "Size": 794,
+          "Inline": [],
+          "Attachments": []
+        },
+        {
+          "ID": "e9H3yR5RUJTzF7MXbs85LK",
+          "MessageID": "notification-a25609ec-e9a1-467c-8406-869a2e1d486a@monitor.local",
+          "From": {
+            "Name": "",
+            "Address": "monitor@example.org"
+          },
+          "To": [
+            {
+              "Name": "",
+              "Address": "portfolio@example.test"
+            }
+          ],
+          "Cc": [],
+          "Bcc": [],
+          "ReplyTo": [],
+          "ReturnPath": "monitor@example.org",
+          "Subject": "[RECOVERY] Demo principal",
+          "ListUnsubscribe": {
+            "Header": "",
+            "Links": [],
+            "Errors": "",
+            "HeaderPost": ""
+          },
+          "Date": "2026-10-21T16:38:24Z",
+          "Tags": [],
+          "Username": "",
+          "Text": "Monitor: Demo principal\r\nURL: http://demo:8080/targets/main\r\nTransição: RECOVERY\r\nIncidente: 3e64bec2-c479-4a3d-8f52-0d83a5a1e760\r\nPrimeira falha: 2026-10-21T16:37:33.799279Z\r\nQueda confirmada: 2026-10-21T16:37:54.072990Z\r\nInício da recuperação: 2026-10-21T16:38:14.308636Z\r\nRecuperação confirmada: 2026-10-21T16:38:24.404517Z\r\nDuração estimada: 40.509357 segundos (inclui pausas e lacunas; não prova indisponibilidade contínua).\r\n",
+          "HTML": "",
+          "Size": 1058,
+          "Inline": [],
+          "Attachments": []
+        },
+        {
+          "ID": "WUo6QDgETf9fcktN7GpseB",
+          "MessageID": "notification-cc786ee3-d65e-4c13-94fb-c8afb8458845@monitor.local",
+          "From": {
+            "Name": "",
+            "Address": "monitor@example.org"
+          },
+          "To": [
+            {
+              "Name": "",
+              "Address": "portfolio@example.test"
+            }
+          ],
+          "Cc": [],
+          "Bcc": [],
+          "ReplyTo": [],
+          "ReturnPath": "monitor@example.org",
+          "Subject": "[DOWN] Demo principal",
+          "ListUnsubscribe": {
+            "Header": "",
+            "Links": [],
+            "Errors": "",
+            "HeaderPost": ""
+          },
+          "Date": "2026-10-21T16:37:54Z",
+          "Tags": [],
+          "Username": "",
+          "Text": "Monitor: Demo principal\r\nURL: http://demo:8080/targets/main\r\nTransição: DOWN\r\nIncidente: 3e64bec2-c479-4a3d-8f52-0d83a5a1e760\r\nPrimeira falha: 2026-10-21T16:37:33.799279Z\r\nQueda confirmada: 2026-10-21T16:37:54.072990Z\r\n",
+          "HTML": "",
+          "Size": 794,
+          "Inline": [],
+          "Attachments": []
+        }
+      ]
+    }
+  },
+  "cleanCheckout": {
+    "seed": {
+      "seed": "OK",
+      "main": "084e34cf-944f-4e4d-951a-649a4c59855a",
+      "secondary": "48599aa4-a601-4455-83bf-16fab8d704bf"
+    },
+    "generatedTargetAbsent": true,
+    "verdict": "PASS",
+    "project": "mon12-clean-3a01ebde",
+    "afterDownUp": {
+      "seed": "OK",
+      "main": "084e34cf-944f-4e4d-951a-649a4c59855a",
+      "secondary": "48599aa4-a601-4455-83bf-16fab8d704bf"
+    },
+    "readiness": {
+      "status": "UP"
+    },
+    "repeat": {
+      "seed": "OK",
+      "main": "084e34cf-944f-4e4d-951a-649a4c59855a",
+      "secondary": "48599aa4-a601-4455-83bf-16fab8d704bf"
+    }
+  }
+}

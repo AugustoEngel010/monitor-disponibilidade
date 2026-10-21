@@ -1,124 +1,135 @@
 # Monitor de disponibilidade
 
-Monólito modular Java/Spring Boot com PostgreSQL e Flyway. MON-02 entrega infraestrutura Docker, MON-03 protege o acesso administrativo, MON-04 administra monitores, MON-05 executa HTTP, MON-06 agenda verificações, MON-07 mantém incidentes, MON-08 envia notificações duráveis, MON-09 fornece [históricos paginados e resumo](docs/queries.md) e MON-10 entrega o painel administrativo no navegador, com taxa por amostragem, latência e períodos sem observação. As entregas estão no [backlog](.specs/task/monitor-disponibilidade-tasks.md).
+Monitor HTTP para quem opera APIs e precisa reconhecer quedas sem consultar cada serviço manualmente. Registra verificações, confirma falhas consecutivas, abre um incidente e envia e-mail. Confirma a recuperação antes de encerrar o incidente. PostgreSQL preserva o trabalho após reinícios.
 
-Build, testes e execução usam contêineres. O host precisa de Docker com daemon Linux e Docker Compose; não precisa de Maven Wrapper, Maven ou JDK. São suportados Docker Desktop com Linux containers e Docker Engine Linux com `host-gateway` (20.10+), Compose v2+ e BuildKit. A validação local foi realizada no Docker Desktop Windows; a execução remota da CI não foi observada.
+O MVP tem um operador, uma instância e até 100 monitores. O painel distingue **pausa administrativa**, **estado confirmado** e **frescor da observação**. Taxa de sucesso por amostragem não é uptime temporal.
 
-Antes de iniciar, copie `.env.example` para `.env` e substitua os placeholders de ADMIN_USERNAME e ADMIN_PASSWORD por valores locais. `.env` está ignorado pelo Git e excluído do build. Os placeholders, valores vazios e ausência de qualquer variável administrativa impedem startup; não existe operador ou senha padrão.
+![Painel durante uma queda real](docs/images/mon12/02-down.png)
 
-Para construir e iniciar, na raiz do checkout com a configuração preenchida:
+Funcionalidades: cadastro, edição, pausa e retomada; executor HTTP/HTTPS com timeout total e proteção de destinos; concorrência limitada; incidentes e outbox transacionais; retries SMTP; histórico paginado; indicadores; probes, métricas e retenção. A demonstração usa dois alvos controláveis e Mailpit, sem enviar para destinatários reais.
+
+Stack: Java 21, Spring Boot 3.5.16, Spring Security, JDBC, PostgreSQL 17.6 e Flyway. Painel HTML/CSS/JavaScript servido pelo Spring. Maven, JUnit, Testcontainers, Checkstyle e Playwright executam em contêineres. Node 22 executa apenas os auxiliares de demonstração e navegador.
+
+## Executar localmente
+
+Pré-requisitos: Git, Docker Engine Linux com Compose ou Docker Desktop em modo Linux, daemon ativo e acesso às imagens. Para o roteiro automatizado, PowerShell 5.1 ou 7. Não precisa instalar JDK, Maven, Node ou navegador no host. Reserve recursos para PostgreSQL, JVM e navegador; os testes criam bancos descartáveis adicionais. Portas padrão livres: 8080, 8081, 8025 e 1025.
+
+Na raiz do checkout, copie a configuração:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Em Linux/macOS: `cp .env.example .env`. Edite `.env` e substitua os placeholders de `ADMIN_USERNAME` e `ADMIN_PASSWORD`. Sem valores válidos a aplicação recusa startup. Não publique `.env`; ele está ignorado pelo Git.
 
 ```sh
 docker compose up --build
 ```
 
-A aplicação e o painel ficam em `http://localhost:8080/` (ou APP_PORT). O navegador solicita ADMIN_USERNAME/ADMIN_PASSWORD por HTTP Basic. A API de monitores está em `/api/admin/monitors`; consulte o [contrato completo](docs/monitor-api.md) para configuração, edição, pausa, retomada, paginação e erros. A prontidão pública está em `/actuator/health/readiness`: HTTP 200 com `{"status":"UP"}`; sem banco disponível, HTTP 503 e `DOWN`. O PostgreSQL não publica porta no host.
+O comando compila a aplicação do código, inicia PostgreSQL, Mailpit e API demo. `demo-seed` espera a prontidão e cria dois monitores pela API com Basic e CSRF; termina com exit 0. Confira sua conclusão com `docker compose logs demo-seed`.
 
-O painel é HTML/CSS/JavaScript local servido pelo próprio Spring Boot. Em **Novo monitor**, preencha a configuração e salve; o detalhe do registro confirmado abre automaticamente. **Editar**, **Pausar** e **Retomar** usam a mesma API administrativa. Erros de validação aparecem junto aos campos e preservam o formulário. Pausa mantém estado confirmado e incidente aberto; mudanças de política durante incidente são rejeitadas pelo backend.
-
-**Atualizar** consulta novamente o backend. A lista distingue pausa, ausência de observação corrente, dados antigos, confirmação de queda/recuperação e disponibilidade confirmada. O detalhe oferece resultados, quatro instantes dos incidentes, idade/duração estimada e notificações com tentativas. Os históricos têm filtros e paginação independentes; datas opcionais usam ISO-8601 com offset, como `2026-10-19T09:00:00-03:00`. Em branco, o backend usa as últimas 24h, janela [início, fim). Horários apresentados usam o fuso do navegador. Incidentes filtram confirmação da queda; o incidente atual permanece visível fora da janela.
-
-A taxa de sucesso é **por amostragem**, com denominador informado; não é uptime temporal. Ausência de indicador aparece como **Sem dados**, separada de 0%. Cobertura conhecida, lacunas e duração dos incidentes são apresentadas separadamente. Aceitação SMTP não confirma entrega na caixa postal. Em falha de resposta após uma escrita, confira os dados em Atualizar antes de repetir.
-
-Capturas de fluxos reais em contêineres, com dados descartáveis:
-
-| Tela | Desktop 1440×900 | Tela pequena 390×844 |
-| --- | --- | --- |
-| Lista | [Desktop](docs/images/mon10/desktop-list.png) | [Mobile](docs/images/mon10/mobile-list.png) |
-| Cadastro | [Desktop](docs/images/mon10/desktop-form.png) | [Mobile](docs/images/mon10/mobile-form.png) |
-| Detalhes | [Desktop](docs/images/mon10/desktop-details.png) | [Mobile](docs/images/mon10/mobile-details.png) |
-
-Os defaults de banco servem para desenvolvimento local. As credenciais administrativas são obrigatórias:
-
-| Variável | Default | Uso |
-| --- | --- | --- |
-| APP_PORT | 8080 | Porta da aplicação em 127.0.0.1 |
-| ADMIN_USERNAME | Sem default | Operador único; 1–128 caracteres, não branco, sem colon ou caracteres de controle |
-| ADMIN_PASSWORD | Sem default | Senha não branca de até 72 bytes UTF-8, limite do BCrypt |
-| DB_NAME | monitor | Nome do banco criado pelo PostgreSQL |
-| DB_USER | monitor | Usuário local do PostgreSQL e da aplicação |
-| DB_PASSWORD | local-development-only | Valor descartável de desenvolvimento; substituir para outros ambientes |
-| JAVA_TOOL_OPTIONS | -XX:MaxRAMPercentage=75.0 | Opções da JVM runtime |
-| TESTCONTAINERS_HOST_OVERRIDE | host.docker.internal | Host das portas publicadas pelos contêineres de teste |
-
-Compose deriva `DB_URL=jdbc:postgresql://db:5432/${DB_NAME}` para a aplicação. A configuração Spring recebe DB_URL, DB_USER e DB_PASSWORD pelo ambiente. Credenciais reais não devem ser versionadas. As variáveis de inicialização do PostgreSQL criam usuário/banco apenas quando o volume está vazio; alterar `.env` não altera credenciais de um banco existente.
-
-Exemplo de configuração administrativa, com placeholders que devem ser substituídos somente no `.env` local:
-
-```dotenv
-ADMIN_USERNAME='<choose-admin-username>'
-ADMIN_PASSWORD='<choose-admin-password>'
-```
-
-Use aspas simples em `.env` para preservar valores com `$` ou `#`. Não passe credenciais em URLs, `JAVA_TOOL_OPTIONS` ou comandos de diagnóstico. `docker compose config` sem `--quiet` e inspeções de ambiente Docker podem revelar valores locais; use `docker compose config --quiet` para validar a configuração. A aplicação não registra usuário, senha ou Authorization em nível padrão. Erros de configuração e respostas 401/403 omitem os valores; a senha é codificada com BCrypt somente em memória, sem tabela de usuários. Mantenha logs de segurança no nível padrão e não habilite rastreamento de headers com credenciais reais.
-
-A porta permanece em 127.0.0.1. HTTP Basic transmite a credencial em cada requisição; use HTTPS caso exponha o serviço fora do host.
-
-Para trocar a credencial, edite ADMIN_PASSWORD (e ADMIN_USERNAME, se necessário) no `.env`, depois recrie somente a aplicação:
-
-```sh
-docker compose up -d --force-recreate app
-```
-
-`docker compose restart app` não recarrega variáveis. Após a recriação, a senha anterior recebe 401; a nova permite acesso. Cookies antigos não autenticam. A sessão CSRF está em memória e é descartada na recriação: obtenha um novo token. A troca não altera o volume PostgreSQL.
-
-| Rotas | Acesso |
+| Acesso | Endereço padrão |
 | --- | --- |
-| GET/HEAD /actuator/health, /actuator/health/liveness, /actuator/health/readiness | Público, somente status, sem detalhes ou criação de sessão |
-| GET /actuator/info e /actuator/metrics/** | HTTP Basic do operador |
-| GET /api/admin/csrf | HTTP Basic; entrega token/headerName/parameterName para CSRF |
-| Todas as demais, incluindo /, /api/**, /admin/**, assets e outros actuators | HTTP Basic por padrão; rotas não implementadas retornam 404 após autenticação |
-| POST/PUT/PATCH/DELETE administrativos | Basic + cookie de sessão e token CSRF válido |
+| Painel, login Basic com as credenciais de `.env` | http://localhost:8080/ |
+| Readiness pública, corpo mínimo | http://localhost:8080/actuator/health/readiness |
+| E-mails capturados, destinatário `portfolio@example.test` | http://localhost:8025/ |
+| Controle e estado da API demo | http://localhost:8081/control |
+| Alvos | http://localhost:8081/targets/main e /targets/secondary |
 
-Sem Basic válido a resposta é 401, corpo vazio e `WWW-Authenticate: Basic realm="monitor-admin"`, inclusive em escritas sem token. Com Basic válido e CSRF ausente/inválido a resposta é 403 e corpo vazio. Página e assets do painel exigem Basic. Os endpoints `/admin/probe` e `/api/admin/probe` existem somente nos testes.
+Os monitores usam **http://demo:8080**, a origem dentro da rede Compose. Não use localhost como URL do alvo. `.env.example` habilita explicitamente `MONITOR_DEMO_ORIGIN=http://demo:8080`. A variável vazia bloqueia destinos privados; a exceção libera somente esquema/host/porta exatos, preservando a política MON-05. Em execução sem demo, deixe-a vazia e inicie apenas os serviços necessários. A API demo não tem autenticação própria; suas portas no host estão limitadas a 127.0.0.1 e seus controles não fazem parte da API administrativa.
 
-O painel obtém automaticamente `GET /api/admin/csrf` antes de cada escrita, preserva JSESSIONID e envia `token` no header indicado por `headerName` (`X-CSRF-TOKEN`). Não armazena credenciais em JavaScript ou localStorage. Clientes API seguem o mesmo fluxo; formulários também podem enviar `_csrf`. A sessão expira após 30 minutos sem uso. Um 401 orienta recarregar para autenticar; um 403 informa acesso negado/CSRF expirado, preserva os valores e não repete a escrita. GET/HEAD não alteram domínio. Nenhuma API de escrita é isenta de CSRF.
-
-Exemplo JavaScript para cliente na mesma origem, depois da autenticação Basic pelo navegador:
-
-```javascript
-const response = await fetch('/api/admin/csrf', { credentials: 'same-origin' });
-if (!response.ok) throw new Error('Autenticação administrativa necessária');
-const csrf = await response.json();
-// Na ação administrativa, inclua este header e preserve o cookie:
-const headers = { [csrf.headerName]: csrf.token };
-```
-
-O servidor mantém o token esperado na sessão e entrega uma versão mascarada. O cookie é HttpOnly e SameSite=Lax; não contém a credencial e não substitui Basic. Outra origem não recebe permissão CORS para ler o token; formulário forjado sem token é rejeitado. O comportamento segue os mecanismos nativos de [CSRF](https://docs.spring.io/spring-security/reference/6.5/servlet/exploits/csrf.html) e [Basic](https://docs.spring.io/spring-security/reference/6.5/servlet/authentication/passwords/basic.html) do Spring Security.
-
-O healthcheck de `db` e `depends_on: service_healthy` do Compose permanecem. O serviço app não possui healthcheck de contêiner; o smoke verifica sua prontidão por HTTP. `/actuator/health/readiness` permanece público para não inserir credenciais nos probes: 200/UP com banco e 503/DOWN sem banco. Isso não torna API, painel ou outros actuators públicos. Configuração administrativa inválida impede que app fique pronto, mesmo com db saudável.
-
-Comandos de operação:
+Para repetir o seed, sem criar monitores adicionais:
 
 ```sh
-# Construir somente a imagem da aplicação, diretamente do código
-docker compose build app
+docker compose run --rm --no-deps demo-seed
+```
 
-# Iniciar em segundo plano
+Execute seeds em série. A identidade é a URL; duplicações ou configuração divergente fazem o seed falhar sem sobrescrever registros. Pausa e incidentes existentes são preservados. Os dados iniciais usam I=10s, T=2s, F=3, R=2, status esperado 200. Os modos da demo são voláteis e voltam a healthy quando o contêiner é recriado; o histórico permanece no PostgreSQL.
+
+## Configuração
+
+A lista completa está em [.env.example](.env.example). Variáveis do shell prevalecem sobre `.env`.
+
+| Variáveis | Uso / padrão |
+| --- | --- |
+| ADMIN_USERNAME, ADMIN_PASSWORD | Obrigatórias; usuário até 128 caracteres, sem colon/controles; senha até 72 bytes UTF-8; placeholders recusados |
+| APP_PORT, DEMO_PORT | Portas loopback 8080, 8081 |
+| DB_NAME, DB_USER, DB_PASSWORD | Banco local; defaults descartáveis; senha só é aplicada ao inicializar volume vazio |
+| JAVA_TOOL_OPTIONS | `-XX:MaxRAMPercentage=75.0` |
+| MONITOR_DEMO_ORIGIN | Origem exata opcional; vazia no Compose sem `.env` |
+| MONITOR_CHECK_CONCURRENCY | 4, intervalo 1..16; uma instância |
+| MONITOR_SCHEDULER_ENABLED, MONITOR_SCHEDULER_POLL_MS | true, 250ms positivo |
+| MONITOR_NOTIFICATIONS_ENABLED, MONITOR_NOTIFICATIONS_POLL_MS | true, 250ms; polling 1..60000ms |
+| SMTP_HOST, SMTP_PORT, SMTP_FROM | smtp, 1025, monitor@example.org; Mailpit local sem relay |
+| SMTP_USERNAME, SMTP_PASSWORD, SMTP_AUTH | Vazios, vazios, false |
+| SMTP_STARTTLS, SMTP_SSL | false; não combinar ambos |
+| SMTP_CONNECT_TIMEOUT_MS, SMTP_READ_TIMEOUT_MS, SMTP_WRITE_TIMEOUT_MS | 5000, 3000, 5000; cada um 1..60000ms |
+| SMTP_UI_PORT, SMTP_LOCAL_PORT | 8025 e 1025 no loopback |
+| MONITOR_RETENTION_ENABLED, MONITOR_RETENTION_DAYS | true e 30 dias (1..3650) |
+| MONITOR_RETENTION_BATCH_SIZE, MONITOR_RETENTION_POLL_MS | 1000 (1..10000); 3600000ms (1000..86400000) |
+| TESTCONTAINERS_HOST_OVERRIDE | host.docker.internal, somente testes |
+
+Para rotacionar credenciais, altere `.env` e execute `docker compose up -d --force-recreate app`. Basic é exigido a cada requisição. Cookie de sessão serve ao CSRF e não mantém autenticação antiga. Escritas exigem Basic, cookie e token de `GET /api/admin/csrf`. O painel faz esse fluxo; o [cliente demo](config/demo/client.mjs) mostra um exemplo executável. Só GET/HEAD dos três health endpoints são públicos; métricas, APIs, página e assets são protegidos. Use HTTPS se futuramente expuser a aplicação fora do host.
+
+## Demonstração completa
+
+O [roteiro](docs/demo.md) detalha as etapas manuais e automatizadas. Para executar assertions e capturas reais em projeto separado, com banco novo:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/demo.ps1
+```
+
+Com PowerShell 7, use `pwsh -File scripts/demo.ps1`. O roteiro demora alguns minutos, pois espera intervalos e retries reais. Usa o projeto `monitor-portfolio`, portas 18080/18081/18025/11025 e as credenciais **fictícias locais** `portfolio-operator` / `portfolio-local-only`, independentes do operador de `.env`.
+
+Ele verifica: sucesso → confirmação de queda → um incidente → SMTP → confirmação de recuperação → encerramento; nova queda com SMTP parado → PENDING → reinício → mesma intenção enviada; timeout de um alvo enquanto outro conclui; pausa preservando incidente; scheduler desligado e evidência STALE; recuperação final. Relatórios e imagens ficam em `.validation/demo/`, com logs. Os serviços permanecem disponíveis para inspeção em http://localhost:18080 e http://localhost:18025.
+
+O roteiro exige volume novo e falha diante de histórico prévio. Para repetir, pare o projeto anterior e use outro nome em `-ProjectName monitor-portfolio-2` (as portas são as mesmas), ou apague explicitamente os dados descartáveis:
+
+```sh
+docker compose -p monitor-portfolio down --volumes
+```
+
+Isso **apaga os volumes do projeto indicado**; não use no projeto com dados que deseja guardar. O fluxo normal preserva volumes:
+
+```sh
 docker compose up --build -d
-
-# Consultar os serviços e acompanhar os logs
-docker compose ps
-docker compose logs -f app db
-
-# Reiniciar os serviços
-docker compose restart db app
-
-# Parar e remover contêineres/rede, preservando os dados
+docker compose ps -a
+docker compose logs -f app db smtp demo demo-seed
+docker compose restart app
 docker compose down
 ```
 
-O volume nomeado `postgres-data`, prefixado pelo projeto Compose, mantém os dados após restart e `down/up`. O histórico Flyway fica explicitamente em `public.flyway_schema_history`; V1 cria o schema `monitor`. Migrações aplicadas não devem ser editadas: adicione uma nova versão. `docker compose down --volumes` apaga os volumes desse projeto, incluindo o banco e o cache Maven. A parada habitual usa `down` sem essa opção.
+`postgres-data` mantém configurações, verificações, incidentes e outbox após restart e down/up. `smtp-data` preserva as mensagens capturadas pelo Mailpit. Migrações aplicadas não devem ser editadas. `down --volumes` apaga esses dados e o cache Maven do projeto. `docker compose build app` constrói só a aplicação, sem exigir credenciais nem JAR no host. O runtime usa UID 10001, JRE e JAR, sem Maven, javac ou socket Docker.
 
-Para executar testes e verificações de qualidade:
+![Pausa preservando estado e incidente](docs/images/mon12/06-paused.png)
+![Dados antigos preservando o incidente](docs/images/mon12/07-stale.png)
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+  Operador -->|Basic e CSRF| App[Spring Boot e painel]
+  App --> DB[(PostgreSQL / Flyway)]
+  Scheduler[Workers HTTP limitados] -->|GET seguro| Destinos[API demo ou destino público]
+  Scheduler --> DB
+  DB --> Outbox[Worker SMTP]
+  Outbox --> Mailpit[Mailpit local]
+```
+
+Monólito modular: `administration` controla configuração e ciclo; `monitoring` agenda tentativas duráveis e executa HTTP; `incident` aplica resultados e confirma transições; `notification` processa outbox; `query` lê snapshots; `operation` fornece retenção, eventos e métricas; `security` protege a fronteira. Bootstrap em `br.com.monitor`, painel em `resources/static`. [ArchitectureTest](src/test/java/br/com/monitor/ArchitectureTest.java) impede dependências de produção em bibliotecas de teste.
+
+Estado, incidente, transição e intenção confirmam na mesma transação. SMTP ocorre fora dela. UUIDs, índices e recibos evitam reaplicações locais. Em confirmação SMTP incerta pode haver entrega duplicada com Message-ID estável; não há exactly-once entre banco e SMTP. A instância anterior precisa estar parada antes de iniciar outra sobre o mesmo banco.
+
+## Testar
 
 ```sh
 docker compose run --build --rm tests
+docker compose run --build --rm --no-deps demo-seed node --test server.test.mjs seed.test.mjs
 ```
 
-Esse comando executa `mvn clean verify` dentro do contêiner e propaga código diferente de zero em falhas. Surefire executa `*Test` unitários; Failsafe executa `*IT` com PostgreSQL real; Checkstyle verifica produção e testes. A suíte Java tem 459 casos: 167 unitários e 292 integrações, incluindo os 387 anteriores e 72 da MON-09 para validação, épocas de observação, histórico paginado, resumo e contratos HTTP. As credenciais de teste são efêmeras; `tests` e build runtime não exigem credenciais administrativas do operador ou `.env`.
+A suíte Java executa `mvn clean verify`, Surefire, Failsafe com PostgreSQL real e Checkstyle. Baseline MON-11: **482 Java (169 unitários + 313 integrações)** e **50 casos de navegador**. Resultados MON-12 nas [evidências](.specs/features/mon-12-demonstracao/evidence.md). Falhas retornam exit diferente de zero; relatórios são copiados mesmo em falha para `target/surefire-reports`, `target/failsafe-reports` e `target/checkstyle-result.xml`.
 
-Os 50 testes adicionais de navegador da MON-10/11 usam Chromium/Playwright em contêiner, sem Node ou navegador instalados no host. Execute em projeto separado; `down` desse projeto descarta somente seu banco de testes em tmpfs e permite repetir a suíte com banco vazio:
+Testes de navegador em banco separado/tmpfs, sem portas host:
 
 ```sh
 docker compose -p monitor-panel-tests --profile panel-tests down
@@ -126,84 +137,39 @@ docker compose -p monitor-panel-tests --profile panel-tests run --use-aliases --
 docker compose -p monitor-panel-tests --profile panel-tests down
 ```
 
-`panel-tests` constrói seu próprio Spring Boot e PostgreSQL, sem portas host nem acesso ao volume de produção. Credenciais conhecidas são exclusivamente fixtures locais, sem uso do operador. O servidor HTTP controlado do runner gera incidentes e recuperações reais; `--use-aliases` permite somente a origem demo exata `http://panel-tests:9080`. O envio SMTP é desabilitado nesse backend; a criação/consulta das intenções é real, e entrega/retries SMTP permanecem cobertos pela suíte Java MON-08/09. Falhas e cenários específicos de apresentação usam interceptação explicitamente nos testes.
-
-JUnit, HTML, traces de falha e screenshots ficam em `.validation/panel/`. A suíte cobre cadastro, validação, edição, pausa, retomada, incidentes, notificações, paginação/filtros, 401/403, backend indisponível, vazio, dados antigos e uso por teclado em desktop/mobile. O perfil não participa de `docker compose up` normal e não adiciona dependências ao runtime.
-
-Os resultados são copiados para o host mesmo se a suíte falhar:
-
-| Relatório | Local |
-| --- | --- |
-| Unitários | target/surefire-reports/ |
-| Integração | target/failsafe-reports/ |
-| Qualidade | target/checkstyle-result.xml |
-| JAR produzido pelos testes | target/monitor.jar |
-
-`target` é saída gerada e é limpo pelo serviço de testes a cada execução. O build runtime recebe apenas `pom.xml`, `config` e `src`, nunca usa um JAR do host. O Dockerfile compila com Maven 3.9.11/Temurin JDK 21 e executa com Temurin 21.0.8_9 JRE Jammy, copiando somente o JAR para `/app`. Runtime usa UID 10001, sem Maven, javac ou socket Docker. PostgreSQL usa `17.6-alpine`; Spring Boot usa `3.5.16`; Testcontainers `1.21.4` é gerenciado pelo parent Spring Boot. As tags têm versões explícitas; os digests observados estão nas [evidências](.specs/features/mon-02-base-docker/evidence.md).
-
-O serviço `tests` usa o perfil `tests` e só inicia quando solicitado. Ele monta `/var/run/docker.sock`, define `DOCKER_HOST=unix:///var/run/docker.sock` e `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock`. Isso permite criar PostgreSQLs descartáveis como contêineres irmãos no daemon local. O acesso ao socket concede controle sobre esse daemon e é restrito ao serviço de testes.
-
-As portas aleatórias desses PostgreSQLs são acessadas por `TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal`. Compose adiciona `host.docker.internal:host-gateway` para resolver a rota também no Engine Linux. Essa rota deve alcançar as portas publicadas no host; firewall ou daemon remoto exigem outra configuração e ficam fora do ambiente suportado. Os contêineres de teste não usam bind mounts do código. Ryuk permanece ativo para limpar os recursos de Testcontainers. Os testes não usam nem alteram o banco persistente da aplicação; runtime e build normal não recebem acesso ao daemon.
-
-O smoke operacional automatiza build, startup fechado sem cada variável administrativa, acesso 401/200, rotação de senha inclusive com cookie anterior, ausência de credenciais nos logs, migração, comparação integral do histórico, inserção de sentinela e preservação após restart e down/up:
+JUnit, HTML e traces ficam em `.validation/panel/`. O smoke verifica configuração administrativa, autenticação, rotação, migrações, SMTP e persistência:
 
 ```powershell
-# Windows PowerShell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1
-
-# PowerShell 7, inclusive Linux
-pwsh -File scripts/validate-compose.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-compose.ps1 -NoBuild
 ```
 
-Esse roteiro opcional precisa de PowerShell, cria um projeto Compose com nome único e porta aleatória, gera credenciais descartáveis em memória, restaura o ambiente anterior, grava logs em `.validation` e remove somente seus próprios contêineres/volumes ao terminar. Não usa a credencial do operador. Os comandos normais de operação e testes acima precisam apenas de Docker. `-NoBuild` reutiliza a imagem já construída; `-ProjectDirectory <checkout>` valida outro diretório de código-fonte.
+Execute `docker compose build app` antes de `-NoBuild`, ou omita a opção. O smoke usa projeto temporário próprio e limpa seus recursos. A [CI](.github/workflows/ci.yml) usa Docker para suíte, build, smoke e navegador; execução remota não foi observada.
 
-A [CI](.github/workflows/ci.yml) executa testes/qualidade no serviço tests, constrói runtime, roda o smoke e os testes de navegador. Uma falha impede sucesso; construir imagem não substitui as suítes. Surefire, Failsafe, Checkstyle, logs, HTML/JUnit, traces e capturas da interface são anexados ao job mesmo em falha. O runner usa Docker e PowerShell; não instala Java, Maven ou Node no host.
+Para validar startup, seed repetido e persistência após down/up em uma cópia limpa das alterações atuais, sem `target` ou `.env` do operador: `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/validate-clean.ps1`. O script usa portas aleatórias, salva `.validation/mon12-clean.json` e remove somente os contêineres e volumes que criou. A cópia permanece em `.validation/` para inspeção.
 
-Limites dos módulos:
+Somente `tests` recebe `/var/run/docker.sock`, concedendo controle sobre o daemon para Testcontainers. Usa contêineres irmãos com portas aleatórias, Ryuk e `host.docker.internal:host-gateway`; Linux Engine precisa permitir essa rota. O runtime não recebe socket. Testes não usam o banco persistente do operador. Docker Windows containers, daemon remoto e Podman não foram validados.
 
-| Área | Responsabilidade | Dependências permitidas / situação |
-| --- | --- | --- |
-| Bootstrap (`br.com.monitor`) | Inicializar aplicação e infraestrutura | Spring Boot; implementado em MON-02 |
-| Segurança (`br.com.monitor.security`) | Operador Basic, fronteira global, token CSRF e health público mínimo | Spring Security/Actuator; implementado em MON-03 |
-| Administração (`br.com.monitor.administration`) | Configuração, ciclo de vida, API e persistência dos monitores | Modelo puro, JDBC e transações; implementado em MON-04 |
-| Infraestrutura (`src/main/resources`) | Configuração JDBC, prontidão e migrações | Ambiente, PostgreSQL, Flyway; implementada em MON-02 |
-| Monitoramento (`br.com.monitor.monitoring`) | Agendamento persistente, concorrência limitada, execução HTTP segura e resultados idempotentes | Monitor/configuração, Apache HttpClient, JDBC; MON-05/06 implementadas |
-| Incidentes (`br.com.monitor.incident`) | Confirmar transições e manter incidentes | Resultados duráveis, lock de monitor, JDBC e intenção atômica; MON-07 implementada, sem executar HTTP |
-| Notificações (`br.com.monitor.notification`) | Intenções duráveis, envio e tentativas | Outbox transacional, worker SMTP, tentativas e retomada; MON-08 implementada |
-| Consultas (`br.com.monitor.query`) | Histórico paginado e resumo com indicadores | Leitura dos módulos em snapshot, sem alterar estado do executor; dados para MON-10 |
-| Opera??o (`br.com.monitor.operation`) | M?tricas da outbox, eventos tipados e manuten??o de reten??o | JDBC transacional limitado, Clock e Micrometer; limpeza preserva trabalho e n?o recalcula estado de neg?cio |
-| Painel (`resources/static`) | Lista, configuração, ciclo e históricos no navegador | HTML/CSS/módulos JS locais, contratos MON-04/09 e Basic/CSRF MON-03 |
+## Specs, testes e limites
 
-Nenhum módulo de produção depende de bibliotecas de teste; `ArchitectureTest` impõe esse limite. Os pacotes futuros serão criados com suas funcionalidades, sem classes vazias nesta base. As [specs da MON-02](.specs/features/mon-02-base-docker/spec.md), [decisão AD-004](.specs/STATE.md) e [tasks](.specs/features/mon-02-base-docker/tasks.md) mantêm a rastreabilidade MON-02-AC01 a MON-02-AC08.
+O [mapa de requisitos e testes](docs/traceability.md) liga MON-01 a MON-12 às specs, decisões e suites. [STATE.md](.specs/STATE.md) registra as decisões e o estado da entrega; o [backlog](.specs/task/monitor-disponibilidade-tasks.md) mantém IDs de origem. Contratos detalhados: [administração](docs/monitor-api.md), [HTTP](docs/http-checks.md), [agendamento](docs/scheduling.md), [incidentes](docs/incidents.md), [notificações](docs/notifications.md), [consultas](docs/queries.md) e [operação/retenção](docs/operations.md).
 
-O [contrato MON-03](.specs/features/mon-03-acesso-administrativo/spec.md), [tasks](.specs/features/mon-03-acesso-administrativo/tasks.md) e [evidências](.specs/features/mon-03-acesso-administrativo/evidence.md) relacionam autenticação, configuração e CSRF a MON-03-AC01 até MON-03-AC06. AD-005 estabelece a política para as próximas entregas.
+Na [medição MON-11](docs/capacity/README.md), 100 monitores com C=4 produziram **285 verificações em 60,070333095s**, sem sobreposição. Atraso máximo **20,634817s**, média **10,967730218s**. A mistura de timeouts e alvos lentos **não sustentou I=10s** com os recursos medidos (runner/app/alvos em 2 CPUs/2GiB; PostgreSQL 1 CPU/512MiB). É uma amostra desse harness, sem promessa de SLA. Recursos, resultados brutos, fase de retries e reprodução estão no guia.
 
-A [validação independente MON-03](.specs/features/mon-03-acesso-administrativo/validation.md) concluiu PASS 6/6: 48 testes, build e smoke Docker aprovados, oito regressões injetadas detectadas e nenhuma sobrevivente. A validação é local; CI remota não executada.
+Limitações: operador e executor únicos; GET até cabeçalhos, sem corpo, redirects, headers de autenticação ou query na URL; somente e-mail; até cinco tentativas; ACCEPTED é aceitação SMTP, não caixa postal. Sem exclusão de monitores ou fechamento manual. Retenção padrão de 30 dias preserva cadeias abertas/pendentes e recibos, portanto não garante disco constante. Lacunas e pausas não provam saúde ou indisponibilidade contínua. MON-01 continua proposta histórica; contratos usados foram concretizados nas specs posteriores. Publicação e hospedagem ficam para outra entrega.
 
-A [spec MON-04](.specs/features/mon-04-ciclo-monitores/spec.md), [tasks](.specs/features/mon-04-ciclo-monitores/tasks.md) e [evidências](.specs/features/mon-04-ciclo-monitores/evidence.md) mantêm MON-04-AC01 a MON-04-AC07. V2 cria `monitor.monitors` sem alterar V1; configurações e estado sobrevivem a reinícios. `configurationVersion` identifica o destino/política; `executionGeneration` invalida trabalho após pausa, retomada ou edição. A integração com execução/cancelamento e o processamento de incidentes serão entregues em MON-05 a MON-07.
+## Diagnóstico
 
-A [validação independente MON-04](.specs/features/mon-04-ciclo-monitores/validation.md) concluiu PASS nos sete critérios: 160 testes, zero falhas/erros/skips, qualidade, build e smoke Docker aprovados; seis mutações detectadas e nenhuma sobrevivente. A validação é local; CI remota não executada.
+| Sintoma | Conferir / ação |
+| --- | --- |
+| Docker não conecta | Iniciar Docker Desktop/Engine e confirmar `docker info`; usar contêineres Linux |
+| App sai durante startup | `docker compose logs app db`; preencher credenciais válidas e conferir banco |
+| Seed falha | `docker compose logs demo-seed`; aguardar readiness; conferir autenticação e configuração divergente |
+| Porta ocupada | Alterar APP_PORT/DEMO_PORT/SMTP_UI_PORT/SMTP_LOCAL_PORT; roteiro usa portas próprias |
+| DESTINATION_BLOCKED | Usar origem interna exata `http://demo:8080`; manter proteção MON-05 |
+| 401 / 403 | Conferir Basic; para escrita renovar token e cookie da mesma sessão, sem repetir automaticamente |
+| Notificação pendente | Consultar tentativas e `docker compose logs smtp app`; respeitar nextAttemptAt e cinco tentativas |
+| Dados antigos | Conferir scheduler, logs, nextCheckAt e idade > 2I+T; ausência não é recuperação |
+| Testcontainers inacessível | Conferir socket, Docker Linux, host.docker.internal/host-gateway e firewall |
+| Histórico ausente | Conferir watermark; aumentar prazo não restaura dados apagados |
 
-O [contrato HTTP MON-05](docs/http-checks.md) documenta GET, timeout total até cabeçalhos, classificações, proteção de rede/TLS e persistência por UUID. `MONITOR_DEMO_ORIGIN` é opcional e vazia por padrão; permite somente a origem interna explicitamente configurada, sem liberar a sub-rede. V3 cria `monitor.check_results`; o registro bruto guarda versão/geração e sua aplicação ao estado ocorre no processador MON-07. [Spec](.specs/features/mon-05-verificacao-http/spec.md), [tasks](.specs/features/mon-05-verificacao-http/tasks.md) e [evidências](.specs/features/mon-05-verificacao-http/evidence.md) mantêm MON-05-AC01 a MON-05-AC08.
-
-A [validação independente MON-05](.specs/features/mon-05-verificacao-http/validation.md) concluiu PASS 8/8: 264 testes (110 unitários/154 integrações), zero falhas/erros/skips, qualidade, runtime e smoke Docker aprovados; seis regressões injetadas detectadas e nenhuma sobrevivente. Validação local; CI remota não executada.
-
-O [agendamento MON-06](docs/scheduling.md) inicia automaticamente após startup, com `MONITOR_CHECK_CONCURRENCY=4` (1..16) e `MONITOR_SCHEDULER_POLL_MS=250` (positivo). V4 persiste uma reserva por monitor; excesso permanece vencido no banco, sem fila de workers. Pausa/edição solicitam cancelamento; restart reconcilia tentativas interrompidas sem replay e preserva o próximo horário. [Spec](.specs/features/mon-06-agendamento/spec.md), [tasks](.specs/features/mon-06-agendamento/tasks.md) e [evidências](.specs/features/mon-06-agendamento/evidence.md) mantêm MON-06-AC01 a MON-06-AC08. A conclusão e a reconciliação integram o processador MON-07 antes de liberar a reserva.
-
-A [validação independente MON-06](.specs/features/mon-06-agendamento/validation.md) concluiu PASS 8/8: 301 testes (124 unitários/177 integrações), zero falhas/erros/skips/Checkstyle, runtime e smoke Docker aprovados; cinco regressões injetadas detectadas e nenhuma sobrevivente. Verificação local de instância única; CI remota não executada.
-
-O [processamento de incidentes MON-07](docs/incidents.md) confirma queda/recuperação conforme os limites configurados, mantém um incidente aberto por monitor com índice único e registra separadamente observação e confirmação. V5 persiste incidentes, aplicações, transições e intenções congeladas. Reprocessamento é idempotente; pausa, resultados não externos e lacunas interrompem confirmações sem fabricar saúde. [Spec](.specs/features/mon-07-incidentes/spec.md), [tasks](.specs/features/mon-07-incidentes/tasks.md) e [evidências](.specs/features/mon-07-incidentes/evidence.md) mantêm os oito ACs. A suíte local passou com 356 testes e zero falhas/erros/skips/Checkstyle. A entrega SMTP é implementada pela MON-08 sobre essas intenções.
-
-A [validação independente MON-07](.specs/features/mon-07-incidentes/validation.md) concluiu PASS 8/8: 356 testes, runtime e smoke aprovados; nove regressões injetadas detectadas por assertions e nenhuma sobrevivente. Baseline independente confirmou os 301 testes anteriores e delta de 55 casos, sem remoções/skips. Validação local; CI remota não executada.
-
-As [notificações MON-08](docs/notifications.md) usam cinco tentativas com espera de 30/60/120/240 segundos. Recuperação aguarda queda aceita ou esgotada. ACCEPTED significa aceitação SMTP; confirmação incerta permite duplicação com o mesmo Message-ID. V6 preserva intenções existentes e registra histórico sanitizado. O Mailpit local captura e-mails fictícios em http://localhost:8025, SMTP localhost:1025; variáveis SMTP e do worker estão em .env.example e na documentação de notificações.
-
-A [validação independente MON-08](.specs/features/mon-08-notificacoes/validation.md) concluiu PASS nos sete critérios: 387 testes, zero falhas/erros/skips/Checkstyle, runtime e smoke Docker aprovados e sete mutações detectadas. A revisão identificou e a T6 corrigiu o truncamento de frações na duração; 180.9 segundos são preservados no e-mail. [Evidências e comandos](.specs/features/mon-08-notificacoes/evidence.md).
-
-A [validação independente MON-09](.specs/features/mon-09-consultas/validation.md) concluiu PASS nos sete critérios de aceite e nove requisitos: 459 testes (167 unitários/292 integrações), zero falhas/erros/skips/Checkstyle, runtime e smoke 37 PASS; cinco mutações detectadas. Os [contratos de consulta](docs/queries.md) incluem filtros, paginação, estados, indicadores por amostragem, duração de incidentes e limites de cobertura histórica. [Evidências e comandos](.specs/features/mon-09-consultas/evidence.md).
-
-A [spec MON-10](.specs/features/mon-10-painel/spec.md), [design](.specs/features/mon-10-painel/design.md), [tasks](.specs/features/mon-10-painel/tasks.md) e [evidências](.specs/features/mon-10-painel/evidence.md) relacionam MON-10-AC01 até MON-10-AC06 aos fluxos do painel e às assertions dos testes. As capturas acima vêm da suíte automatizada, com inspeção visual registrada; não equivalem a uma revisão humana do operador. A execução da CI remota não foi observada.
-
-A [validação independente MON-10](.specs/features/mon-10-painel/validation.md) concluiu PASS nos seis critérios: 459 testes Java e 48 testes de navegador aprovados, build/runtime e smoke 37 PASS. Nove regressões distintas foram detectadas ao longo da revisão; a lacuna inicial nos valores dos horários de incidente foi corrigida na T8 e re-verificada. O relatório preserva o resultado inicial, a correção e quais gates foram executados ou reutilizados por equivalência. A conferência visual do operador foi adiada pelo usuário.
-
-MON-11: consulte o [guia operacional](docs/operations.md) para probes p?blicos m?nimos, m?tricas administrativas, JSON de correla??o e reten??o padr?o de 30 dias. Incidentes abertos, pend?ncias, evid?ncias correntes e recibos de idempot?ncia s?o protegidos. O painel e as quatro consultas informam o limite hist?rico; aus?ncia n?o vira sucesso. O [cen?rio de capacidade](docs/capacity/README.md) usa 100 monitores, alvos locais e recursos expl?citos; a mistura medida saturou C=4 sem exceder concorr?ncia, com atrasos registrados. Reproduza-o com `docker compose -p mon11-capacity -f compose.yaml -f compose.capacity.yaml run --build --rm tests`.
+Métricas exigem Basic em `/actuator/metrics`; probes públicos mostram somente status. Logs JSON usam IDs de correlação. Veja [operação](docs/operations.md) para diagnóstico detalhado.

@@ -34,8 +34,8 @@ Uma amostra de `docker stats` durante a primeira execu??o do mesmo cen?rio regis
 | --- | --- |
 | Verificações registradas | 285, todos os 100 monitores observados |
 | Concorrência máxima | 4, zero sobreposições por monitor |
-| SUCCESS | 144, média 155,360ms combinando os alvos rápidos e de 300ms |
-| HTTP_FAILURE | 72, média 4,789ms |
+| SUCCESS | 143, média 155,071ms combinando os alvos rápidos e de 300ms |
+| HTTP_FAILURE | 71, média 5,883ms |
 | TIMEOUT | 69, média 2000,393ms |
 | CANCELLED | 2 no encerramento, média 805,024ms; não são falhas externas |
 | Atraso de agendamento | 285 medições; máximo 20,634817s, média 10,967730218s |

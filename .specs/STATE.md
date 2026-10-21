@@ -101,11 +101,11 @@ As decisões abaixo registram a baseline solicitada e os contratos propostos em 
 
 ## Handoff
 
-- **Feature**: MON-11; `.specs/features/mon-11-operacao/`.
-- **Phase / Task**: Execute concluído; T1–T10 e validação independente PASS.
-- **Completed**: Actuator/readiness/liveness; métricas limitadas; JSON correlacionado após commit; V8, retenção com Clock e idempotência; limite de histórico na API/painel; capacidade e documentação operacional. AC01..06 Verified.
-- **Validation**: 482 Java (169 unitários +313 IT), 50 UI, 37 smoke, runtime e Checkstyle aprovados. Verifier repetiu Java/runtime/smoke e M7; seis sensores reutilizados por equivalência explícita, total final 7/7 detectados. F1 inicial resolvido em T10; relatórios inicial/final preservados.
-- **Next step**: MON-12 quando solicitada; roteiro e documentação de portfólio.
-- **Blockers**: Nenhum local. CI remota não executada.
-- **Uncommitted files**: Nenhum após o commit de fechamento documental.
-- **Branch**: main; baseline 6fb6cf0. T1 dcd75a2, T2 8d311e4, T3 549104c, T4 3c30616, T5 5a7c8ee, T8 02bc6ca, T9 baec948, T6 6c8e779, T7 e82146d, T10 d3e0fef. Infraestrutura própria de painel/smoke e scratch dos sensores removidos; Testcontainers descartáveis.
+- **Feature**: MON-12; `.specs/features/mon-12-demonstracao/`.
+- **Phase / Task**: Execute concluído; T1–T7 e parecer independente PASS 8/8 em 2026-10-21. MVP local reproduzível.
+- **Completed**: Compose app/PostgreSQL/Mailpit persistente/demo; seed serial idempotente via Basic/CSRF; roteiro real com queda/recuperação, pendência/restart/retry, concorrência e pausa/lacuna; README, rastreabilidade, oito imagens e bundle JSON. AD-001..012 preservadas; nenhum Java/migração alterado.
+- **Validation**: 482 Java (169+313), 50 UI, 37 smoke, dois testes Node, runtime, checkout sem target/.env e down/up aprovados. Verifier repetiu Quick e probe real de 15s; três mutações detectadas, zero sobreviventes; gates longos reutilizados por equivalência explícita. Falhas iniciais de Mailpit volátil e seed concorrente corrigidas, sem enfraquecer assertions.
+- **Next step**: Inspecionar/reproduzir pelos comandos do README. Publicação/hospedagem são entrega posterior, sem autorização implícita.
+- **Blockers**: Nenhum local. CI remota não executada; UAT humano de design não realizado. MON-01 continua proposta histórica; contratos concretizados nas entregas posteriores.
+- **Commit de fechamento**: Autorizado pelo usuário após a entrega validada, reunindo os artefatos MON-12 originalmente mantidos sem commit. Saídas em .validation/target continuam ignoradas.
+- **Branch**: main; baseline de validação f7a6287, seguida pelo commit de fechamento da MON-12. Ao concluir a execução, o projeto mon12-verified foi preservado nas portas 18080/18081/18025/11025, com fixtures locais, dois monitores UP, dois incidentes CLOSED e quatro notificações ACCEPTED. Testes/smoke/clean encerrados; volumes das primeiras tentativas preservados, sem contêineres ativos.

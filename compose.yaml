@@ -1,6 +1,46 @@
 services:
+  demo:
+    build:
+      context: .
+      dockerfile: config/demo/Dockerfile
+    ports:
+      - "127.0.0.1:${DEMO_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:8080/control').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  demo-seed:
+    build:
+      context: .
+      dockerfile: config/demo/Dockerfile
+    environment:
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    command: ["node", "seed.mjs"]
+    depends_on:
+      app:
+        condition: service_started
+      demo:
+        condition: service_healthy
+  demo-tools:
+    profiles: ["demo-tools"]
+    build:
+      context: .
+      dockerfile: config/demo/tools.Dockerfile
+    environment:
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    volumes:
+      - ./.validation/demo:/reports
+    entrypoint: ["node", "scenario.mjs"]
+    shm_size: 256mb
   smtp:
     image: axllent/mailpit:v1.27.8
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+      - smtp-data:/data
     ports:
       - "127.0.0.1:${SMTP_UI_PORT:-8025}:8025"
       - "127.0.0.1:${SMTP_LOCAL_PORT:-1025}:1025"
@@ -117,4 +157,5 @@ services:
 
 volumes:
   postgres-data:
+  smtp-data:
   maven-cache:

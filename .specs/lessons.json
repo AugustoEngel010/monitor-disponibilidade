@@ -3,7 +3,7 @@
   "promote_threshold": 2,
   "window_days": 45,
   "quarantine_threshold": 2,
-  "next_id": 7,
+  "next_id": 9,
   "lessons": [
     {
       "id": "L-001",
@@ -112,6 +112,42 @@
       ],
       "created": "2026-10-20T21:20:44Z",
       "last_seen": "2026-10-20T21:20:44Z"
+    },
+    {
+      "id": "L-007",
+      "key": "gate_fail::persist captured dependency state when demonstrations stop and restart that dependency",
+      "text": "Persist captured dependency state when demonstrations stop and restart that dependency.",
+      "signal": "gate_fail",
+      "scope": "compose",
+      "status": "candidate",
+      "features": [
+        "mon-12-demonstracao"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/mon-12-demonstracao/evidence.md:21 (compose)"
+      ],
+      "created": "2026-10-21T16:47:29Z",
+      "last_seen": "2026-10-21T16:47:29Z"
+    },
+    {
+      "id": "L-008",
+      "key": "gate_fail::wait for the startup seed to complete before running another seed when the domain permits duplicate identities",
+      "text": "Wait for the startup seed to complete before running another seed when the domain permits duplicate identities.",
+      "signal": "gate_fail",
+      "scope": "compose",
+      "status": "candidate",
+      "features": [
+        "mon-12-demonstracao"
+      ],
+      "recurrence": 1,
+      "harmful": 0,
+      "evidence": [
+        ".specs/features/mon-12-demonstracao/evidence.md:22 (compose)"
+      ],
+      "created": "2026-10-21T16:47:29Z",
+      "last_seen": "2026-10-21T16:47:29Z"
     }
   ]
 }

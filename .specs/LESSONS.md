@@ -50,6 +50,18 @@ Seen once or not yet corroborated. Tracked, not trusted.
 - evidence: src/test/java/br/com/monitor/RetentionIT.java:143 (operation/runtime-tests)
 - last seen: 2026-10-20T21:20:44Z
 
+### L-007 - Persist captured dependency state when demonstrations stop and restart that dependency.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `compose` · harmful: 0
+- features: mon-12-demonstracao
+- evidence: .specs/features/mon-12-demonstracao/evidence.md:21 (compose)
+- last seen: 2026-10-21T16:47:29Z
+
+### L-008 - Wait for the startup seed to complete before running another seed when the domain permits duplicate identities.
+- signal: `gate_fail` · recurrence: 1 feature(s) · scope: `compose` · harmful: 0
+- features: mon-12-demonstracao
+- evidence: .specs/features/mon-12-demonstracao/evidence.md:22 (compose)
+- last seen: 2026-10-21T16:47:29Z
+
 ## Quarantined (failed when applied - ignore)
 
 A confirmed lesson that recurred alongside failure. Kept for the maintainer to review.

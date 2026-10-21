@@ -4,7 +4,7 @@
 
 **Uso:** backlog para trabalhar com a skill tlc-spec-driven. Cada item representa uma entrega de produto ou engenharia. A skill deverá produzir a spec da entrega e, conforme a complexidade, o design e as tasks atômicas no repositório. As tasks abaixo ainda não são o arquivo de execução tasks.md gerado e validado pela skill.
 
-**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada e validada em 2026-10-15; MON-09 em 2026-10-18. MON-10 validada em 2026-10-19; MON-11 implementada e validada em 2026-10-20. MON-01 permanece proposta documental; MON-12 planejada. CI remota não observada.
+**Status:** MON-02 a MON-05 implementadas e validadas localmente em 2026-10-13; MON-06 e MON-07 em 2026-10-14. MON-08 implementada e validada em 2026-10-15; MON-09 em 2026-10-18. MON-10 validada em 2026-10-19; MON-11 implementada e validada em 2026-10-20. MON-01 permanece proposta documental; MON-12 implementada e validada localmente em 2026-10-21, sem commits por instrução expressa. CI remota não observada.
 
 ## 1. Escopo inicial
 
@@ -279,18 +279,18 @@ As fases indicam a ordem recomendada. As dependências listadas são os pré-req
 
 **Critérios de aceite:**
 
-- [ ] MON-12-AC01: seguindo o README a partir de um checkout limpo, um ambiente com Docker e Docker Compose constrói e inicia a imagem da aplicação, PostgreSQL, SMTP de testes e API de demonstração com os comandos documentados.
-- [ ] MON-12-AC02: a API de demonstração permite alternar entre sucesso, status inesperado e resposta lenta, sem alterar o código do monitor.
-- [ ] MON-12-AC03: o roteiro demonstra sucesso, confirmação de queda, uma única abertura de incidente, notificação, confirmação de recuperação e encerramento.
-- [ ] MON-12-AC04: o roteiro demonstra reinício com incidente aberto e envio pendente, seguido de retomada sem perda dos registros persistidos.
-- [ ] MON-12-AC05: o roteiro mostra um alvo lento enquanto outro continua sendo verificado e mostra a diferença entre pausa, falha e período sem dados.
-- [ ] MON-12-AC06: o README explica o produto, a arquitetura, como executar, como testar e onde consultar specs e decisões. Contém imagens ou uma gravação curta do fluxo real.
-- [ ] MON-12-AC07: a documentação relaciona requisitos aos testes e inclui os resultados de capacidade medidos em MON-11.
-- [ ] MON-12-AC08: os testes e verificações de cada entrega estão concluídos e a verificação final da skill tem evidências dos critérios de aceite. Publicação e hospedagem podem ser planejadas como uma entrega posterior.
+- [x] MON-12-AC01: seguindo o README a partir de um checkout limpo, um ambiente com Docker e Docker Compose constrói e inicia a imagem da aplicação, PostgreSQL, SMTP de testes e API de demonstração com os comandos documentados.
+- [x] MON-12-AC02: a API de demonstração permite alternar entre sucesso, status inesperado e resposta lenta, sem alterar o código do monitor.
+- [x] MON-12-AC03: o roteiro demonstra sucesso, confirmação de queda, uma única abertura de incidente, notificação, confirmação de recuperação e encerramento.
+- [x] MON-12-AC04: o roteiro demonstra reinício com incidente aberto e envio pendente, seguido de retomada sem perda dos registros persistidos.
+- [x] MON-12-AC05: o roteiro mostra um alvo lento enquanto outro continua sendo verificado e mostra a diferença entre pausa, falha e período sem dados.
+- [x] MON-12-AC06: o README explica o produto, a arquitetura, como executar, como testar e onde consultar specs e decisões. Contém imagens ou uma gravação curta do fluxo real.
+- [x] MON-12-AC07: a documentação relaciona requisitos aos testes e inclui os resultados de capacidade medidos em MON-11.
+- [x] MON-12-AC08: os testes e verificações de cada entrega estão concluídos e a verificação final da skill tem evidências dos critérios de aceite. Publicação e hospedagem podem ser planejadas como uma entrega posterior.
 
 **Testes:** execução do roteiro completo no ambiente Compose e verificação do caminho de recuperação. Esse roteiro complementa os testes que já foram feitos junto das funcionalidades.
 
-**Conclusão:** a versão local é reproduzível e tem evidências visuais e técnicas para apresentação no GitHub.
+**Conclusão:** validada localmente em 2026-10-21: parecer independente PASS 8/8; 482 Java, 50 UI, 37 smoke, dois testes Node, checkout limpo e roteiro completo aprovados. Sensor 3/3 detectados. Dois incidentes CLOSED, quatro intenções ACCEPTED e quatro mensagens SMTP fictícias; oito capturas reais. [Spec](../features/mon-12-demonstracao/spec.md), [evidências](../features/mon-12-demonstracao/evidence.md) e [validação](../features/mon-12-demonstracao/validation.md). Nenhum commit criado. CI remota e hospedagem não executadas.
 
 ## 4. Como levar o backlog à tlc-spec-driven
 
