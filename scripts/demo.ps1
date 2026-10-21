@@ -30,6 +30,9 @@ function Compose {
 function Phase([string]$Name) {
     Compose -Arguments @('run','--rm','--no-deps','demo-tools',$Name)
 }
+# Create the bind mount as the host user before Docker can create it as root on Linux.
+$reportPath = Join-Path $ProjectDirectory '.validation/demo'
+New-Item -ItemType Directory -Force -Path $reportPath | Out-Null
 try {
     # Disposable fixtures for an isolated local project; never an external SMTP server.
     foreach ($name in $names) { [Environment]::SetEnvironmentVariable($name, $fixtures[$name], 'Process') }
@@ -62,8 +65,6 @@ try {
         $env:MONITOR_SCHEDULER_ENABLED = 'true'
         Compose -Arguments @('start','smtp')
         Compose -Arguments @('up','-d','--no-deps','app')
-        $reportPath = Join-Path $ProjectDirectory '.validation/demo'
-        New-Item -ItemType Directory -Force -Path $reportPath | Out-Null
         & docker compose --project-directory $ProjectDirectory -p $ProjectName logs --no-color app db smtp demo |
             Set-Content -Encoding utf8 (Join-Path $reportPath 'compose.log')
     } finally {
